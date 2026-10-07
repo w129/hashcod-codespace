@@ -302,7 +302,7 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
     $branchedMenuCss=htmlspecialchars($base.'components/first-screen-branched-menu.bundle.css?v=20261007-entry-fixes1',ENT_QUOTES,'UTF-8');
     $branchedMenuJs=htmlspecialchars($base.'components/first-screen-branched-menu.bundle.js?v=20261007-entry-fixes1',ENT_QUOTES,'UTF-8');
     $centerEmptyStateCss=htmlspecialchars($base.'components/center-empty-state.bundle.css?v=20261007-tokenization-status1',ENT_QUOTES,'UTF-8');
-    $centerEmptyStateJs=htmlspecialchars($base.'components/center-empty-state.bundle.js?v=20261007-tokenization-status1',ENT_QUOTES,'UTF-8');
+    $centerEmptyStateJs=htmlspecialchars($base.'components/center-empty-state.bundle.js?v=20261007-security1',ENT_QUOTES,'UTF-8');
     $mobileCss=htmlspecialchars($base.'components/first-screen-mobile.css?v=20261006-no-horizontal-scroll1',ENT_QUOTES,'UTF-8');
     $codeAccessCss=htmlspecialchars($base.'components/code-access.bundle.css?v=20261007-access-brand2',ENT_QUOTES,'UTF-8');
     $codeAccessJs=htmlspecialchars($base.'components/code-access.bundle.js?v=20261007-access-brand2',ENT_QUOTES,'UTF-8');

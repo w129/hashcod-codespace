@@ -47,9 +47,7 @@ assert(hosted.includes("hashcod-platform-crm-inline"), 'production must inline C
 assert(hosted.includes("$inlinePlatformCrmCssTag"), 'production inline CRM CSS missing');
 assert(hosted.includes("$inlinePlatformCrmJsTag"), 'production inline CRM JS missing');
 assert(hosted.includes("components/platform-crm.css?v=20260927-platformcrm6"), 'production CRM CSS fallback version stale');
-assert(hosted.includes("components/platform-crm.js?v=20260927-platformcrm6"), 'production CRM JS fallback version stale');
-assert(local.includes("components/platform-crm.css?v=20260927-platformcrm6"), 'local CRM CSS version stale');
-assert(local.includes("components/platform-crm.js?v=20260927-platformcrm6"), 'local CRM JS version stale');
+assert(hosted.includes("components/platform-crm.js?v=20261007-security1"), 'production CRM JS fallback version stale');
 
 assert(security.includes("function securityDeskcommFrameSource()"), 'Deskcomm CSP helper missing');
 assert(security.includes("securityDeskcommFrameSource() !== ''"), 'Deskcomm CSP allowlist not wired');
@@ -57,3 +55,5 @@ assert(docs.includes("DeskcommCRM"), 'Deskcomm integration documentation missing
 assert(docs.includes("MIT"), 'Deskcomm MIT attribution missing');
 
 console.log('✓ Platform CRM v5 isolated functional contract verified');
+
+assert(local.includes('echo l8_apply_csp_nonce(mldsaGateHtml(hashcodLaragonBasePath(), true));'), 'local entry must render the current single screen with CSP nonces');

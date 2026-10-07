@@ -69,10 +69,22 @@ function securityCspOrigin(string $url): string {
     return 'https://' . $host . ($port === 443 ? '' : ':' . $port);
 }
 
+function securityCspProviderOrigins(): array {
+    $origin = securityCspOrigin((string)secretGet('SUPABASE_URL', ''));
+    if ($origin === '') return [];
+    $origins = [$origin];
+    // Signed direct uploads use Supabase's project-specific storage origin.
+    if (preg_match('#^https://([a-z0-9-]+)\.supabase\.co$#', $origin, $match)) {
+        $origins[] = 'https://' . $match[1] . '.storage.supabase.co';
+    }
+    return $origins;
+}
+
 function securityCspConnectSources(): string {
     $sources = ["'self'", 'https://challenges.cloudflare.com', 'https://cdn.jsdelivr.net', 'https://api.github.com', 'https://celestrak.org', 'https://earthquake.usgs.gov', 'https://api.wheretheiss.at', 'https://nominatim.openstreetmap.org', 'https://api.spacexdata.com'];
-    $supabase = securityCspOrigin((string)secretGet('SUPABASE_URL', ''));
-    if ($supabase !== '') { $sources[] = $supabase; $sources[] = 'wss://' . substr($supabase, 8); }
+    $providers = securityCspProviderOrigins();
+    $sources = array_merge($sources, $providers);
+    if ($providers !== []) $sources[] = 'wss://' . substr($providers[0], 8);
     return implode(' ', array_unique($sources));
 }
 
@@ -106,7 +118,7 @@ function securityApplyHeaders() {
             "frame-ancestors 'none'; " .
             "object-src 'none'; " .
             "form-action 'self'; " .
-            "img-src 'self' data: blob: https://avatars.githubusercontent.com https://images.unsplash.com https://img.icons8.com; " .
+            "img-src 'self' data: blob: https://avatars.githubusercontent.com https://images.unsplash.com https://img.icons8.com " . implode(' ', securityCspProviderOrigins()) . "; " .
             "font-src 'self' data: https://fonts.gstatic.com; " .
             "style-src 'self' 'nonce-" . securityCspNonce() . "' https://fonts.googleapis.com; " .
             "style-src-attr 'unsafe-inline'; " .

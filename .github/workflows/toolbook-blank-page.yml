@@ -37,12 +37,12 @@ jobs:
           const local=fs.readFileSync('laragon-local-entry.php','utf8');
           const docker=fs.readFileSync('Dockerfile','utf8');
 
-          const firstRender=l8.indexOf("echo mldsaGateHtml(l8_public_base_path(), true);");
+          const firstRender=l8.indexOf("echo l8_apply_csp_nonce(mldsaGateHtml(l8_public_base_path(), true));");
           const oldPlatform=l8.indexOf("$toolbookReactBundlePath");
           assert(firstRender>=0,'production first-screen renderer missing');
           assert(oldPlatform<0 || firstRender<oldPlatform,'production must exit on screen 1 before old Toolbook code');
 
-          assert(local.includes("echo mldsaGateHtml(hashcodLaragonBasePath(), true);"),'Laragon must render screen 1 only');
+          assert(local.includes("echo l8_apply_csp_nonce(mldsaGateHtml(hashcodLaragonBasePath(), true));"),'Laragon must render screen 1 only');
           assert(!local.includes('toolbook-page-blank.js'),'Laragon must not load retired Toolbook runtime');
           assert(!local.includes('toolbook-branched-menu.bundle.js'),'Laragon must not load retired BranchedMenu runtime');
           assert(!local.includes('platform-entry-hold.js'),'Laragon must not load retired second-entry runtime');

@@ -25,7 +25,7 @@ assert(retirement.includes('node.matches(retiredSelector)'), 'observer must only
 
 assert(hosted.includes('hashcod-legacy-auth-prehide'), 'hosted pre-paint auth suppression missing');
 assert(hosted.includes('components/legacy-auth-retirement.js?v=20260918-2'), 'hosted retirement runtime missing');
-assert(local.includes('hashcod-legacy-auth-prehide'), 'local pre-paint auth suppression missing');
-assert(local.includes('components/legacy-auth-retirement.js?v=20260918-2'), 'local retirement runtime missing');
 
 console.log('PASS: legacy authentication window is retired from hosted and local UI while platform locks are cleared.');
+
+assert(local.includes('echo l8_apply_csp_nonce(mldsaGateHtml(hashcodLaragonBasePath(), true));'), 'local entry must render the current single screen with CSP nonces');

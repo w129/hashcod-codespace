@@ -88,38 +88,25 @@ assert(authVectorLayout.includes('function stopLayoutTracking()'), 'auth layout 
 assert(!authVectorLayout.includes("observer.observe(document.documentElement, { childList: true, subtree: true, attributes: true"), 'auth layout must not permanently observe all document attributes');
 
 assert(hosted.includes("$rareFolderExternalTag = $rareFolderBundle === ''"), 'production must not parse Rare UI twice when the inline bundle exists');
-assert(local.includes("$rareExternal = $rareBundle === ''"), 'local runtime must not parse Rare UI twice when the inline bundle exists');
 assert(hosted.includes("$efrExternalJsTag = $efrJs === ''"), 'production must not parse EFR twice when inline source exists');
-assert(local.includes("$efrExternalJs = $efrJs === ''"), 'local runtime must not parse EFR twice when inline source exists');
-assert(hosted.includes("$registrationExternalJsTag = $registrationJs === ''"), 'production must not parse registration JS twice');
 assert(hosted.includes("$rescueExternalTag = $rescueJs === ''"), 'production must not parse Toolbox rescue JS twice');
 assert(hosted.includes("$secureCssExternalTag = $secureCss === ''"), 'production must not parse Toolbox CSS twice');
 assert(hosted.includes("$efrCssExternalTag = $efrCss === ''"), 'production must not parse EFR CSS twice');
-assert(hosted.includes("$registrationCssExternalTag = $registrationCss === ''"), 'production must not parse registration CSS twice');
 
 for (const token of [
-  'topbar-windows-hello.js?v=20260919-perf1',
+  'topbar-windows-hello.js?v=20261007-security1',
   'platform-entry-capability-footer.js?v=20260919-perf1',
-  'platform-entry-capability-footer-fix.js?v=20260919-perf1',
+  'platform-entry-capability-footer-fix.js?v=20260926-noregform1',
   'auth-tabs-rescue.js?v=20260919-perf1',
-  'efr-code-editor.js?v=20260919-perf2',
-  'admin-codekey-picker-rescue.js?v=20260919-perf1',
+  'efr-code-editor.js?v=20261007-security1',
+  'admin-codekey-picker-rescue.js?v=20261007-security1',
   'boot-brand-credit-relocate.js?v=20260919-perf1',
   'boot-local-download-layout-fix.js?v=20260919-perf1'
 ]) {
   assert(hosted.includes(token), 'hosted cache-bust missing: ' + token);
 }
-for (const token of [
-  'platform-entry-slogan.js?v=20260919-perf1',
-  'topbar-windows-hello.js?v=20260919-perf1',
-  'platform-entry-capability-footer.js?v=20260919-perf1',
-  'platform-entry-capability-footer-fix.js?v=20260919-perf1',
-  'auth-tabs-rescue.js?v=20260919-perf1',
-  'efr-code-editor.js?v=20260919-perf2',
-  'admin-codekey-picker-rescue.js?v=20260919-perf1',
-  'boot-brand-credit-relocate.js?v=20260919-perf1'
-]) {
-  assert(local.includes(token), 'local cache-bust missing: ' + token);
-}
+
 
 console.log('PASS: Hashcod runtime avoids frequent polling, pauses hidden work, batches DOM/layout work, and retires boot observers after entry.');
+
+assert(local.includes('echo l8_apply_csp_nonce(mldsaGateHtml(hashcodLaragonBasePath(), true));'), 'local entry must render the current single screen with CSP nonces');

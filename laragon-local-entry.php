@@ -23,7 +23,8 @@ function hashcodLaragonBasePath(): string {
 }
 
 require_once __DIR__ . '/mldsa-access.php';
+require_once __DIR__ . '/l8-html.php';
 
 header('Content-Type: text/html; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
-echo mldsaGateHtml(hashcodLaragonBasePath(), true);
+echo l8_apply_csp_nonce(mldsaGateHtml(hashcodLaragonBasePath(), true));

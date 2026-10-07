@@ -35,8 +35,8 @@ Streamlit (código Python subido), agent-browser, prompts del CLI Claude y desca
 
 - `script-src-attr 'none'`: los controles nativos y sus plantillas dinámicas usan `addEventListener`. Los argumentos son JSON, nunca código evaluado.
 - Los scripts y estilos embebidos reciben un nonce por respuesta. Los estilos creados por los componentes heredan ese nonce.
-- `connect-src` contiene `'self'`, los proveedores específicos utilizados (Turnstile, jsDelivr, GitHub y las APIs del mapa) y únicamente el origen HTTPS/WSS de Supabase configurado. No incluye comodines `https:` ni `wss:`.
-- Las imágenes externas están restringidas a los orígenes explícitos de avatares GitHub, Unsplash e Icons8.
+- `connect-src` contiene `'self'`, los proveedores específicos utilizados (Turnstile, jsDelivr, GitHub y las APIs del mapa) y únicamente los orígenes HTTPS/WSS de Supabase configurados y el dominio de almacenamiento de ese proyecto. No incluye comodines `https:` ni `wss:`.
+- Las imágenes externas están restringidas a los orígenes explícitos de avatares GitHub, Unsplash, Icons8 y el proyecto Supabase configurado.
 - **Excepción pendiente:** `style-src-attr 'unsafe-inline'` permite las numerosas propiedades de layout y animación existentes. Los bloques `<style>` ya no tienen esa excepción. Eliminarla por completo requiere migrar los atributos de estilo y las librerías de animación a clases/hojas de estilos.
 
 ## Otros controles

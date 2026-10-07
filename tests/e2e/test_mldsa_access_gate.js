@@ -110,7 +110,7 @@ assert(gate.includes('id="d5CenterEmptyStateStage"'),'center EmptyState stage mi
 assert(gate.includes('id="d5CenterEmptyStateMount"'),'center EmptyState mount missing');
 assert(gate.includes('data-hashcod-component="EmptyState"'),'center EmptyState component marker missing');
 assert(gate.includes('components/center-empty-state.bundle.css?v=20261007-tokenization-status1'),'center EmptyState CSS bundle must load');
-assert(gate.includes('components/center-empty-state.bundle.js?v=20261007-tokenization-status1'),'shared Files explorer JS bundle must load');
+assert(gate.includes('components/center-empty-state.bundle.js?v=20261007-security1'),'shared Files explorer JS bundle must load');
 assert(centerEmptyState.includes('AnimatePresence'),'EmptyState AnimatePresence behavior missing');
 assert(centerEmptyState.includes('ResizeObserver'),'EmptyState dynamic height observer missing');
 assert(centerEmptyState.includes('useReducedMotion'),'EmptyState reduced-motion support missing');

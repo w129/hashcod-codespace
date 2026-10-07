@@ -380,7 +380,7 @@ assert(!gate.includes('animate-ui-global-cursor.css'),'custom cursor stylesheet 
 assert(!gate.includes('animate-ui-global-cursor.js'),'custom cursor runtime must not load');
 
 // FAQ must escape the page layout and cover the entire viewport.
-assert(gate.includes('components/mldsa-access-gate.css?v=20261004-mesh-fallback1'),'FAQ modal CSS cache-bust missing');
+assert(gate.includes('components/mldsa-access-gate.css?v=20261007-faq-scroll1'),'FAQ modal CSS cache-bust missing');
 assert(gate.includes('components/mldsa-access-gate.js?v=20261007-entry-fixes1'),'restored shared-cloud runtime JS cache-bust missing');
 assert(gate.includes('id="d5FaqModalBackdrop"'),'FAQ modal backdrop markup missing');
 assert(gate.includes('id="d5FaqCard"'),'FAQ modal card markup missing');

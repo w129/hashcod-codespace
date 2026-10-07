@@ -288,7 +288,7 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
     require_once __DIR__ . '/platform-period-lib.php';
     $base='/' . trim($base,'/') . '/';
     if($base==='//')$base='/';
-    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20261004-mesh-fallback1',ENT_QUOTES,'UTF-8');
+    $css=htmlspecialchars($base.'components/mldsa-access-gate.css?v=20261007-faq-scroll1',ENT_QUOTES,'UTF-8');
     $js=htmlspecialchars($base.'components/mldsa-access-gate.js?v=20261007-entry-fixes1',ENT_QUOTES,'UTF-8');
     $pqcJs=htmlspecialchars($base.'components/pqc-action-runtime.js?v=20260928-pqcactions1',ENT_QUOTES,'UTF-8');
     $uiSoundsJs=htmlspecialchars($base.'components/ui-interaction-sounds.js?v=20261006-ui-sounds1',ENT_QUOTES,'UTF-8');

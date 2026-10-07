@@ -3329,6 +3329,11 @@ body[data-hashcod-entry-intro="1"].faq-modal-open .faq-tabs-card{
   transform:translate(-50%,-50%);
   animation:faqModalIn .24s cubic-bezier(.22,1,.36,1) both;
 }
+/* Keep the accordion at its content height so the modal can scroll to every
+   question, including after a long answer opens on a short viewport. */
+body[data-hashcod-entry-intro="1"].faq-modal-open .faq-accordion{
+  flex:0 0 auto;
+}
 .faq-modal-header{
   display:flex;
   align-items:center;

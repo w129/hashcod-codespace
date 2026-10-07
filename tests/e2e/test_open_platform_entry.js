@@ -6,7 +6,7 @@ const repoDir = path.resolve(__dirname, '../..');
 const loader = fs.readFileSync(path.join(repoDir, 'components/mldsa-access-gate-loader.js'), 'utf8');
 const workspaceAccess = fs.readFileSync(path.join(repoDir, 'hashcod-workspace-access.php'), 'utf8');
 
-assert(loader.includes("var VERSION='20261006-shared-workspace1'"), 'shared runtime version missing');
+assert(loader.includes("var VERSION='20261007-entry-bootstrap2'"), 'shared runtime version missing');
 assert(loader.includes("mode:'open-entry'"), 'platform must identify direct open-entry mode');
 assert(loader.includes('required:false'), 'entry lock must be disabled');
 assert(loader.includes("dataset.hashcodEntryLock='disabled'"), 'DOM must expose disabled entry lock state');
@@ -33,4 +33,9 @@ assert(workspaceAccess.includes('authValidateSession($token)'), 'workspace must 
 assert(workspaceAccess.includes('hashcodWorkspaceNumericData()'), 'legacy authorized devices must retain compatibility');
 assert(!workspaceAccess.includes("return 'global'"), 'workspace must not fall back to a public global identifier');
 
-console.log('Direct platform entry contract OK');
+const caddy=fs.readFileSync(path.join(repoDir,'Caddyfile'),'utf8');
+const gate=fs.readFileSync(path.join(repoDir,'mldsa-access.php'),'utf8');
+assert(!caddy.includes('rewrite * /components/mldsa-access-gate-loader.js'),'Caddy must not replace the real FAQ/Documents runtime');
+assert(gate.includes('components/mldsa-access-gate-loader.js?v=20261007-entry-bootstrap2'),'both distributions must explicitly load the bootstrap');
+assert(loader.includes("dataset.hashcodCodeAccessRequired==='1'"),'bootstrap must honor server-required credentials');
+console.log('Direct platform entry and actual UI delivery contract OK');

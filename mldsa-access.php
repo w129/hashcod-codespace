@@ -306,6 +306,7 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
     $mobileCss=htmlspecialchars($base.'components/first-screen-mobile.css?v=20261006-no-horizontal-scroll1',ENT_QUOTES,'UTF-8');
     $codeAccessCss=htmlspecialchars($base.'components/code-access.bundle.css?v=20261007-entry-fixes1',ENT_QUOTES,'UTF-8');
     $codeAccessJs=htmlspecialchars($base.'components/code-access.bundle.js?v=20261007-entry-fixes1',ENT_QUOTES,'UTF-8');
+    $entryBootstrapJs=htmlspecialchars($base.'components/mldsa-access-gate-loader.js?v=20261007-entry-bootstrap2',ENT_QUOTES,'UTF-8');
     $codeAccessRequired=$entryIntro&&codeAccessRequired();
     $codeAccessAuthorized=!$codeAccessRequired||codeAccessAuthorized();
     $bodyAttr=$entryIntro
@@ -526,5 +527,5 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
       .'</div>'
       .'</section>'
       .($entryIntro?'<footer id="d5PreviewPolicyFooter" class="preview-policy-footer" aria-label="Use and Privacy Policy"><div id="d5PreviewPolicyMount" class="preview-policy-mount" data-hashcod-component="PreviewLinkCard"></div></footer>':'')
-      .'<script src="'.$uiSoundsJs.'" defer data-hashcod-ui-sounds="true"></script><script src="'.$pqcJs.'" defer></script><script src="'.$mascotJs.'" defer></script><script src="'.$js.'" defer></script><script src="'.$promptStudioJs.'" defer></script><script src="'.$rotatingTextJs.'" defer></script>'.($entryIntro?'<script src="'.$codeAccessJs.'" defer></script><script src="'.$branchedMenuJs.'" defer></script><script src="'.$centerEmptyStateJs.'" defer></script>':'').'</body></html>';
+      .'<script src="'.$uiSoundsJs.'" defer data-hashcod-ui-sounds="true"></script><script src="'.$pqcJs.'" defer></script><script src="'.$mascotJs.'" defer></script><script src="'.$js.'" defer></script><script src="'.$promptStudioJs.'" defer></script><script src="'.$rotatingTextJs.'" defer></script>'.($entryIntro?'<script src="'.$codeAccessJs.'" defer></script><script src="'.$branchedMenuJs.'" defer></script><script src="'.$centerEmptyStateJs.'" defer></script><script src="'.$entryBootstrapJs.'" defer data-hashcod-entry-bootstrap="true"></script>':'').'</body></html>';
 }

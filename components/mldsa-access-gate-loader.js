@@ -2,7 +2,7 @@
 'use strict';
 
 // Retired gate version: 20261004-numeric-series5. Kept only as a migration marker.
-var VERSION='20261006-shared-workspace1';
+var VERSION='20261007-entry-bootstrap2';
 var UNIVERSAL_PERSISTENCE='/components/universal-cloud-persistence.js?v=20261006-shared-workspace1';
 var WORKSPACE_MEDIA='/components/workspace-media-bootstrap.js?v=20261004-workspace-media1';
 var FILE_VAULT_RECOVERY='/components/file-vault-commit-recovery.js?v=20261005-file-vault-commit-recovery1';
@@ -101,6 +101,12 @@ function loadFileVaultTotp(){
   document.head.appendChild(recovery);
 }
 
+function loadRuntimeModules(){
+  loadUniversalPersistence();
+  loadWorkspaceMedia();
+  loadFileVaultTotp();
+}
+
 function openPlatform(){
   hideLegacyGate();
   if(document.body){
@@ -116,14 +122,22 @@ function openPlatform(){
     mode:'open-entry',
     version:VERSION
   });
-  loadUniversalPersistence();
-  loadWorkspaceMedia();
-  loadFileVaultTotp();
+  loadRuntimeModules();
   try{
     window.dispatchEvent(new CustomEvent('hashcod:code-access-granted',{detail:{required:false,mode:'open-entry'}}));
   }catch(_){}
 }
 
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',openPlatform,{once:true});
-else openPlatform();
+function boot(){
+  // An enabled credential gate owns authorization; never hide it or claim
+  // access locally. Load workspace modules only after its server confirmation.
+  if(document.body&&document.body.dataset.hashcodCodeAccessRequired==='1'){
+    window.addEventListener('hashcod:code-access-granted',loadRuntimeModules,{once:true});
+    if(document.body.dataset.hashcodCodeAccessAuthorized==='1')loadRuntimeModules();
+    return;
+  }
+  openPlatform();
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});
+else boot();
 })();

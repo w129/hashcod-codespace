@@ -19,6 +19,10 @@ on:
       - components/page-mascot-panda.css
       - components/mldsa-access-gate.css
       - components/mldsa-access-gate.js
+      - components/mldsa-access-gate-loader.js
+      - Caddyfile
+      - tests/e2e/test_open_platform_entry.js
+      - file-vault-totp-build/**
       - first-screen-branched-menu-build/**
       - center-empty-state-build/**
       - code-access-build/**
@@ -77,6 +81,7 @@ jobs:
           node --check components/pqc-action-runtime.js
           node --check components/page-mascot-panda.js
           node tests/e2e/test_mldsa_access_gate.js
+          node tests/e2e/test_open_platform_entry.js
           node tests/e2e/test_pqc_action_bus.js
           node tests/e2e/test_page_mascot.js
           php tests/e2e/test_pqc_transition_norm.php
@@ -98,7 +103,7 @@ jobs:
             TZ="$calendar_zone" node tests/e2e/test_calendar_current_date.js
           done
 
-      - name: Build Monaco signed-code access gate
+      - name: Build server-verified numeric access gate
         working-directory: code-access-build
         run: |
           npm install --no-fund --no-audit
@@ -117,6 +122,13 @@ jobs:
           test -s ../components/center-empty-state.bundle.js
           test -s ../components/center-empty-state.bundle.css
           node --check ../components/center-empty-state.bundle.js
+
+      - name: Build file protection runtime
+        working-directory: file-vault-totp-build
+        run: |
+          npm install --no-fund --no-audit
+          npm run build
+          test -s ../components/file-vault-totp.bundle.js
 
       - name: Install Playwright for first-screen verification
         run: |

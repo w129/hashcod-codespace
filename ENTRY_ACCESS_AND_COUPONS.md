@@ -38,3 +38,8 @@ also covers 320px, 390px, 430px, landscape, and desktop scrolling.
 Canonical root sources are shared by Railway and the Windows desktop staging
 process. Generated bundles remain build outputs. The desktop release workflow
 must rebuild and refresh `desktop-latest` from the same merged source.
+
+Caddy serves the actual UI at `/components/mldsa-access-gate.js`; it must not
+rewrite that path to the bootstrap. The entry HTML explicitly loads the UI and
+bootstrap as separate scripts for web/desktop parity. An enabled credential
+gate owns authorization; the bootstrap waits for its verified-access event.

@@ -54,13 +54,17 @@ const series = Array(9865).fill('1 2 3 4 5 6 7 8').join('\n');
         window.__faqCloseTrace=[];
         const remove=DOMTokenList.prototype.remove;
         DOMTokenList.prototype.remove=function(...tokens){
-          if(tokens.includes('faq-modal-open')&&this.contains('faq-modal-open'))
-            window.__faqCloseTrace.push({stack:new Error().stack,event:window.event?.type,target:window.event?.target?.id});
+          if(tokens.includes('faq-modal-open')&&this.contains('faq-modal-open')){
+            const trace={stack:new Error().stack,event:window.event?.type,target:window.event?.target?.id};
+            window.__faqCloseTrace.push(trace);
+            console.error('FAQ close trace',JSON.stringify(trace));
+          }
           return remove.apply(this,tokens);
         };
       });
       page.setDefaultTimeout(8000);
       page.on('pageerror', e=>errors.push(e.message));
+      page.on('console',message=>{if(message.text().startsWith('FAQ close trace'))console.error(message.text());});
       // Access, coupon and period reach the real local PHP server. Every other
       // background controller is an isolated fixture; external traffic is denied.
       await page.route('**/*', route=>{

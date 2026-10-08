@@ -79,4 +79,8 @@ La configuración del editor no elimina datos al vencer un período. Para elimin
 
 ## Verificación
 
+La vista previa representa Markdown con títulos, listas, tablas GFM, citas y bloques de código. Mantiene la sintaxis estándar (`# Hola` es un título; `#Hola` es texto). YAML se representa como datos anidados con tipos y validación de sintaxis, sin expandir alias ni habilitar claves de combinación. CoffeeScript y Dart se muestran como código con resaltado, sin ejecutar al abrir la vista previa. Se utiliza el contenido actual del editor, incluidos cambios sin guardar.
+
+El renderizado no admite HTML incrustado ni cargas automáticas de imágenes externas; las imágenes con una URL HTTP/HTTPS válida pueden abrirse mediante un enlace explícito. Los enlaces excluyen esquemas ejecutables y credenciales. La vista renderizada se limita a 65.536 caracteres; archivos mayores conservan una vista de fuente. YAML limita además profundidad y cantidad de nodos. Los errores muestran una ubicación de sintaxis cuando está disponible. La fuente y las exportaciones no se modifican por el renderizado. Web y Windows empaquetan los mismos componentes y dependencias.
+
 `.github/workflows/verify-skill-chat.yml` verifica tipos y comandos, API con PostgreSQL/Redis reales, imágenes de producción, runtimes e intentos de escape en Docker sin red y sin capacidades, interfaz móvil/escritorio, identidad firmada y CSRF PHP. El workflow de escritorio reconstruye el instalador desde los mismos archivos canónicos. No desplegar una API sin un worker que pase sus pruebas de inicio.

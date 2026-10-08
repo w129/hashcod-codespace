@@ -42,7 +42,7 @@ export async function readiness(): Promise<void> {
     throw new Error("network isolation readiness failed");
   const analyzed = await runJob(job("dart", dart, "compile"));
   if (!analyzed.ok)
-    throw new Error("Dart analyzer readiness failed: " + analyzed.stderr);
+    throw new Error("Dart analyzer readiness failed: " + analyzed.stderr + " " + analyzed.stdout);
 }
 export async function hostileTests(): Promise<void> {
   await readiness();

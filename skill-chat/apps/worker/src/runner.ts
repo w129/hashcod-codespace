@@ -126,7 +126,9 @@ async function execute(
     protocolBytes = 0,
     protocolPending = 0,
     protocolDone = false,
-    protocolFailed = false;
+    protocolFailed = false,
+    protocolConnected = false,
+    protocolRoots = false;
   const issues: { path: string; message: string }[] = [];
   const send = (id: string, method: string, params?: unknown) =>
     child.stdin?.write(
@@ -154,12 +156,21 @@ async function execute(
         stop("Invalid analyzer result");
         return;
       }
-      if (event.event === "server.connected")
+      if (event.event === "server.error") {
+        protocolFailed = true;
+        issues.push({ path: "analysis", message: clean(String(event.params?.message ?? "Analyzer failed"), input, output).slice(0, 2048) });
+        stop("Analyzer failed");
+        return;
+      }
+      if (event.event === "server.connected") {
+        protocolConnected = true;
         send("roots", "analysis.setAnalysisRoots", {
           included: [input],
           excluded: [],
         });
+      }
       if (event.id === "roots") {
+        protocolRoots = true;
         if (event.error) {
           protocolFailed = true;
           send("shutdown", "server.shutdown");
@@ -228,7 +239,9 @@ async function execute(
       resolve({
         ok: exitCode === 0 && !reason,
         stdout: clean(stdout.toString("utf8"), input, output),
-        stderr: reason || clean(stderr.toString("utf8"), input, output),
+        stderr: reason
+          ? reason + (analyzerFiles ? ` (analyzer connected=${protocolConnected}, roots=${protocolRoots}, pending=${protocolPending}, shutdown=${protocolDone})` : "") + (stderr.length ? "\n" + clean(stderr.toString("utf8"), input, output).slice(0, 2048) : "")
+          : clean(stderr.toString("utf8"), input, output),
         exitCode: reason ? 124 : exitCode,
         durationMs: Math.round(performance.now() - start),
       });

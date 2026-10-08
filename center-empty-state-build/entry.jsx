@@ -12,6 +12,7 @@ import TokenizationTool, { TokenizationIcon } from "./TokenizationTool";
 import ReviewChat from './ReviewChat';
 import { ReviewIcon } from './ReviewIcons';
 import SkillChat from './SkillChat';
+import SkillEditorIcon from './skill-chat/SkillEditorIcon';
 
 const HATCH_STORAGE_KEY = "hashcod:hatch-code:v1";
 const JAVA_HATCH_STORAGE_KEY = "hashcod:hatch-java-code:v1";
@@ -1024,7 +1025,7 @@ const EXPANDING_BUTTON_ITEMS = Object.freeze([
     id: "slot-3",
     domId: "d5ExpandingAction3",
     label: "Editor de roles y skills",
-    icon: <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m8 8-4 4 4 4m8-8 4 4-4 4M14 5l-4 14" /></svg>,
+    icon: <SkillEditorIcon />,
   },
 ]);
 
@@ -1908,7 +1909,7 @@ function mountCenterEmptyState() {
 
   window.HashcodCenterEmptyState = Object.freeze({
     mounted: true,
-    version: "20261008-skill-preview2",
+    version: "20261008-skill-icon1",
   });
 
   return true;

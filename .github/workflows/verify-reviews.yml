@@ -1,0 +1,29 @@
+name: Verify secure request review
+on:
+  push:
+    branches: [main]
+    paths: ['review-backend/**','sandbox-runner/**','tools/review/**','hashcod-review.php','center-empty-state-build/**','supabase/functions/hashcod-shared-cloud/**','tests/**review*','tests/security/test_reviews.py','.github/workflows/verify-reviews.yml']
+  pull_request:
+    branches: [main]
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: sodium, curl
+      - run: pip install -r review-backend/requirements.txt
+      - run: python tests/security/test_reviews.py
+      - run: php tests/security/test-review.php
+      - run: npm ci --prefix center-empty-state-build
+      - run: node tests/e2e/test_review_edge.js
+      - run: docker build -f sandbox-runner/Dockerfile -t hashcod-review-worker .
+      - run: docker run --rm --memory=2g --cpus=2 --network=none --cap-drop=ALL --security-opt=no-new-privileges -v "$PWD/tests/security/test_review_sandbox.py:/app/test_review_sandbox.py:ro" hashcod-review-worker python /app/test_review_sandbox.py

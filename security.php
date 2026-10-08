@@ -671,7 +671,7 @@ function securityIsDeniedPath($uri) {
     $deniedPrefixes = [
         '/.git/', '/.git', '/.svn/', '/.hg/', '/.idea/', '/.vscode/',
         '/data_storage/', '/uploads/', '/supabase/', '/vendor/',
-        '/node_modules/', '/.cursor/', '/etc/secrets/', '/secrets/'
+        '/node_modules/', '/.cursor/', '/etc/secrets/', '/secrets/', '/review-backend/', '/sandbox-runner/', '/tools/review/'
     ];
     foreach ($deniedPrefixes as $p) {
         if ($uriLower === rtrim($p, '/') || strpos($uriLower, $p) === 0) return true;
@@ -696,7 +696,7 @@ function securityIsAllowedStatic($uri) {
         return false;
     }
     $lower = strtolower($uri);
-    foreach (['/data_storage/', '/uploads/', '/.git/', '/supabase/', '/vendor/', '/node_modules/'] as $bad) {
+    foreach (['/data_storage/', '/uploads/', '/.git/', '/supabase/', '/vendor/', '/node_modules/', '/review-backend/', '/sandbox-runner/', '/tools/review/'] as $bad) {
         if (strpos($lower, $bad) === 0) return false;
     }
     return true;

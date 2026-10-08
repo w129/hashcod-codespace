@@ -9,6 +9,8 @@ import FilesExplorer from "./FilesExplorer";
 import FilePreview from "./FilePreview";
 import PlatformPeriod from "./PlatformPeriod";
 import TokenizationTool, { TokenizationIcon } from "./TokenizationTool";
+import ReviewChat from './ReviewChat';
+import { ReviewIcon } from './ReviewIcons';
 
 const HATCH_STORAGE_KEY = "hashcod:hatch-code:v1";
 const JAVA_HATCH_STORAGE_KEY = "hashcod:hatch-java-code:v1";
@@ -1014,8 +1016,8 @@ const EXPANDING_BUTTON_ITEMS = Object.freeze([
   {
     id: "slot-2",
     domId: "d5ExpandingAction2",
-    label: "Slot 2",
-    icon: <ExpandingPlaceholderIcon kind="square" />,
+    label: "Revisar solicitudes",
+    icon: <ReviewIcon />,
   },
   {
     id: "slot-3",
@@ -1846,6 +1848,7 @@ function FileVault({ actions, tokenizationOpen, onCloseTokenization }) {
 function CenterWorkspaceEmptyState() {
   const [hatchOpen, setHatchOpen] = useState(false);
   const [tokenizationOpen, setTokenizationOpen] = useState(false);
+  const [reviewOpen, setReviewOpen] = useState(false);
 
   return (
     <>
@@ -1871,7 +1874,7 @@ function CenterWorkspaceEmptyState() {
               items={EXPANDING_BUTTON_ITEMS}
               label="Additional Hatch actions"
               defaultExpanded="slot-1"
-              onAction={id => { if (id === "slot-1") setTokenizationOpen(true); }}
+              onAction={id => { if (id === "slot-1") setTokenizationOpen(true); if (id === "slot-2") setReviewOpen(true); }}
             />
 
             </>} />
@@ -1887,6 +1890,7 @@ function CenterWorkspaceEmptyState() {
         open={hatchOpen}
         onClose={() => setHatchOpen(false)}
       />
+      {reviewOpen && <ReviewChat onClose={() => setReviewOpen(false)} />}
     </>
   );
 }
@@ -1901,7 +1905,7 @@ function mountCenterEmptyState() {
 
   window.HashcodCenterEmptyState = Object.freeze({
     mounted: true,
-    version: "20261007-tokenization-status1",
+    version: "20261008-review-chat1",
   });
 
   return true;

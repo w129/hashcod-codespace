@@ -15,7 +15,7 @@ export function statusUpdate(body: any) {
   const states = ['pending', 'in_progress', 'delayed', 'awaiting_payment', 'completed'];
   if (typeof body.id !== 'string' || !/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/.test(body.id))
     throw Object.assign(new Error('Solicitud incorrecta.'), { status: 400 });
-  if (!states.includes(body.status) || !states.includes(body.expectedStatus))
+  if (!states.includes(body.status) || ![...states, 'under_review', 'certified', 'rejected'].includes(body.expectedStatus))
     throw Object.assign(new Error('Estado de solicitud incorrecto.'), { status: 400 });
   return { id: body.id, status: body.status, expectedStatus: body.expectedStatus };
 }

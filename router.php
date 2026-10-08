@@ -11,6 +11,13 @@ $bootstrapRequestUri = (string)($_SERVER['REQUEST_URI'] ?? '/');
 $bootstrapRawPath = parse_url($bootstrapRequestUri, PHP_URL_PATH);
 $bootstrapRawPath = is_string($bootstrapRawPath) ? $bootstrapRawPath : '/';
 $bootstrapSyncPath = preg_replace('#^/(?:l8|l8-codespace)(?=/|$)#i', '', $bootstrapRawPath);
+// Only certificate verification/revocation listing are public read-only routes.
+if (in_array($bootstrapSyncPath, ['/api/hashcod-review/verify', '/api/hashcod-review/revoked'], true)) {
+    $_SERVER['HASHCOD_REVIEW_PUBLIC'] = basename($bootstrapSyncPath);
+    $_SERVER['REQUEST_URI'] = '/api/admin-device/status';
+    require __DIR__ . '/hashcod-review.php';
+    exit;
+}
 if ($bootstrapSyncPath === '/api/platform-period') {
     // Use the existing non-interactive polling bucket; keep IP/threat controls.
     $_SERVER['REQUEST_URI'] = '/api/admin-device/status';
@@ -49,7 +56,9 @@ if (in_array($bootstrapSyncPath, ['/download-local-version', '/download-local-ve
 // threat blocks remain active, while write authorization stays inside each
 // controller (Windows Hello / Dilithium-5 / authenticated account as applicable).
 $bootstrapController = null;
-if (in_array($bootstrapSyncPath, ['/api/hashcod-tokenization', '/hashcod-tokenization.php'], true)) {
+if ($bootstrapSyncPath === '/api/hashcod-review') {
+    $bootstrapController = __DIR__ . '/hashcod-review.php';
+} elseif (in_array($bootstrapSyncPath, ['/api/hashcod-tokenization', '/hashcod-tokenization.php'], true)) {
     $bootstrapController = __DIR__ . '/hashcod-tokenization.php';
 } elseif (in_array($bootstrapSyncPath, ['/hashcod-sync.php', '/api/hashcod-sync'], true)) {
     $bootstrapController = __DIR__ . '/hashcod-sync.php';

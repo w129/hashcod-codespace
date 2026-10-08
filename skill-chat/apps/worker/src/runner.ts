@@ -333,6 +333,9 @@ export async function runJob(job: Job): Promise<JobResult> {
           RUNTIME + "/dart/bin/dartaotruntime",
           [
             RUNTIME + "/dart/bin/snapshots/analysis_server_aot.dart.snapshot",
+            "--suppress-analytics",
+            "--dart-sdk=" + RUNTIME + "/dart",
+            "--cache=" + output + "/analyzer-cache",
             "--disable-server-feature-completion",
             "--disable-server-feature-search",
           ],

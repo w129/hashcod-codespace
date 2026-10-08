@@ -20,7 +20,7 @@ WASM_ROOT=os.environ.get('REVIEW_WASM_ROOT','/usr/local/share/review-wasm')
 
 def run(command, directory, timeout=30, readonly=False):
     env={'PATH':os.path.dirname(SEMGREP)+':/usr/local/bin:/usr/bin:/bin','HOME':directory,'TMPDIR':directory,'LANG':'C.UTF-8','PYTHONDONTWRITEBYTECODE':'1','REVIEW_WASM_ROOT':WASM_ROOT,
-         'SEMGREP_SEND_METRICS':'off','SEMGREP_ENABLE_VERSION_CHECK':'0','NO_COLOR':'1','GOMAXPROCS':'1','GOMEMLIMIT':'256MiB','UV_THREADPOOL_SIZE':'1'}
+         'SEMGREP_SEND_METRICS':'off','SEMGREP_ENABLE_VERSION_CHECK':'0','NO_COLOR':'1','GOMAXPROCS':'1','GOMEMLIMIT':'256MiB','UV_THREADPOOL_SIZE':'1','TOKIO_WORKER_THREADS':'1','RAYON_NUM_THREADS':'1'}
     diagnostic=os.environ.get('REVIEW_STARTUP_DIAGNOSTIC')=='1'
     if diagnostic: env['REVIEW_STARTUP_DIAGNOSTIC']='1'
     with tempfile.TemporaryFile() as output:

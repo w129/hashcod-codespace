@@ -21,6 +21,7 @@ const NODE = RUNTIME + "/node/bin/node",
   DART = RUNTIME + "/dart/bin/dart";
 const WORKER_ROOT = process.env.SKILL_CHAT_WORKER_ROOT ?? "/opt/skill-worker";
 const NODE_FLAGS = [
+  "--openssl-config=/dev/null",
   "--jitless",
   "--max-old-space-size=96",
   "--max-semi-space-size=8",

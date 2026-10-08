@@ -309,6 +309,9 @@ const commands = [
       const editor = page.getByRole("textbox", {
         name: "Contenido del archivo activo",
       });
+      await page.waitForFunction(
+        () => document.querySelector('[aria-label="Contenido del archivo activo"]')?.value.includes("<img"),
+      );
       assert.match(await editor.inputValue(), /<img/);
       await page
         .getByRole("button", { name: "Vista previa", exact: true })

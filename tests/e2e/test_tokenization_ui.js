@@ -40,7 +40,8 @@ async function scenario(origin) {
   assert.equal(calls.filter(c=>c.action==='list').length,0);await set('htk-admin-key','test-admin-key');submit();await until(()=>w.document.querySelector('.htk-records-table'));
   assert(w.document.querySelector('.htk-records-table').textContent.includes('fixture@example.test'));assert(!w.document.querySelector('#d5TokenizationTool img'));assert(!w.document.querySelector('#htk-admin-key'));
   const change=async value=>{const input=w.document.querySelector('.htk-status-select');input.value=value;input.dispatchEvent(new w.Event('change',{bubbles:true}));await wait();await until(()=>!w.document.querySelector('.htk-status-select').disabled);};
-  assert.equal(w.document.querySelectorAll('.htk-status-select option').length,5);
+  assert.equal(w.document.querySelectorAll('.htk-status-select option:not(:disabled)').length,5);
+  assert.equal(w.document.querySelectorAll('.htk-status-select option:disabled').length,3);
   for(const value of ['in_progress','delayed','awaiting_payment','completed']){await change(value);assert.equal(w.document.querySelector('.htk-status-select').value,value);}
   button('Actualizar').click();await wait();await until(()=>!button('Actualizar').disabled);assert.equal(w.document.querySelector('.htk-status-select').value,'completed');
   failUpdate=true;await change('pending');assert.equal(w.document.querySelector('.htk-status-select').value,'completed');assert(w.document.querySelector('.htk-error'));failUpdate=false;

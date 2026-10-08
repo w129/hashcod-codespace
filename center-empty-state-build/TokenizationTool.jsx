@@ -11,7 +11,7 @@ export function TokenizationIcon() {
 function SendIcon() {
   return <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M 22 2 L 2 9.2714844 L 14.728516 22 L 22 2 z M 18.65625 5.34375 L 13.921875 18.365234 L 10.578125 15.021484 L 15.636719 8.3632812 L 8.9785156 13.421875 L 5.6347656 10.078125 L 18.65625 5.34375 z" /></svg>;
 }
-const REQUEST_STATES = { pending: 'Pendiente', in_progress: 'En curso', delayed: 'Retrasada', awaiting_payment: 'Falta de pago', completed: 'Completada' };
+const REQUEST_STATES = { pending: 'Pendiente', in_progress: 'En curso', delayed: 'Retrasada', awaiting_payment: 'Falta de pago', completed: 'Completada', under_review: 'En revisión', certified: 'Certificada', rejected: 'Rechazada' };
 function bytes(size) { return size < 1048576 ? `${(size / 1024).toFixed(1)} KB` : `${(size / 1048576).toFixed(1)} MB`; }
 
 export default function TokenizationTool({ files, loading, onRefresh, onClose }) {
@@ -20,6 +20,7 @@ export default function TokenizationTool({ files, loading, onRefresh, onClose })
   const [rows, setRows] = useState([]), [offset, setOffset] = useState(0), [more, setMore] = useState(false), [search, setSearch] = useState('');
   const [busy, setBusy] = useState(false), [error, setError] = useState(''), [notice, setNotice] = useState('');
   const [submitted, setSubmitted] = useState(new Set());
+  const [revokeId,setRevokeId]=useState(''),[revokeReason,setRevokeReason]=useState('');
   const dialog = useRef(null), pending = useRef(false), controller = useRef(null), alive = useRef(true), expiry = useRef(null);
   const reduce = useReducedMotion();
   useEffect(() => () => { alive.current = false; controller.current?.abort(); clearTimeout(expiry.current); }, []);
@@ -64,6 +65,15 @@ export default function TokenizationTool({ files, loading, onRefresh, onClose })
       if (!alive.current) return;
       setRows(current => current.map(item => item.id === data.request.id ? { ...item, ...data.request } : item));
       setNotice(`Estado guardado: ${REQUEST_STATES[data.request.status]}.`);
+    });
+  }
+  async function revokeCertificate(row) {
+    await run(async()=>{
+      const session=await fetch('/api/hashcod-review',{credentials:'same-origin',cache:'no-store'}).then(r=>r.json());
+      if(!session.ok)throw new Error(session.error||'No se pudo verificar la sesión.');
+      const response=await fetch('/api/hashcod-review',{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'Content-Type':'application/json','X-Requested-With':'XMLHttpRequest','X-Hashcod-Review-CSRF':session.csrf},body:JSON.stringify({action:'revoke',id:row.certificateId,reason:revokeReason})});
+      const data=await response.json();if(!response.ok||!data.ok)throw new Error(data.error||'No se pudo revocar el certificado.');
+      if(!alive.current)return;setRevokeId('');setRevokeReason('');setRows(current=>current.map(r=>r.id===row.id?{...r,certificateId:null}:r));setNotice('Certificado revocado.');
     });
   }
   const visible = rows.filter(row => [row.name, row.email, row.phone].some(value => value.toLowerCase().includes(search.toLowerCase())));
@@ -120,7 +130,7 @@ export default function TokenizationTool({ files, loading, onRefresh, onClose })
         <button type="button" className="htk-button" disabled={busy} onClick={() => run(() => page(offset))}>Actualizar</button></div>
         <div className="htk-scroll htk-records-scroll"><table className="htk-records-table"><thead><tr>{['Archivo', 'Correo', 'Teléfono', 'Fecha', 'Estado'].map(label => <th key={label}>{label}</th>)}</tr></thead><tbody data-sound-silent>
           {visible.map((row, i) => <tr key={row.id} data-htk-request-id={row.id}><td data-label="Archivo"><span className="htk-record-name"><span className="htk-rownum">{offset + i + 1}</span><span className="htk-file-mark">{row.name.slice(0, 1).toUpperCase()}</span><span>{row.name}</span></span><small>{bytes(row.size)} · {row.mime}<FileValueBadge cents={row.priceUsdCents} />{!row.fileAvailable && ' · Archivo eliminado'}</small><small title={row.id}>ID: {row.id.slice(0, 8)}</small></td>
-            <td data-label="Correo">{row.email}</td><td data-label="Teléfono">{row.phone}</td><td data-label="Fecha">{new Date(row.createdAt).toLocaleString('es-DO')}</td><td data-label="Estado"><select className={`htk-status-select htk-status-select--${row.status || 'pending'}`} aria-label={`Estado de solicitud ${row.id.slice(0, 8)}: ${row.name}`} disabled={busy} value={row.status || 'pending'} onChange={event => changeStatus(row, event.target.value)}>{Object.entries(REQUEST_STATES).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></td></tr>)}
+            <td data-label="Correo">{row.email}</td><td data-label="Teléfono">{row.phone}</td><td data-label="Fecha">{new Date(row.createdAt).toLocaleString('es-DO')}</td><td data-label="Estado"><select className={`htk-status-select htk-status-select--${row.status || 'pending'}`} aria-label={`Estado de solicitud ${row.id.slice(0, 8)}: ${row.name}`} disabled={busy} value={row.status || 'pending'} onChange={event => changeStatus(row, event.target.value)}>{Object.entries(REQUEST_STATES).map(([value, label]) => <option key={value} value={value} disabled={['under_review','certified','rejected'].includes(value)}>{label}</option>)}</select>{row.certificateId&&<a href={'/api/hashcod-review/verify?id='+encodeURIComponent(row.certificateId)} target="_blank" rel="noopener noreferrer">Ver certificado</a>}{row.certificateId&&<button type="button" disabled={busy} onClick={()=>{setRevokeId(row.id);setRevokeReason('');}}>Revocar certificado</button>}{revokeId===row.id&&row.certificateId&&<div><input aria-label="Motivo de revocación" value={revokeReason} maxLength={500} onChange={e=>setRevokeReason(e.target.value)}/><button type="button" disabled={busy||!revokeReason.trim()} onClick={()=>revokeCertificate(row)}>Guardar revocación</button></div>}</td></tr>)}
         </tbody></table>{!visible.length && <p className="htk-empty">{rows.length ? 'No hay coincidencias en esta página.' : 'Todavía no hay solicitudes.'}</p>}</div>
         <footer className="htk-footer"><span className="htk-muted">{rows.length} registros · página {offset / 50 + 1}</span><span className="htk-footer-actions"><button className="htk-button" type="button" disabled={busy || !offset} onClick={() => run(() => page(offset - 50))}>Anterior</button><button className="htk-button" type="button" disabled={busy || !more} onClick={() => run(() => page(offset + 50))}>Siguiente</button>
           <button className="htk-button" type="button" disabled={busy} onClick={() => run(async () => { await request({ action: 'logout' }); setRows([]); clearTimeout(expiry.current); setView('files'); })}>Cerrar sesión</button></span></footer></>}

@@ -6,8 +6,8 @@ function hashcodDataProcessingAddendum(): array
 {
     return [
         'title' => 'Licencia de procesamiento de datos y acuerdo de tratamiento (DPA)',
-        'version' => '2026.10.07-1',
-        'published_date' => '7 de octubre de 2026',
+        'version' => '2026.10.08-1',
+        'published_date' => '8 de octubre de 2026',
         'summary' => 'Autorización limitada para operar el servicio. El Usuario conserva sus derechos sobre los archivos; los datos de contacto de las solicitudes de tokenización se consultan en un área privada.',
         'sections' => [
             ['id' => 'partes', 'title' => '1. Partes, alcance y relación con la política', 'paragraphs' => [
@@ -75,7 +75,9 @@ function hashcodDataProcessingAddendum(): array
                 'Al terminar el encargo, el Cliente podrá solicitar devolución por un medio seguro o supresión de los datos tratados por su cuenta, salvo conservación legal obligatoria. Hashcod comunicará el alcance de la actuación y cualquier excepción justificada. Las copias de seguridad, si existen, quedarán restringidas hasta su eliminación conforme al ciclo aplicable; las copias exportadas y los datos en dispositivos del Usuario están bajo su control.',
             ]],
             ['id' => 'ia', 'title' => '14. Inteligencia artificial y decisiones automatizadas', 'paragraphs' => [
-                'La solicitud de tokenización no envía automáticamente el archivo a un modelo de IA. Para una función de IA solicitada expresamente, Hashcod limitará la información al contenido necesario e identificará el proveedor, la finalidad y las condiciones pertinentes antes de tratar datos personales en esa función.',
+                'La solicitud de tokenización no envía automáticamente el archivo a una IA. El chat de revisión, iniciado expresamente por el Usuario, utiliza Anthropic con su propia API key y el modelo permitido que seleccione. Antes de iniciar se muestran el proveedor, el presupuesto máximo y la autorización para enviar el archivo y los mensajes necesarios. No se envían el teléfono, correo ni la clave como parte del prompt.',
+                'La API key se valida mediante una petición que no genera respuestas, se conserva cifrada solo en memoria durante un máximo de 30 minutos y se elimina al finalizar o cerrar la revisión. Un reinicio del servicio exige introducirla de nuevo. Los mensajes, comprobaciones, huella SHA-512, modelo y certificados se guardan en un registro privado para seguimiento. El certificado público contiene una huella y alcance técnico, sin contactos ni contenido del archivo; puede revocarse y deja de ser válido si el archivo cambia o desaparece.',
+                'El código se analiza en un servicio separado. La ejecución de pruebas del Usuario ocurre únicamente dentro de WebAssembly sin permisos de red o de escritura en los archivos montados. Las comprobaciones incompletas o de dependencias externas requieren revisión humana. Un certificado identifica la versión y el alcance revisados; no garantiza la ausencia de defectos, titularidad, valor comercial ni cumplimiento legal. WhatsApp solo se abre cuando el Usuario pulsa el enlace después de una verificación válida.',
                 'Hashcod no utilizará datos personales para entrenar o ajustar modelos propios o ajenos sin una autorización separada, específica y válida. Antes de utilizar un proveedor de IA para datos del Cliente, deberá establecer condiciones que impidan el entrenamiento independiente no autorizado. Una posibilidad de uso descrita por un proveedor no se presenta como una garantía verificada de Hashcod.',
                 'La revisión o tokenización no equivale a una decisión automática de efectos jurídicos o similares sobre una persona. Si se ofrece una función con esos efectos, deberán comunicarse su lógica y consecuencias en la medida legalmente exigible y habilitarse las garantías y revisión humana correspondientes antes de su uso.',
             ]],
@@ -118,7 +120,7 @@ function hashcodDataProcessingAddendum(): array
                     ['Railway', 'Alojamiento de la aplicación y ejecución del backend; solicitudes HTTP y registros técnicos asociados al servicio.', 'Servicio alojado en Estados Unidos, región sfo, al publicar esta versión.'],
                     ['Cloudflare, cuando esté activado', 'Servicios configurados de red y protección, incluidos desafíos Turnstile; señales técnicas y de seguridad de la conexión.', 'Infraestructura distribuida; depende de la función y configuración activas.'],
                     ['WhatsApp / Meta, si el Usuario utiliza el canal', 'Comunicación directa de soporte y privacidad; recibe el mensaje y datos del remitente bajo sus propias condiciones.', 'Servicio de comunicación de terceros; su uso no exige enviar archivos sensibles ni claves.'],
-                    ['Proveedor de IA de una función solicitada', 'Solo el contenido necesario para la función autorizada; no interviene automáticamente en una solicitud de tokenización.', 'Se identificará antes del encargo con datos personales; requiere condiciones y ubicación aplicables documentadas.'],
+                    ['Anthropic (chat de revisión solicitado)', 'Código del archivo seleccionado, preguntas y comprobaciones necesarias. API key del Usuario únicamente como credencial del transporte HTTPS; nunca en el prompt.', 'Procesamiento según las condiciones de la API de Anthropic y la configuración de su cuenta. El Usuario debe comprobar que está autorizado a enviar ese contenido.'],
                 ],
             ]],
         ],

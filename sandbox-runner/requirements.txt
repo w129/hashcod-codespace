@@ -1,0 +1,5 @@
+cryptography==46.0.3
+bandit==1.8.6
+semgrep==1.133.0
+setuptools==80.9.0
+wasmtime==49.0.0

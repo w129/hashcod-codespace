@@ -1,0 +1,52 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),crypto=require('node:crypto');
+const esbuild=require('../../center-empty-state-build/node_modules/esbuild');
+const owner='11111111-1111-4111-8111-111111111111',other='22222222-2222-4222-8222-222222222222';
+const requestId='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',sessionId='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+const canonical=v=>Array.isArray(v)?'['+v.map(canonical).join(',')+']':v&&typeof v==='object'?'{'+Object.keys(v).sort().map(k=>JSON.stringify(k)+':'+canonical(v[k])).join(',')+'}':JSON.stringify(v);
+let source=Buffer.from('def add(a,b): return a+b\n'),storedHash=crypto.createHash('sha512').update(source).digest('hex'),state='active',nonces=new Set(),certificate=null;
+const results=()=>['sandbox','tests','sast','secrets','deps'].map(kind=>({kind,tool:'fixture',tool_version:'1',status:'complete',passed:true,severity_counts:{critical:0,high:0,medium:0,low:0}}));
+let checks=results();
+(async()=>{
+ const key=await crypto.webcrypto.subtle.generateKey('Ed25519',true,['sign','verify']);const publicKey=Buffer.from(await crypto.webcrypto.subtle.exportKey('raw',key.publicKey)).toString('base64');
+ const fail=(status,message)=>{throw Object.assign(new Error(message),{status});};
+ const sql=async(parts,...values)=>{
+  const q=parts.join('?');
+  if(q.includes('review_keyring'))return [{public_key:publicKey}];
+  if(q.includes('insert into hashcod_shared.review_nonces')){if(nonces.has(values[1]))return [];nonces.add(values[1]);return [{nonce:values[1]}];}
+  if(q.includes('delete from hashcod_shared.review_nonces'))return [];
+  if(q.includes('select * from hashcod_shared.review_sessions'))return values[0]===sessionId&&values[1]===owner?[{id:sessionId,request_id:requestId,period_id:owner,status:state,expires_at:'2099-01-01',content_hash:storedHash,model:'claude-sonnet-5-5'}]:[];
+  if(q.includes('select r.id, r.period_id'))return values[0]===requestId&&(!values[1]||values[1]===owner)?[{id:requestId,file_name:'source.py',object_path:'fixture/source',size:source.length}]:[];
+  if(q.includes('select checks'))return [{checks}];
+  if(q.includes('select * from hashcod_shared.certificates'))return certificate?[certificate]:[];
+  if(q.includes('update hashcod_shared.review_sessions'))return state==='active'?[{id:sessionId}]:[];
+  if(q.includes('insert into hashcod_shared.certificates')){certificate={id:values[0],session_id:values[1],request_id:values[2],payload:values[3],signature:values[4],key_id:values[5],revoked_at:null};return [];}
+  if(q.includes('update hashcod_shared.tokenization_requests'))return [];
+  if(q.includes('select role,body'))return [];
+  if(q.includes('select id,revoked_at,payload'))return [];
+  throw new Error('Unexpected SQL: '+q);
+ };
+ sql.json=v=>v;sql.begin=fn=>fn(sql);
+ const core={sql,json:data=>Response.json(data),fail,rate:async()=>{},storage:async()=>new Response(source),objectPath:p=>p,openTicket:async()=>({})};
+ const module={exports:{}};const text=esbuild.transformSync(fs.readFileSync(path.resolve(__dirname,'../../supabase/functions/hashcod-shared-cloud/review.ts'),'utf8'),{loader:'ts',format:'cjs'}).code;
+ vm.runInNewContext(text,{module,exports:module.exports,require:p=>p==='./core.ts'?core:{activePeriod:async token=>{if(token==='owned')return owner;if(token==='other')return other;fail(403,'Invalid owner');}},crypto:crypto.webcrypto,TextEncoder,TextDecoder,Uint8Array,Response,Date,atob,btoa,Set,Number});
+ const review=module.exports.review,request=new Request('https://example.test',{method:'POST'});
+ const proof=async(data,changes={})=>{const unsigned={data,key_id:'review-backend-v1',nonce:crypto.randomBytes(16).toString('hex'),timestamp:Date.now(),...changes};return {...unsigned,signature:Buffer.from(await crypto.webcrypto.subtle.sign('Ed25519',key.privateKey,new TextEncoder().encode('hashcod.review.bridge.v1\n'+canonical(unsigned)))).toString('base64')};};
+ const call=async data=>(await review(request,await proof(data))).json();
+ await assert.rejects(review(request,{}),e=>e.status===403);
+ const replay=await proof({action:'snapshot',token:'owned',id:requestId});await review(request,replay);await assert.rejects(review(request,replay),e=>e.status===409);
+ await assert.rejects(review(request,await proof({action:'snapshot',token:'owned',id:requestId},{timestamp:0})),e=>e.status===403);
+ const tampered=await proof({action:'snapshot',token:'owned',id:requestId});tampered.data.id='foreign';await assert.rejects(review(request,tampered),e=>e.status===403);
+ await assert.rejects(call({action:'snapshot',token:'other',id:requestId}),e=>e.status===404);
+ await assert.rejects(call({action:'history',token:'other',session_id:sessionId}),e=>e.status===404);
+ const payload={certificate_id:'cccccccc-cccc-4ccc-8ccc-cccccccccccc',session_id:sessionId,request_id:requestId,content_hash:storedHash,model:'claude-sonnet-5-5',verdict:'pass'};
+ const cert={payload,key_id:'review-backend-v1',signature:Buffer.from(await crypto.webcrypto.subtle.sign('Ed25519',key.privateKey,new TextEncoder().encode('hashcod.review.certificate.v1\n'+canonical(payload)))).toString('base64')};
+ checks[3].severity_counts.critical=1;checks[3].passed=false;
+ await assert.rejects(call({action:'finish',token:'owned',session_id:sessionId,result:'pass',certificate:cert}),e=>e.status===409);assert.equal(certificate,null);checks=results();
+ source=Buffer.from('changed');await assert.rejects(call({action:'finish',token:'owned',session_id:sessionId,result:'pass',certificate:cert}),e=>e.status===409);
+ source=Buffer.from('def add(a,b): return a+b\n');await call({action:'finish',token:'owned',session_id:sessionId,result:'pass',certificate:cert});
+ assert.equal((await call({action:'verify',id:payload.certificate_id})).valid,true);
+ certificate.revoked_at=new Date().toISOString();assert.equal((await call({action:'verify',id:payload.certificate_id})).valid,false);certificate.revoked_at=null;
+ source=Buffer.from('changed');assert.equal((await call({action:'verify',id:payload.certificate_id})).valid,false);
+ console.log('Review Edge: signatures, replay, expiry, ownership, objective rules, hash changes, revocation and certificates OK');
+})().catch(e=>{console.error(e);process.exitCode=1;});

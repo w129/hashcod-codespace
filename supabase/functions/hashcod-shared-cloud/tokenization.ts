@@ -1,7 +1,7 @@
 import { sql, json, fail, mac, equal, rate, code, fileId, ticket, openTicket } from './core.ts';
 import { contact, adminKey, statusUpdate } from './tokenization-validation.ts';
 
-async function activePeriod(value: unknown) {
+export async function activePeriod(value: unknown) {
   if (typeof value !== 'string') fail(403, 'Primero confirma tu plazo en la plataforma.');
   const id = value.split('.')[0];
   if (!/^[a-f0-9-]{36}$/.test(id) || !equal(value, id + '.' + await mac('period|' + id))) fail(403, 'Sesión de acceso incorrecta.');
@@ -56,11 +56,12 @@ export async function tokenization(action: string, request: Request, body: any) 
     await rate('tokenization-list|' + period, 90);
     const offset = Number.isInteger(body.offset) && body.offset >= 0 && body.offset <= 100000 ? body.offset : 0;
     const rows = await sql`select r.id, r.file_id, r.file_name, r.mime, r.size, r.price_usd_cents, r.phone, r.email, r.status, r.created_at,
-      coalesce(f.status = 'ready', false) as file_available
+      coalesce(f.status = 'ready', false) as file_available,
+      (select c.id from hashcod_shared.certificates c where c.request_id=r.id and c.revoked_at is null order by c.created_at desc limit 1) as certificate_id
       from hashcod_shared.tokenization_requests r left join hashcod_shared.files f on f.id = r.file_id
       order by r.created_at desc, r.id desc limit 51 offset ${offset}`;
     return json({ ok: true, hasMore: rows.length > 50, requests: rows.slice(0, 50).map(row => ({ id: row.id, fileId: row.file_id, name: row.file_name, mime: row.mime,
-      size: Number(row.size), priceUsdCents: row.price_usd_cents == null ? null : Number(row.price_usd_cents), phone: row.phone, email: row.email, status: row.status, createdAt: row.created_at, fileAvailable: row.file_available })) });
+      size: Number(row.size), priceUsdCents: row.price_usd_cents == null ? null : Number(row.price_usd_cents), phone: row.phone, email: row.email, status: row.status, createdAt: row.created_at, fileAvailable: row.file_available, certificateId:row.certificate_id })) });
   }
   fail(400, 'Unsupported action.');
 }

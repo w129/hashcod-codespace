@@ -4,13 +4,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends nodejs libsecco
 COPY --from=gitleaks /usr/bin/gitleaks /usr/bin/gitleaks
 WORKDIR /app
 COPY sandbox-runner/requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt && useradd -u 10001 -m reviewer
+RUN pip install --no-cache-dir -r requirements.txt && useradd -u 53217 -m reviewer
 COPY tools/review/protocol.py ./
 COPY sandbox-runner/*.py ./
 RUN python fetch-runtimes.py /usr/local/share/review-wasm
 RUN timeout 300 python precompile.py /usr/local/share/review-wasm
 COPY sandbox-runner/isolate.py /usr/local/bin/review-isolate.py
 COPY sandbox-runner/wasm.py /usr/local/bin/review-wasm.py
-USER 10001:10001
+USER 53217:53217
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 CMD ["python","server.py"]

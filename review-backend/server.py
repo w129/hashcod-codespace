@@ -170,6 +170,9 @@ def main():
         raise ValueError("Invalid fixed service endpoints")
     app=Coordinator(Transport(),env_key("REVIEW_SIGNING_KEY",True),env_key("REVIEW_SANDBOX_PUBLIC_KEY"),
                     base64.b64decode(os.environ["REVIEW_KEY_ENCRYPTION_KEY"],validate=True),edge,worker)
+    if app.transport.json(worker.removesuffix('/v1/review')+'/healthz',timeout=12).get('ok') is not True:
+        raise RuntimeError('Private sandbox is not ready')
+    print('Review backend ready: private sandbox reachable',flush=True)
     JsonHandler.dispatch=staticmethod(app.dispatch)
     def cleanup():
         while True:

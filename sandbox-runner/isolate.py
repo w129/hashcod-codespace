@@ -59,10 +59,9 @@ def restrict(directory, readonly=False, compilation=False):
     file_limit=(128 if compilation else 1)*1024*1024
     resource.setrlimit(resource.RLIMIT_FSIZE,(file_limit,file_limit))
     resource.setrlimit(resource.RLIMIT_NOFILE,(64,64))
-    # Linux counts this per real UID, including sibling containers on a shared
-    # host. Keep a finite ceiling with room for those existing native threads.
-    # Submitted code has no host process/thread imports through WASI.
-    resource.setrlimit(resource.RLIMIT_NPROC,(512,512))
+    # The worker uses a dedicated nonprivileged UID rather than the common
+    # container UID 10001, so unrelated services do not consume this ceiling.
+    resource.setrlimit(resource.RLIMIT_NPROC,(64,64))
     resource.setrlimit(resource.RLIMIT_CORE,(0,0))
 
 

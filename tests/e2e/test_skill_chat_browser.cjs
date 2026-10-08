@@ -370,7 +370,8 @@ const commands = [
         { path: "preview.coffee", ext: "coffee", content: 'square = (x) -> x * x' },
         { path: "preview.dart", ext: "dart", content: 'void main() { print("hola"); }' },
       );
-      await page.getByRole("button", { name: "Reconectar", exact: true }).click();
+      await selectPreviewFile("SKILL.md");
+      await page.getByRole("button", { name: "Abrir preview.yaml", exact: true }).waitFor({ state: "attached" });
       await selectPreviewFile("preview.yaml");
       await page.getByRole("button", { name: "Vista previa", exact: true }).click();
       await page.getByRole("heading", { name: "Datos YAML", exact: true }).waitFor();

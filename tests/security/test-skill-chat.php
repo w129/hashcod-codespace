@@ -12,6 +12,17 @@ editorAssert(skillChatOrigin()==='http://127.0.0.1:8000','Windows origin rejecte
 editorAssert(securityIsDeniedPath('/skill-chat/apps/api/src/server.ts'),'API source public');
 editorAssert(securityIsDeniedPath('/skill-chat/apps/worker/src/server.ts'),'Worker source public');
 $id='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+$fields=skillChatRoute('/sessions','POST')['fields'];
+editorAssert(skillChatEncodeBody(skillChatDecodeBody('{}',$fields))==='{}','Empty session object became a JSON list');
+editorAssert(skillChatEncodeBody(skillChatDecodeBody('',[]))==='{}','Bodyless mutation became a JSON list');
+$projectJson=json_encode(['projectId'=>$id]);
+editorAssert(skillChatEncodeBody(skillChatDecodeBody($projectJson,$fields))===$projectJson,'Project ID changed in transit');
+foreach(['[]','[{}]','null','false','1','"text"','{','{"owner":"other"}'] as $bad)
+ editorAssert(skillChatDecodeBody($bad,$fields)===null,'Invalid or unlisted request body accepted');
+$aiJson='{"apiKey":"synthetic","consent":{"enabled":true,"budgetMicros":1000}}';
+editorAssert(skillChatEncodeBody(skillChatDecodeBody($aiJson,['apiKey','consent']))===$aiJson,'Nested object changed in transit');
+$nestedJson='{"consent":{},"models":[]}';
+editorAssert(skillChatEncodeBody(skillChatDecodeBody($nestedJson,['consent','models']))===$nestedJson,'Nested empty object/list types changed');
 foreach(['/bootstrap','/commands','/projects','/registry','/sessions/'.$id.'/state','/sessions/'.$id.'/events-token','/projects/'.$id.'/export'] as $path) editorAssert(skillChatRoute($path,'GET')!==null,'Valid GET rejected');
 foreach(['/sessions/'.$id.'/exec','/sessions/'.$id.'/file','/sessions/'.$id.'/import','/sessions/'.$id.'/registry','/sessions/'.$id.'/ai'] as $path) editorAssert(skillChatRoute($path,'POST')!==null,'Valid POST rejected');
 foreach(['/auth/platform','/healthz','/sessions/../../auth/platform','/sessions/'.$id.'/state?owner=other','https://foreign.test/','//foreign.test','/sessions/'.$id.'/exec/'] as $path) editorAssert(skillChatRoute($path,'GET')===null&&skillChatRoute($path,'POST')===null,'Unsafe route accepted');
@@ -23,4 +34,4 @@ foreach(['',$csrf.'tampered',mldsaSeal(array_merge($proof,['expiresAt'=>time()-1
  $code='define("HSC_EDITOR_LIBRARY_ONLY",true);putenv("L8_ACCESS_GATE_COOKIE_SECRET=".'.var_export(getenv('L8_ACCESS_GATE_COOKIE_SECRET'),true).');$_SERVER["HTTP_HOST"]="127.0.0.1:8000";require '.var_export(dirname(__DIR__,2).'/hashcod-skill-chat.php',true).';$_SERVER["HTTP_X_HASHCOD_SKILL_CSRF"]='.var_export($bad,true).';skillChatCheckCsrf('.var_export($token,true).');';
  $p=proc_open([PHP_BINARY,'-r',$code],[1=>['pipe','w'],2=>['pipe','w']],$pipes);$result=json_decode(stream_get_contents($pipes[1]),true);fclose($pipes[1]);fclose($pipes[2]);proc_close($p);editorAssert(($result['ok']??true)===false,'Invalid CSRF accepted');
 }
-echo "Skill editor PHP: routes, CSRF, host/period cookies, Windows origin and private sources OK\n";
+echo "Skill editor PHP: JSON object round trips, routes, CSRF, host/period cookies, Windows origin and private sources OK\n";

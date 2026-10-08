@@ -105,17 +105,25 @@ def restrict(input_dir, output_dir, runtime_dir):
             if number >= 0 and sec.seccomp_rule_add(ctx, 0x50000 | errno.EPERM, number, 0) != 0:
                 raise RuntimeError('seccomp_rule_failed')
         # Native runtimes need read-only prlimit64 (pthread stack bounds) and
-        # FIONBIO on stdio pipes. No limit mutation or other ioctl is permitted.
+        # FIONBIO/FIONREAD on stdio pipes. No limit mutation or other ioctl is permitted.
         class Compare(ctypes.Structure):
             _fields_ = [('arg', ctypes.c_uint), ('op', ctypes.c_uint),
                         ('datum_a', ctypes.c_uint64), ('datum_b', ctypes.c_uint64)]
         sec.seccomp_rule_add_array.argtypes = [ctypes.c_void_p, ctypes.c_uint32, ctypes.c_int, ctypes.c_uint, ctypes.POINTER(Compare)]
-        for syscall, arg, value in [('prlimit64', 2, 0), ('ioctl', 1, 0x5421),
+        for syscall, arg, value in [('prlimit64', 2, 0),
                                     ('tgkill', 0, os.getpid()), ('rt_tgsigqueueinfo', 0, os.getpid())]:
             comparison = Compare(arg, 1, value, 0)  # SCMP_CMP_NE
             number = sec.seccomp_syscall_resolve_name(syscall.encode())
             if number >= 0 and sec.seccomp_rule_add_array(ctx, 0x50000 | errno.EPERM, number, 1, ctypes.byref(comparison)) != 0:
                 raise RuntimeError('seccomp_conditional_failed')
+        # Dart's async stdin queries the number of readable pipe bytes. Deny
+        # every request except exact FIONREAD (0x541b) and FIONBIO (0x5421).
+        # Separate comparisons avoid duplicate-argument rules in libseccomp.
+        ioctl = sec.seccomp_syscall_resolve_name(b'ioctl')
+        for op, value in [(2, 0x541b), (6, 0x5421)] + [(4, x) for x in range(0x541c, 0x5421)]:
+            comparison = Compare(1, op, value, 0)  # LT, GT, EQ
+            if ioctl < 0 or sec.seccomp_rule_add_array(ctx, 0x50000 | errno.EPERM, ioctl, 1, ctypes.byref(comparison)) != 0:
+                raise RuntimeError('seccomp_pipe_ioctl_failed')
         # glibc requires ENOSYS to fall back to clone for native SDK threads.
         clone3 = sec.seccomp_syscall_resolve_name(b'clone3')
         if clone3 >= 0 and sec.seccomp_rule_add(ctx, 0x50000 | errno.ENOSYS, clone3, 0) != 0:

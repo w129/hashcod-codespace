@@ -23,7 +23,9 @@ def restrict(directory, readonly=False, compilation=False):
     rule=Ruleset(mask)
     fd=libc.syscall(444,ctypes.byref(rule),ctypes.sizeof(rule),0) if abi>=3 else -1
     try:
-        for path,access in ([(directory,1|4|8 if readonly else mask),('/usr',1|4|8),('/lib',1|4|8),('/lib64',1|4|8),('/dev/null',2|4),('/dev/urandom',4)] if fd>=0 else []):
+        # Native scanners initialize OpenSSL even for offline scans. Permit
+        # only its public config/trust anchors, never /etc/ssl/private.
+        for path,access in ([(directory,1|4|8 if readonly else mask),('/usr',1|4|8),('/lib',1|4|8),('/lib64',1|4|8),('/etc/ssl/certs',4|8),('/etc/ssl/openssl.cnf',4),('/dev/null',2|4),('/dev/urandom',4)] if fd>=0 else []):
             if not os.path.exists(path): continue
             pfd=os.open(path,os.O_PATH|os.O_CLOEXEC)
             try:

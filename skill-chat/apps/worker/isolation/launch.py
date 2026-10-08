@@ -44,6 +44,9 @@ def restrict(input_dir, output_dir, runtime_dir):
                  ('/dev/random', READ_FILE), ('/etc/localtime', READ_FILE)]
         for exe in ['node/bin/node', 'dart/bin/dart', 'dart/bin/dartaotruntime', 'dart/bin/dartvm']:
             paths.append((runtime_dir + '/' + exe, EXEC | READ_FILE))
+        # ELF exec also checks its PT_INTERP loader. Permit the exact Debian
+        # amd64 loader, without allowing executable programs under /usr or /lib.
+        paths.append(('/lib64/ld-linux-x86-64.so.2', EXEC | READ_FILE))
         for path, access in paths:
             if not os.path.exists(path):
                 continue

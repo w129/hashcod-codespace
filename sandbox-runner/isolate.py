@@ -11,6 +11,9 @@ def restrict(directory, readonly=False, compilation=False):
     libc = ctypes.CDLL(None, use_errno=True)
     libc.syscall.restype=ctypes.c_long
     if libc.prctl(38,1,0,0,0)!=0: raise RuntimeError('no_new_privs')
+    # Constrain native pools even when the host reports every physical core.
+    allowed=sorted(os.sched_getaffinity(0))
+    os.sched_setaffinity(0,allowed[:2])
     abi=libc.syscall(444,0,0,1)
     class Ruleset(ctypes.Structure): _fields_=[('handled_access_fs',ctypes.c_uint64)]
     class Path(ctypes.Structure):
@@ -54,7 +57,10 @@ def restrict(directory, readonly=False, compilation=False):
     file_limit=(128 if compilation else 1)*1024*1024
     resource.setrlimit(resource.RLIMIT_FSIZE,(file_limit,file_limit))
     resource.setrlimit(resource.RLIMIT_NOFILE,(64,64))
-    resource.setrlimit(resource.RLIMIT_NPROC,(64,64))
+    # Linux counts this per real UID, including sibling containers on a shared
+    # host. Keep a finite ceiling with room for those existing native threads.
+    # Submitted code has no host process/thread imports through WASI.
+    resource.setrlimit(resource.RLIMIT_NPROC,(512,512))
     resource.setrlimit(resource.RLIMIT_CORE,(0,0))
 
 

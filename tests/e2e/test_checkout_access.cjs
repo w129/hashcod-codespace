@@ -29,7 +29,7 @@ export async function sql(parts,...values){
 async function main() {
  try {
   require(path.join(build, 'node_modules/esbuild')).buildSync({
-    stdin: { contents: mock + source.replace(/^import .*?;\n/, ''), loader: 'ts', resolveDir: build },
+    stdin: { contents: mock + source.replace(/^import [^\n]*;\r?\n/, ''), loader: 'ts', resolveDir: build },
     bundle: true, platform: 'node', format: 'cjs', outfile: path.join(temp, 'fixture.cjs'),
   });
   const { accessPeriod, rows, limits, clock } = require(path.join(temp, 'fixture.cjs'));

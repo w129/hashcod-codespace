@@ -28,6 +28,6 @@ function platformPeriodGuard(): void {
     http_response_code(403);
     header('Content-Type: application/json; charset=utf-8');
     header('Cache-Control: no-store');
-    echo json_encode(['ok' => false, 'code' => $expired ? 'platform_period_expired' : 'platform_period_required', 'error' => $expired ? 'Tu plazo ha terminado. Introduce la clave para renovar.' : 'Primero selecciona y confirma cuánto tiempo vas a durar en la plataforma.']);
+    echo json_encode(['ok' => false, 'code' => $expired ? 'platform_period_expired' : 'platform_period_required', 'error' => 'Inicia la sesión desde Entrar Gratis. Si ya entraste, recarga la plataforma.']);
     exit;
 }

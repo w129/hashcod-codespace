@@ -12,16 +12,17 @@ if ((int)($_SERVER['CONTENT_LENGTH'] ?? 0) > 2048) hcsJson(['ok' => false, 'erro
 securityBootstrap('api');
 $stored = platformPeriodData();
 $body = $method === 'POST' ? hcsBody() : [];
+$freeEntry = $method === 'POST' && ($body['entry'] ?? null) === 'free';
 // Identity is always taken from the signed HttpOnly cookie, never the body.
 $forward = ['token' => is_array($stored) ? (string)($stored['token'] ?? '') : ''];
-if ($method === 'POST') {
+if ($method === 'POST' && !$freeEntry) {
     if (!isset($body['days']) || !is_int($body['days']) || !in_array($body['days'], [10, 20, 30, 60], true)) hcsJson(['ok' => false, 'error' => 'Selecciona 10, 20, 30 o 60 días.'], 400);
     $forward['days'] = $body['days'];
     $forward['code'] = is_string($body['code'] ?? null) ? $body['code'] : '';
     if (strlen($forward['code']) > 256) hcsJson(['ok' => false, 'error' => 'Clave de renovación incorrecta.'], 400);
     if (!$forward['token']) hcsJson(['ok' => false, 'error' => 'Recarga la ventana antes de seleccionar el plazo.'], 409);
 }
-$response = hcsCall($method === 'GET' ? 'period.status' : 'period.accept', $forward);
+$response = hcsCall($method === 'GET' ? 'period.status' : ($freeEntry ? 'period.free' : 'period.accept'), $forward);
 $data = json_decode($response['raw'], true);
 if (!is_array($data)) hcsJson(['ok' => false, 'error' => 'No se pudo verificar el plazo.'], 503);
 if (empty($data['ok'])) hcsJson(['ok' => false, 'error' => $data['error'] ?? 'No se pudo verificar el plazo.'], $response['status']);

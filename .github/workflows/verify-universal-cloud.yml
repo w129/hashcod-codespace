@@ -21,6 +21,7 @@ on:
       - platform-period-api.php
       - platform-period-lib.php
       - tests/security/test-platform-period.php
+      - tests/e2e/test_checkout_access.cjs
       - tests/e2e/test_platform_period.js
       - tests/e2e/test_platform_period_browser.js
       - supabase/functions/hashcod-shared-cloud/**
@@ -89,6 +90,7 @@ on:
       - platform-period-api.php
       - platform-period-lib.php
       - tests/security/test-platform-period.php
+      - tests/e2e/test_checkout_access.cjs
       - tests/e2e/test_platform_period.js
       - tests/e2e/test_platform_period_browser.js
       - supabase/functions/hashcod-shared-cloud/**
@@ -257,6 +259,7 @@ jobs:
           node tests/e2e/test_file_vault_local_protection.js
           node tests/e2e/test_file_vault_device_flow.js
           node tests/e2e/test_file_vault_explorer.js
+          node tests/e2e/test_checkout_access.cjs
           node tests/e2e/test_platform_period.js
           node tests/e2e/test_tokenization_edge.js
           node tests/e2e/test_tokenization_ui.js
@@ -270,6 +273,7 @@ jobs:
           export NODE_PATH="$RUNNER_TEMP/hashcod-browser-tests/node_modules"
           export HFV_SCREENSHOT_DIR="$RUNNER_TEMP/hashcod-files-evidence"
           node tests/e2e/test_file_vault_explorer_browser.js
+          export HASHCOD_CHECKOUT_SCREENSHOT_DIR="$RUNNER_TEMP/hashcod-files-evidence/checkout"
           node tests/e2e/test_platform_period_browser.js
           export HASHCOD_TOKENIZATION_SCREENSHOT_DIR="$RUNNER_TEMP/hashcod-tokenization-evidence"
           node tests/e2e/test_tokenization_browser.js

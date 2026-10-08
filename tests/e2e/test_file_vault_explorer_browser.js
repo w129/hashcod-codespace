@@ -31,7 +31,7 @@ async function main() {
     if (pathname === '/api/platform-period') {
       if (request.method === 'POST') {
         let raw=''; for await (const part of request) raw+=part;
-        const {days}=JSON.parse(raw);
+        const body=JSON.parse(raw); const days=body.entry==='free'?10:body.days;
         period={ok:true,state:'active',days,expiresAt:Math.floor(Date.now()/1000)+days*86400,serverNow:Math.floor(Date.now()/1000)};
       }
       response.setHeader('Content-Type','application/json');response.end(JSON.stringify(period));return;
@@ -53,11 +53,10 @@ async function main() {
     page.on('pageerror', error => errors.push(error));
     const base = 'http://127.0.0.1:' + server.address().port;
     await page.goto(base);
-    await page.locator('#hpa-days').waitFor();
+    await page.locator('#hashcodEntryCheckout').waitFor();
     assert(await page.locator('main').evaluate(n=>n.inert));
-    for(const days of ['10','20','30','60']) await page.locator('#hpa-days').selectOption(days);
-    await page.getByRole('button',{name:'Confirmar y entrar'}).click();
-    await page.waitForSelector('#hpaGatePortal',{state:'detached'});
+    await page.getByRole('button',{name:'Entrar Gratis'}).click();
+    await page.waitForSelector('#hashcodEntryCheckout',{state:'detached'});
     await page.waitForFunction(() => window.HashcodFileVaultTotp);
     await page.evaluate(async pdf => {
       for (const [id, name, type, data] of [
@@ -111,7 +110,7 @@ async function main() {
       assert(closed.y >= tree.y + tree.height, 'recommendation must sit below Files');
       assert(closed.x >= 0 && closed.x + closed.width <= viewport.width + 1 && closed.width <= 380);
       await card.getByRole('button', { name: 'Alternatives', exact: true }).click();
-      for (const days of [10,20,30]) assert.equal(await card.locator(`[data-option="${days}"]`).isDisabled(),true,'Active period cannot be changed');
+      for (const days of [20,30,60]) assert.equal(await card.locator(`[data-option="${days}"]`).isDisabled(),true,'Active period cannot be changed');
       assert.equal(await card.getAttribute('data-accepted'),'true');
       await card.evaluate(async node => {
         await Promise.all(node.getAnimations({ subtree: true }).map(animation => animation.finished.catch(() => {})));
@@ -127,7 +126,7 @@ async function main() {
       await card.getByRole('button', { name: 'Alternatives', exact: true }).click();
       assert.equal(await card.locator('.hrc-drawer').getAttribute('aria-hidden'), 'true');
     }
-    await page.waitForSelector('#d5RecommendationCard[data-selected="60"][data-accepted="true"]');
+    await page.waitForSelector('#d5RecommendationCard[data-selected="10"][data-accepted="true"]');
     assert.equal(await card.getByRole('button',{name:'Activo',exact:true}).isDisabled(),true);
     await page.setViewportSize({ width: 1440, height: 900 });
     if (process.env.HFV_SCREENSHOT_DIR) {

@@ -1,0 +1,83 @@
+.hco-backdrop, .hco-checkout, .hco-checkout * { box-sizing: border-box; }
+body.hco-open { overflow: hidden !important; }
+.hco-backdrop { position: fixed; inset: 0; z-index: 2147483647; overflow: auto; background: #fff; overscroll-behavior: contain; }
+.hco-checkout { display: flex; flex-wrap: wrap; min-height: 100dvh; width: 100%; color: #0f172a; background: #fff; font: 14px/1.5 'IBM Plex Sans', system-ui, sans-serif; }
+.hco-checkout button, .hco-checkout input { font: inherit; color: inherit; }
+.hco-checkout button { cursor: pointer; }
+.hco-checkout button:disabled { cursor: wait; }
+.hco-checkout button:focus-visible, .hco-checkout a:focus-visible, .hco-checkout input:focus-visible { outline: 2px solid #141413; outline-offset: 2px; }
+.hco-summary { flex: 1 1 480px; min-width: 0; padding: 48px 56px; display: flex; flex-direction: column; gap: 40px; background: #f8fafc; border-right: 1px solid #e2e8f0; }
+.hco-header { display: flex; align-items: center; gap: 12px; }
+.hco-back { width: 44px; height: 44px; flex: none; border-radius: 50%; border: 1px solid #e2e8f0; background: transparent; color: #64748b !important; display: grid; place-items: center; }
+.hco-brand { display: flex; align-items: center; gap: 10px; color: #000; }
+.hco-brand > svg { flex: none; border: 1px solid #e2e8f0; border-radius: 8px; }
+.hco-brand > span { display: flex; flex-direction: column; gap: 2px; font-family: 'Inter', system-ui, sans-serif; line-height: 1; }
+.hco-brand strong { font-size: 20px; font-weight: 700; letter-spacing: -.02em; }
+.hco-brand sup { font-size: 9px; margin-left: 1px; }
+.hco-brand span span { font-size: 14px; letter-spacing: -.015em; }
+.hco-pricing { display: flex; flex-direction: column; gap: 8px; }
+.hco-pricing > span { font: 12px/1.5 'IBM Plex Mono', monospace; letter-spacing: .12em; text-transform: uppercase; color: #64748b; }
+.hco-pricing > div { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.hco-pricing strong { font: 600 44px/1.2 'IBM Plex Mono', monospace; letter-spacing: -.03em; }
+.hco-pricing div span { font-size: 15px; color: #64748b; }
+.hco-billing { display: flex; align-self: flex-start; padding: 4px; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 12px; gap: 4px; }
+.hco-billing button { min-height: 44px; padding: 0 18px; border: 0; border-radius: 9px; background: transparent; color: #64748b; font-weight: 500; }
+.hco-billing button[aria-pressed="true"] { background: #fff; color: #0f172a; box-shadow: 0 1px 2px #0f172a14; }
+.hco-totals { border-top: 1px solid #e2e8f0; }
+.hco-totals > div { display: flex; justify-content: space-between; gap: 16px; padding: 18px 0; }
+.hco-totals > div:first-child { border-bottom: 1px solid #e2e8f0; }
+.hco-totals > div > span:first-child { display: flex; flex-direction: column; gap: 4px; }
+.hco-totals strong { font-weight: 600; }
+.hco-totals small { color: #64748b; font-size: 13px; }
+.hco-totals > div > :last-child { font-family: 'IBM Plex Mono', monospace; white-space: nowrap; }
+.hco-summary-footer { margin-top: auto; display: flex; gap: 20px; flex-wrap: wrap; color: #64748b; font-size: 13px; }
+.hco-form { flex: 1 1 520px; min-width: 0; padding: 48px 56px; display: flex; justify-content: center; }
+.hco-form-inner { width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 24px; }
+.hco-form h1 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -.01em; }
+.hco-field { display: flex; flex-direction: column; gap: 8px; }
+.hco-field > label, .hco-field > span:first-child { font-size: 13px; font-weight: 500; color: #334155; }
+.hco-field > small { font-size: 12px; color: #64748b; }
+.hco-field input { width: 100%; min-height: 48px; padding: 0 14px; background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; font: 15px 'IBM Plex Mono', monospace; letter-spacing: .04em; }
+.hco-field input::placeholder { color: #94a3b8; }
+.hco-field input[aria-invalid="true"] { border-color: #b91c1c; }
+.hco-choice { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.hco-choice button { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 48px; padding: 8px 10px; border: 1px solid #e2e8f0; border-radius: 10px; background: #fff; font-size: 14px; }
+.hco-choice button[aria-pressed="true"] { border-color: #141413; }
+.hco-choice svg { flex: none; border-radius: 2px; box-shadow: 0 0 0 1px #0f172a26; }
+.hco-steps { margin: 0; padding: 20px; list-style: none; display: flex; flex-direction: column; gap: 14px; border: 1px solid #e2e8f0; border-radius: 12px; background: #f8fafc; }
+.hco-steps li { display: flex; align-items: flex-start; gap: 12px; }
+.hco-steps li > span { display: grid; place-items: center; flex: none; width: 24px; height: 24px; border-radius: 50%; background: #141413; color: #fff; font: 600 12px 'IBM Plex Mono', monospace; }
+.hco-steps p { margin: 0; font-size: 14px; line-height: 1.5; color: #334155; }
+.hco-pay { min-height: 52px; border-radius: 12px; background: #25d366; color: #0b1f14; font-weight: 600; font-size: 16px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 10px 20px; text-align: center; }
+.hco-pay svg { flex: none; }
+.hco-pay[aria-disabled="true"], .hco-verify:disabled { background: #e2e8f0; color: #64748b; cursor: not-allowed; }
+.hco-verification { padding-top: 24px; border-top: 1px solid #e2e8f0; gap: 12px; }
+.hco-verification > label, .hco-fiscal > span:first-child { font-size: 15px; font-weight: 600; }
+.hco-verification p { margin: 0; font-size: 13px; line-height: 1.5; color: #64748b; }
+.hco-verification input { min-height: 56px; text-align: center; font-size: 26px; font-weight: 600; letter-spacing: .5em; text-indent: .5em; }
+.hco-verify { min-height: 48px; border: 0; border-radius: 12px; background: #141413; color: #fff !important; font-weight: 600 !important; font-size: 15px !important; }
+.hco-verify:disabled { color: #64748b !important; }
+.hco-otp-status { min-height: 18px; font-size: 12px; color: #64748b; }
+.hco-fiscal button[aria-pressed="true"] { font-weight: 600; }
+.hco-divider { display: flex; align-items: center; gap: 12px; color: #64748b; font: 12px 'IBM Plex Mono', monospace; }
+.hco-divider span { height: 1px; flex: 1; background: #e2e8f0; }
+.hco-free { min-height: 52px; border: 1px solid #141413; border-radius: 12px; background: #fff; color: #141413; font-weight: 600 !important; font-size: 16px !important; }
+.hco-knowledge { margin: 0; font-size: 15px; line-height: 1.5; font-weight: 700; text-align: center; }
+.hco-privacy { margin: 0; font-size: 12px; line-height: 1.6; color: #64748b; text-align: center; }
+.hco-policy { align-self: center; font-size: 12px; color: #64748b; }
+.hco-domain { display: flex; align-items: center; justify-content: center; gap: 8px; font: 12px 'IBM Plex Mono', monospace; color: #64748b; }
+.hco-business { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px 24px; padding-top: 20px; border-top: 1px solid #e2e8f0; font: 12px 'IBM Plex Mono', monospace; color: #64748b; }
+.hco-business strong { font-weight: 600; color: #0f172a; }
+.hco-error { margin: 0; color: #b91c1c; font-size: 13px; }
+.hco-reopen { display: block; margin: 12px auto 0; min-height: 44px; padding: 8px 16px; border: 1px solid #e2e8f0; border-radius: 10px; background: #fff; color: #334155; font: 13px 'IBM Plex Sans', system-ui, sans-serif; cursor: pointer; }
+@media (max-width: 999px) {
+  .hco-summary, .hco-form { flex-basis: 100%; padding: 32px 24px; }
+  .hco-summary { gap: 24px; border-right: 0; border-bottom: 1px solid #e2e8f0; }
+  .hco-summary-footer { gap: 10px; }
+}
+@media (max-width: 380px) {
+  .hco-summary, .hco-form { padding: 24px 16px; }
+  .hco-choice button { gap: 6px; padding: 8px 6px; font-size: 12px; }
+  .hco-pricing strong { font-size: 38px; }
+  .hco-pay { font-size: 14px; padding: 12px; }
+}

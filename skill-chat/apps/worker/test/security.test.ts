@@ -119,6 +119,7 @@ describe("private worker boundary", () => {
       "LANG",
       "TZ",
       "UV_THREADPOOL_SIZE",
+      "MALLOC_ARENA_MAX",
       "DART_SUPPRESS_ANALYTICS",
       "PUB_CACHE",
       "DART_DISABLE_ANALYTICS",

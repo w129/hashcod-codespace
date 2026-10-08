@@ -27,6 +27,14 @@ const NODE_FLAGS = [
   "--max-semi-space-size=8",
   "--disable-proto=throw",
 ];
+const DART_FLAGS = [
+  "--old-gen-heap-size=96",
+  "--scavenger-tasks=1",
+  "--marker-tasks=1",
+  "--compactor-tasks=1",
+  "--no-concurrent-mark",
+  "--no-concurrent-sweep",
+];
 export const privateEnvironment = (output: string): NodeJS.ProcessEnv => ({
   PATH: RUNTIME + "/node/bin:" + RUNTIME + "/dart/bin",
   HOME: output,
@@ -34,6 +42,7 @@ export const privateEnvironment = (output: string): NodeJS.ProcessEnv => ({
   LANG: "C.UTF-8",
   TZ: "UTC",
   UV_THREADPOOL_SIZE: "1",
+  MALLOC_ARENA_MAX: "1",
   DART_SUPPRESS_ANALYTICS: "true",
   PUB_CACHE: output + "/pub-cache",
   DART_DISABLE_ANALYTICS: "true",
@@ -332,6 +341,7 @@ export async function runJob(job: Job): Promise<JobResult> {
           output,
           RUNTIME + "/dart/bin/dartaotruntime",
           [
+            ...DART_FLAGS,
             RUNTIME + "/dart/bin/snapshots/analysis_server_aot.dart.snapshot",
             "--suppress-analytics",
             "--dart-sdk=" + RUNTIME + "/dart",
@@ -414,7 +424,7 @@ export async function runJob(job: Job): Promise<JobResult> {
         input,
         output,
         DART,
-        ["--disable-dart-dev", wrapper, argsFile],
+        ["--disable-dart-dev", ...DART_FLAGS, wrapper, argsFile],
         deadline,
       ),
     );

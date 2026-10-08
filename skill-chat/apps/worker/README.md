@@ -31,6 +31,7 @@ process, one-core affinity, 256 MiB anonymous data mappings and an independent
 **256 MiB aggregate process-group resident memory ceiling**, sampled every 10 ms.
 Native V8/Dart reserve virtual address ranges; virtual address limit is 8 GiB,
 which does not grant resident memory. V8 runs in `--jitless` mode (required for DATA256MiB; native V8 JIT CodeRange exceeds this bound), old-space is 96 MiB, semi-space 8 MiB.
+Dart uses a 96 MiB old-generation heap and sequential GC tasks; glibc is restricted to one allocation arena to keep native thread reservations within the DATA ceiling.
 The resident monitor kills the group upon a breach (up to one sample interval);
 it is not a delegated per-job cgroup. Deploy worker service with resource limits
 and at most 0.5 CPU if the platform supports fractional quotas. Compiler/run cold

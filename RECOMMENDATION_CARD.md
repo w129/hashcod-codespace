@@ -10,4 +10,6 @@
 
 The recommendation is a sibling of EmptyState. On desktop it starts below the existing workspace without contributing to its vertically centered height, so adding/expanding it cannot lift the icons or Files. Its bottom spacing allows the native page scrollbar to reach the complete card above the fixed privacy footer. On phones it joins the existing normal document flow.
 
-Root runtime source is shared by hosted and Windows builds. Both rebuild `center-empty-state-build`; the cache identifier is `20261006-workspace-scroll1`. Existing explorer integration tests exercise selection/acceptance on hosted and loopback origins, while Chromium verifies placement, stable desktop positioning, and native page scrolling at short viewport heights.
+Root runtime source is shared by hosted and Windows builds. Both rebuild `center-empty-state-build`; the cache identifier is `20261008-access-drawer2`. Existing explorer integration tests exercise selection/acceptance on hosted and loopback origins, while Chromium verifies placement, stable desktop positioning, and native page scrolling at short viewport heights.
+
+The review conversation uses its own `.hrc-review-card` class. Its fixed 288px height must never apply to this access card, whose height follows its content. Chromium regression coverage opens and closes Alternatives twice on mobile and desktop, checks visible option text and complete drawer bounds, and verifies that collapsing restores the compact height without blank space. Active access periods remain locked.

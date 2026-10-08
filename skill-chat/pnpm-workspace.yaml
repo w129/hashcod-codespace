@@ -7,3 +7,7 @@ allowBuilds:
   esbuild: true
   msgpackr-extract: false
 verifyDepsBeforeRun: false
+
+overrides:
+  deepmerge-ts: 8.0.2
+  mysql2: 3.24.5

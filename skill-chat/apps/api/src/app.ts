@@ -51,14 +51,14 @@ export async function createApp(deps: {
       redact: [
         "req.headers.authorization",
         "req.headers.cookie",
-        "req.headers.x-api-key",
+        'req.headers["x-api-key"]',
         "body",
         "err",
       ],
       serializers: { req: () => ({}), res: () => ({}) },
     },
     disableRequestLogging: true,
-    bodyLimit: 1500000,
+    bodyLimit: 2097152,
     requestTimeout: 30000,
     connectionTimeout: 15000,
     trustProxy: false,
@@ -88,19 +88,17 @@ export async function createApp(deps: {
       },
       "Editor operation rejected",
     );
-    reply
-      .code(status)
-      .send({
-        ok: false,
-        error:
-          error instanceof ApiError
-            ? error.message
-            : status === 429
-              ? "Demasiadas solicitudes. Inténtalo más tarde."
-              : status === 413
-                ? "El archivo es demasiado grande."
-                : "No se pudo completar la operación.",
-      });
+    reply.code(status).send({
+      ok: false,
+      error:
+        error instanceof ApiError
+          ? error.message
+          : status === 429
+            ? "Demasiadas solicitudes. Inténtalo más tarde."
+            : status === 413
+              ? "El archivo es demasiado grande."
+              : "No se pudo completar la operación.",
+    });
   });
   app.addHook("onRequest", async (req, reply) => {
     reply
@@ -317,6 +315,16 @@ export async function createApp(deps: {
           durationMs: 0,
         },
       });
+      const oldLogs = await store.db.execLog.findMany({
+        where: { owner: a.owner },
+        orderBy: { createdAt: "desc" },
+        skip: 1000,
+        select: { id: true },
+      });
+      if (oldLogs.length)
+        await store.db.execLog.deleteMany({
+          where: { id: { in: oldLogs.map((x) => x.id) } },
+        });
       await store.persist(
         a.owner,
         s,
@@ -335,8 +343,17 @@ export async function createApp(deps: {
           sessionId: s.id,
           projectId: p.id,
           revision: p.revision + 1,
-          job: r.job,
-          context: r.context,
+          job: {
+            ...r.job,
+            payload: { ...r.job.payload, files: [], pkg: null },
+          },
+          context: {
+            ...createContext(),
+            ...snapshot(r.context),
+            files: r.job.payload.files,
+            activeFile: null,
+            nextVersion: r.context.nextVersion,
+          },
         });
       }
       return {
@@ -449,16 +466,9 @@ export async function createApp(deps: {
     mutate(
       req,
       async (ctx, b) => {
-        let context;
-        if (/\.(coffee|dart)$/.test(b.name)) {
-          context = addFile(ctx, b.name, b.content);
-        } else {
-          const pkg = importPackage(b.name, b.content);
-          context = mergeGenerated(
-            { ...createContext(), pkg },
-            buildPackage(pkg),
-          );
-        }
+        // Upload preserves the project. /import interprets a selected owned
+        // Markdown/YAML document explicitly, instead of replacing other files.
+        const context = addFile(ctx, b.name, b.content);
         assertContext(context);
         return { context, message: `Importado: ${b.name}`, saveVersion: true };
       },
@@ -570,8 +580,8 @@ export async function createApp(deps: {
         if (req.headers.origin !== a.origin || a.sessionId !== id(req))
           throw new ApiError(403, "Origen no autorizado.");
         await store.session(a.owner, a.sessionId);
-        await auth.row(a.sid);
-        identities.set(req, a);
+        const row = await auth.revalidate(a.sid);
+        identities.set(req, { ...a, expiresAt: row.expiresAt });
       },
     },
     (socket, req) => {
@@ -582,13 +592,26 @@ export async function createApp(deps: {
         if (closed) return;
         closed = true;
         clearTimeout(timer);
+        clearInterval(heartbeat);
         subscriber.disconnect();
         socket.close();
       };
-      const timer = setTimeout(close, 900000);
+      const timer = setTimeout(
+        close,
+        Math.max(0, Math.min(900000, a.expiresAt * 1000 - Date.now())),
+      );
+      const heartbeat = setInterval(
+        () => auth.revalidate(a.sid).catch(close),
+        30000,
+      );
       subscriber.subscribe("events:" + a.sessionId).catch(close);
-      subscriber.on("message", (_, content) => {
-        if (socket.readyState === 1) socket.send(content);
+      subscriber.on("message", async (_, content) => {
+        try {
+          await auth.revalidate(a.sid);
+          if (socket.readyState === 1) socket.send(content);
+        } catch {
+          close();
+        }
       });
       socket.on("close", close);
       socket.on("error", close);

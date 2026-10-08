@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends python3 libsecc
 COPY skill-chat/apps/worker/isolation/fetch-runtimes.py /tmp/fetch-runtimes.py
 RUN python3 /tmp/fetch-runtimes.py && rm /tmp/fetch-runtimes.py
 COPY --from=build /deployed /opt/skill-worker
+COPY skill-chat/apps/worker/test/fixtures /opt/skill-worker/test/fixtures
 COPY skill-chat/apps/worker/isolation/launch.py /opt/skill-worker/isolation/launch.py
 COPY skill-chat/apps/worker/runtime /opt/runtime/hashcod
 RUN groupadd -g 53219 skillworker && useradd -u 53219 -g 53219 --no-create-home --shell /usr/sbin/nologin skillworker && chmod -R a-w /opt/runtime /opt/skill-worker

@@ -33,7 +33,7 @@ Ejemplo de skill:
 /export zip
 ```
 
-El comando `/code` admite varias líneas: Enter añade una línea y Ctrl+Enter envía. Para los comandos simples, Enter envía. El botón `+` importa texto UTF-8, el selector cambia el archivo activo y la vista permite guardar cambios con control de revisión.
+El comando `/code` admite varias líneas: Enter añade una línea y Ctrl+Enter envía. Para los comandos simples, Enter envía. El botón `+` añade archivos UTF-8 sin reemplazar el proyecto. `/import <archivo>` interpreta expresamente un documento Markdown/YAML propio como paquete. El selector cambia el archivo activo y la vista permite guardar cambios con control de revisión.
 
 Los generadores producen `SKILL.md`, `role.yaml` y herramientas en `scripts/*.coffee` o `scripts/*.dart`. Los nombres y metadatos se validan y escapan para cada formato. No se aceptan rutas absolutas, segmentos de recorrido, claves de prototipo ni importaciones desde URLs o rutas del servidor. Los archivos se limitan a 1 MiB UTF-8, 200 archivos y 16 MiB por proyecto. Los historiales y las cuotas de proyectos, sesiones y trabajos también están limitados.
 

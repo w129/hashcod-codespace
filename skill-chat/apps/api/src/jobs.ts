@@ -83,7 +83,10 @@ export class Jobs {
     try {
       s = await this.store.session(data.owner, data.sessionId);
       const project = await this.store.project(data.owner, data.projectId);
-      if (project.revision !== data.revision)
+      if (
+        project.revision !== data.revision &&
+        ["run", "test"].includes(data.job.type)
+      )
         throw new ApiError(
           409,
           "El proyecto cambió; vuelve a ejecutar el comando para probar la versión actual.",
@@ -91,6 +94,12 @@ export class Jobs {
       await this.event(s.id, id, "running", "Ejecutando…");
       let message = "";
       if (data.job.type === "test") {
+        if (
+          (await this.store.db.testRun.count({
+            where: { project: { owner: data.owner } },
+          })) >= 500
+        )
+          throw new ApiError(400, "Máximo 500 pruebas guardadas por periodo.");
         let ctx = data.context;
         if (ctx.pkg?.kind === "role") {
           const dependencies = [];
@@ -115,8 +124,8 @@ export class Jobs {
         await this.store.db.testRun.create({
           data: {
             projectId: s.projectId,
-            input: (data.job.payload.input ?? "").slice(0, 65536),
-            output: message,
+            input: (data.job.payload.input ?? "").slice(0, 16384),
+            output: message.slice(0, 16384),
             status: "completed",
             costMicros: result.costMicros,
           },
@@ -124,7 +133,7 @@ export class Jobs {
       } else {
         const out = await this.sandbox.run(
           data.job.type === "run" ? "run" : "compile",
-          data.job.payload.files,
+          data.context.files,
           data.job.payload.tool,
           data.job.payload.lang,
           data.job.payload.args,

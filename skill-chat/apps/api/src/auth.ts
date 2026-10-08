@@ -144,16 +144,22 @@ export class Auth {
     const row = await this.row(a.sid);
     if (row.owner !== a.owner || row.origin !== origin)
       throw new ApiError(401, "La sesión ha caducado.");
+    await this.revalidate(a.sid);
+
+    return a;
+  }
+  async revalidate(sid: string) {
+    const row = await this.row(sid);
     if (Date.now() - row.verifiedAt > 5000) {
       const p = await this.identity(
-        unseal(row.platform, this.cfg.encryptionKey, a.sid),
+        unseal(row.platform, this.cfg.encryptionKey, sid),
       );
-      if (p.owner !== a.owner)
+      if (p.owner !== row.owner)
         throw new ApiError(401, "La sesión ha caducado.");
       row.verifiedAt = Date.now();
       row.expiresAt = p.expiresAt;
-      await this.redis.set("auth:" + a.sid, JSON.stringify(row), "KEEPTTL");
+      await this.redis.set("auth:" + sid, JSON.stringify(row), "KEEPTTL");
     }
-    return a;
+    return row;
   }
 }

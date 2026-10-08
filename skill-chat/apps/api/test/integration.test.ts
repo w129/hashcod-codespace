@@ -268,6 +268,37 @@ describe.skipIf(!enabled)("real PostgreSQL and Redis API boundaries", () => {
     expect(state.undo).toBeUndefined();
     expect(state.history).toBeUndefined();
   });
+  it("uploads ordinary Markdown and YAML without replacing the package or existing files", async () => {
+    const original = (await request("GET", `/sessions/${sid}/state`)).json()
+      .state;
+    for (const [name, content] of [
+      ["nota.md", "# Nota importada"],
+      ["datos.yaml", "valor: 7"],
+    ]) {
+      const result = await request("POST", `/sessions/${sid}/import`, {
+        name,
+        content,
+        revision,
+      });
+      expect(result.statusCode).toBe(200);
+      const state = result.json().state;
+      revision = state.revision;
+      expect(state.pkg.name).toBe(original.pkg.name);
+      expect(state.files.find((f: any) => f.path === name)?.content).toBe(
+        content,
+      );
+      expect(state.files.some((f: any) => f.path === "SKILL.md")).toBe(true);
+    }
+    const conflict = await request("POST", `/sessions/${sid}/import`, {
+      name: "nota.md",
+      content: "overwrite",
+      revision,
+    });
+    expect(conflict.statusCode).toBe(400);
+    expect(
+      (await request("GET", `/sessions/${sid}/state`)).json().state.revision,
+    ).toBe(revision);
+  });
   it("AI consent and budget enforced before provider call, encrypted per owner, expiration and deletion", async () => {
     expect(
       (

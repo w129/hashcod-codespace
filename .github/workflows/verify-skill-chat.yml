@@ -41,6 +41,8 @@ jobs:
       - run: pnpm --dir skill-chat build
       - run: pnpm --dir skill-chat typecheck
       - run: pnpm --dir skill-chat test
+      - run: pnpm --dir skill-chat --filter @hashcod/skill-core test:coverage
+      - run: pnpm --dir skill-chat audit --audit-level moderate
       - name: Verify API production image
         run: docker build -f skill-chat/apps/api/Dockerfile -t hashcod-skill-api .
   isolated-runtimes:

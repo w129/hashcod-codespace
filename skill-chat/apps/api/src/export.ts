@@ -15,6 +15,17 @@ export function exportFiles(ctx: Context, format: string) {
   const filtered = files.filter((f) => f.ext === format);
   if (!filtered.length)
     throw new ApiError(400, "No hay archivos de ese formato.");
+  const active = filtered.find((f) => f.path === ctx.activeFile);
+  if (active) return [active];
+  const main = filtered.find(
+    (f) => f.path === "SKILL.md" || f.path === "role.yaml",
+  );
+  if (main) return [main];
+  if (filtered.length > 1)
+    throw new ApiError(
+      400,
+      "Abre el archivo que quieres exportar, o usa ZIP para todos.",
+    );
   return filtered;
 }
 export async function archive(ctx: Context) {

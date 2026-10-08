@@ -3,6 +3,7 @@ import type { Redis } from "ioredis";
 import { randomBytes, randomUUID } from "node:crypto";
 import {
   createContext,
+  snapshot,
   assertContext,
   type Context,
   type VirtualFile,
@@ -93,19 +94,15 @@ export class Store {
         ? { command: c.pendingConfirm.command, args: c.pendingConfirm.args }
         : null,
       jobs,
-      messages: messages
-        .reverse()
-        .map((m) => ({
-          role: m.role,
-          content: m.content.slice(0, 16384),
-          createdAt: m.createdAt.toISOString(),
-        })),
-      versions: versions
-        .reverse()
-        .map((v) => ({
-          number: v.number,
-          createdAt: v.createdAt.toISOString(),
-        })),
+      messages: messages.reverse().map((m) => ({
+        role: m.role,
+        content: m.content.slice(0, 16384),
+        createdAt: m.createdAt.toISOString(),
+      })),
+      versions: versions.reverse().map((v) => ({
+        number: v.number,
+        createdAt: v.createdAt.toISOString(),
+      })),
     };
   }
   async listSessions(owner: string) {
@@ -168,12 +165,8 @@ export class Store {
       throw new ApiError(400, "Los proyectos del periodo alcanzaron 128 MiB.");
     const frozen = {
       ...createContext(),
+      ...snapshot(ctx),
       nextVersion: ctx.nextVersion,
-      pkg: ctx.pkg,
-      files: ctx.files,
-      folders: ctx.folders,
-      activeFile: ctx.activeFile,
-      activeTool: ctx.activeTool,
     };
     const sizeBytes = Buffer.byteLength(JSON.stringify(frozen));
     if (saveVersion || publish) {
@@ -230,7 +223,7 @@ export class Store {
           data: {
             projectId: s.projectId,
             role: "user",
-            content: userInput.slice(0, 1048576),
+            content: userInput.slice(0, 16384),
           },
         });
       if (message)
@@ -238,7 +231,7 @@ export class Store {
           data: {
             projectId: s.projectId,
             role: "system",
-            content: message.slice(0, 65536),
+            content: message.slice(0, 16384),
           },
         });
       if (saveVersion) {
@@ -284,9 +277,21 @@ export class Store {
     await this.redis.set("session:" + s.id, JSON.stringify(s), "EX", 86400);
     await this.redis.zadd("sessions:" + owner, Date.now(), s.id);
   }
+  async trimMessages(projectId: string) {
+    const stale = await this.db.message.findMany({
+      where: { projectId },
+      orderBy: { createdAt: "desc" },
+      skip: 200,
+      select: { id: true },
+    });
+    if (stale.length)
+      await this.db.message.deleteMany({
+        where: { id: { in: stale.map((x) => x.id) } },
+      });
+  }
   async append(s: Session, content: string, role = "system") {
     await this.db.message.create({
-      data: { projectId: s.projectId, role, content: content.slice(0, 65536) },
+      data: { projectId: s.projectId, role, content: content.slice(0, 16384) },
     });
   }
 }

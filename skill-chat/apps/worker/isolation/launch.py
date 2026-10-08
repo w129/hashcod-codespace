@@ -82,7 +82,7 @@ def restrict(input_dir, output_dir, runtime_dir):
     try:
         denied = ['socket', 'connect', 'bind', 'listen', 'accept', 'accept4', 'sendto', 'sendmsg',
                   'recvfrom', 'recvmsg', 'ptrace', 'process_vm_readv', 'process_vm_writev',
-                  'kill', 'tkill', 'tgkill', 'rt_sigqueueinfo', 'rt_tgsigqueueinfo', 'pidfd_open', 'pidfd_getfd', 'pidfd_send_signal',
+                  'kill', 'tkill', 'rt_sigqueueinfo', 'pidfd_open', 'pidfd_getfd', 'pidfd_send_signal',
                   'mount', 'umount2', 'pivot_root', 'chroot', 'unshare', 'setns',
                   'bpf', 'keyctl', 'add_key', 'request_key', 'perf_event_open', 'userfaultfd',
                   'reboot', 'kexec_load', 'init_module', 'finit_module', 'delete_module', 'iopl', 'ioperm',
@@ -101,7 +101,8 @@ def restrict(input_dir, output_dir, runtime_dir):
             _fields_ = [('arg', ctypes.c_uint), ('op', ctypes.c_uint),
                         ('datum_a', ctypes.c_uint64), ('datum_b', ctypes.c_uint64)]
         sec.seccomp_rule_add_array.argtypes = [ctypes.c_void_p, ctypes.c_uint32, ctypes.c_int, ctypes.c_uint, ctypes.POINTER(Compare)]
-        for syscall, arg, value in [('prlimit64', 2, 0), ('ioctl', 1, 0x5421)]:
+        for syscall, arg, value in [('prlimit64', 2, 0), ('ioctl', 1, 0x5421),
+                                    ('tgkill', 0, os.getpid()), ('rt_tgsigqueueinfo', 0, os.getpid())]:
             comparison = Compare(arg, 1, value, 0)  # SCMP_CMP_NE
             number = sec.seccomp_syscall_resolve_name(syscall.encode())
             if number >= 0 and sec.seccomp_rule_add_array(ctx, 0x50000 | errno.EPERM, number, 1, ctypes.byref(comparison)) != 0:

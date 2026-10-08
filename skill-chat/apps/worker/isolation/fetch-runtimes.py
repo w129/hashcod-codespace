@@ -5,6 +5,7 @@ import io
 import os
 from pathlib import Path
 import tarfile
+import shutil
 import urllib.request
 import zipfile
 
@@ -55,7 +56,21 @@ def install(name, url, algorithm, expected):
                     resolved = os.path.realpath(target / Path(member.name).parent / member.linkname)
                     if not resolved.startswith(str(target) + '/'):
                         raise RuntimeError('Archive symlink escapes runtime')
-                contents.extract(member, path=target, filter='data')
+                destination = target / member.name
+                if not os.path.realpath(destination).startswith(str(target) + '/'):
+                    raise RuntimeError('Archive destination escapes runtime')
+                if member.isdir():
+                    destination.mkdir(parents=True, exist_ok=True)
+                elif member.issym():
+                    destination.parent.mkdir(parents=True, exist_ok=True)
+                    destination.symlink_to(member.linkname)
+                elif member.isfile():
+                    destination.parent.mkdir(parents=True, exist_ok=True)
+                    with contents.extractfile(member) as source, destination.open('xb') as output:
+                        shutil.copyfileobj(source, output)
+                    destination.chmod(member.mode & 0o777)
+                else:
+                    raise RuntimeError('Unsupported upstream archive entry')
     print(name + ' pinned runtime digest verified')
 
 if __name__ == '__main__':

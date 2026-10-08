@@ -89,6 +89,7 @@ const commands = [
         registryImports = 0,
         conflict = false,
         jobPolls = 0,
+        sessionsCreated = 0,
         unavailable = false;
       const errors = [];
       page.on("pageerror", (e) => errors.push(e.message));
@@ -133,14 +134,14 @@ const commands = [
             csrf: "fixture-csrf",
             commands,
             projects: [],
-            sessions: [
+            sessions: sessionsCreated ? [
               {
                 id: sid,
                 projectId: pid,
                 name: "Mi paquete",
                 updatedAt: new Date().toISOString(),
               },
-            ],
+            ] : [],
             config: {
               models: [
                 {
@@ -152,7 +153,11 @@ const commands = [
               scope: "Markdown · YAML · CoffeeScript · Dart",
             },
           };
-        else if (url.pathname.endsWith("/state")) {
+        else if (method === "POST" && url.pathname.endsWith("/sessions")) {
+          assert.deepEqual(req.postDataJSON(), {});
+          sessionsCreated++;
+          data = { ok: true, state: structuredClone(state) };
+        } else if (url.pathname.endsWith("/state")) {
           if (state.jobs?.[0]?.status === "queued") {
             jobPolls++;
             state.jobs[0] = {
@@ -289,6 +294,8 @@ const commands = [
           name: "Comando o texto del editor",
         });
       await draft.waitFor();
+      await page.getByText("Conectado", { exact: true }).waitFor();
+      assert.equal(sessionsCreated, 1);
       await draft.fill("/");
       await page.locator(".hsc-command-menu [role=option]").first().waitFor();
       await draft.press("ArrowDown");
@@ -494,12 +501,14 @@ const commands = [
       );
       await page.locator("#slot3").click();
       await draft.waitFor();
+      await page.getByText("Conectado", { exact: true }).waitFor();
+      assert.equal(sessionsCreated, 1, "Reopening created a duplicate session");
       assert.equal(state.files.length, 2);
       await page
         .getByRole("button", { name: "Cerrar editor de skills" })
         .click();
       console.log(
-        `Skill editor ${viewport.width}: keyboard commands, multiline, edit/conflict, XSS, import/export, BYOK clearing, publication, registry, owned job polling, reconnect, persistence, focus and layout passed.`,
+        `Skill editor ${viewport.width}: first session, keyboard commands, multiline, edit/conflict, XSS, import/export, BYOK clearing, publication, registry, owned job polling, reconnect, persistence, focus and layout passed.`,
       );
     }
   } finally {

@@ -35,6 +35,17 @@ function skillChatCheckCsrf(string $period): void {
         || !hash_equals(mldsaHost(),(string)($proof['host']??'')) || !hash_equals(hash('sha256',$period),(string)($proof['period']??'')))
         hcsJson(['ok'=>false,'error'=>'Actualiza el editor para renovar la sesión.'],403);
 }
+/** Keep JSON objects distinct from lists, including an empty session request. */
+function skillChatDecodeBody(string $raw, array $fields): ?array {
+    if ($raw==='') return [];
+    $object=json_decode($raw);
+    if (!$object instanceof stdClass) return null;
+    $body=get_object_vars($object);
+    return array_diff(array_keys($body),$fields) ? null : $body;
+}
+function skillChatEncodeBody(array $body): string {
+    return json_encode((object)$body,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_THROW_ON_ERROR);
+}
 function skillChatBackend(string $path, string $method, ?array $body, string $origin, string $access=''): array {
     $handle = function_exists('curl_init') ? curl_init('https://hashcod-skill-chat-production.up.railway.app'.$path) : false;
     if ($handle===false) hcsJson(['ok'=>false,'error'=>'El editor no está disponible.'],503);
@@ -45,7 +56,7 @@ function skillChatBackend(string $path, string $method, ?array $body, string $or
         CURLOPT_HTTPHEADER=>$headers, CURLOPT_WRITEFUNCTION=>static function($ch,string $chunk) use (&$raw,&$tooLarge): int {
             if (strlen($raw)+strlen($chunk)>25165824) { $tooLarge=true; return 0; } $raw.=$chunk; return strlen($chunk);
         }]);
-    if ($body!==null) curl_setopt($handle,CURLOPT_POSTFIELDS,json_encode($body,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
+    if ($body!==null) curl_setopt($handle,CURLOPT_POSTFIELDS,skillChatEncodeBody($body));
     $success=curl_exec($handle); $status=(int)curl_getinfo($handle,CURLINFO_RESPONSE_CODE); $type=(string)curl_getinfo($handle,CURLINFO_CONTENT_TYPE); curl_close($handle);
     if ($success===false || $tooLarge || $status<200 || $status>=600) hcsJson(['ok'=>false,'error'=>'No se pudo conectar con el editor. Intenta de nuevo.'],503);
     return ['status'=>$status,'raw'=>$raw,'type'=>$type,'data'=>json_decode($raw,true)];
@@ -101,8 +112,8 @@ if ($method!=='GET') {
     skillChatCheckCsrf($period);
     if ((int)($_SERVER['CONTENT_LENGTH']??0)>2097152) hcsJson(['ok'=>false,'error'=>'Solicitud demasiado grande.'],413);
     $raw=file_get_contents('php://input',false,null,0,2097153);
-    $body=is_string($raw)&&$raw!==''?json_decode($raw,true):[];
-    if (!is_array($body) || strlen((string)$raw)>2097152 || array_diff(array_keys($body),$route['fields'])) hcsJson(['ok'=>false,'error'=>'Solicitud incorrecta.'],400);
+    $body=is_string($raw)?skillChatDecodeBody($raw,$route['fields']):null;
+    if ($body===null || strlen((string)$raw)>2097152) hcsJson(['ok'=>false,'error'=>'Solicitud incorrecta.'],400);
 }
 $limit=securityRateAllowSliding('skill_chat_'.($method==='GET'?'read':'write'),$method==='GET'?120:60,60);
 if (empty($limit['allowed'])) hcsJson(['ok'=>false,'error'=>'Espera un minuto antes de continuar.'],429);

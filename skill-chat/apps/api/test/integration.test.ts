@@ -197,6 +197,8 @@ describe.skipIf(!enabled)("real PostgreSQL and Redis API boundaries", () => {
     ).toBe(403);
   });
   it("creates privately owned persistent project/session", async () => {
+    // The PHP facade must forward an object, never turn {} into a JSON list.
+    expect((await request("POST", "/sessions", [])).statusCode).toBe(400);
     const r = await request("POST", "/sessions", {});
     expect(r.statusCode).toBe(200);
     const state = r.json().state;

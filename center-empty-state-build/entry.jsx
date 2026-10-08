@@ -1908,7 +1908,7 @@ function mountCenterEmptyState() {
 
   window.HashcodCenterEmptyState = Object.freeze({
     mounted: true,
-    version: "20261008-skill-chat1",
+    version: "20261008-skill-preview2",
   });
 
   return true;

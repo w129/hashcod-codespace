@@ -323,7 +323,16 @@ const commands = [
       await page
         .getByRole("button", { name: "Vista previa", exact: true })
         .click();
-      await page.locator(".hsc-highlight").waitFor();
+      await page.locator(".hsc-markdown h1").waitFor();
+      assert.equal(await page.locator(".hsc-markdown h1").textContent(), "Mi skill");
+      assert.equal(await dialog.locator("img").count(), 0);
+      await page.getByRole("button", { name: "Editar", exact: true }).click();
+      await editor.fill("# Vista real\n\n**Negrita**\n\n- Elemento\n\n| Nombre | Estado |\n| --- | --- |\n| Skill | Listo |\n\n[Inseguro](javascript:alert%281%29)\n\n![Imagen](https://foreign.test/pixel)");
+      await page.getByRole("button", { name: "Vista previa", exact: true }).click();
+      await page.getByRole("heading", { name: "Vista real", exact: true }).waitFor();
+      assert.equal(await page.locator(".hsc-markdown strong").textContent(), "Negrita");
+      assert.equal(await page.locator(".hsc-markdown table").count(), 1);
+      assert.equal(await page.locator('.hsc-markdown a[href^="javascript:"]').count(), 0);
       assert.equal(await dialog.locator("img").count(), 0);
       await page.getByRole("button", { name: "Editar", exact: true }).click();
       await editor.fill(
@@ -347,6 +356,42 @@ const commands = [
         .getByRole("button", { name: "Guardar archivo", exact: true })
         .click();
       await page.getByRole("alert").waitFor({ state: "detached" });
+      // Switch formats through the actual file tree, including invalid YAML.
+      const selectPreviewFile = async (name) => {
+        if (viewport.width < 700)
+          await page.getByRole("button", { name: "Archivos", exact: true }).click();
+        await page.getByRole("button", { name: "Abrir " + name, exact: true }).click();
+        await page.locator(".hsc-file-active").filter({ hasText: name }).waitFor();
+        if (viewport.width < 700)
+          await page.getByRole("button", { name: "Editor", exact: true }).click();
+      };
+      state.files.push(
+        { path: "preview.yaml", ext: "yaml", content: 'nombre: Registro\nactivo: true\nlista:\n  - 42' },
+        { path: "preview.coffee", ext: "coffee", content: 'square = (x) -> x * x' },
+        { path: "preview.dart", ext: "dart", content: 'void main() { print("hola"); }' },
+      );
+      await selectPreviewFile("SKILL.md");
+      await page.locator('.hsc-file-tree button[title="preview.yaml"]').waitFor({ state: "attached" });
+      await selectPreviewFile("preview.yaml");
+      await page.getByRole("button", { name: "Vista previa", exact: true }).click();
+      await page.getByRole("heading", { name: "Datos YAML", exact: true }).waitFor();
+      assert.match(await page.locator(".hsc-yaml").textContent(), /booleano/);
+      await page.getByRole("button", { name: "Editar", exact: true }).click();
+      await editor.fill("dato: [");
+      await page.getByRole("button", { name: "Vista previa", exact: true }).click();
+      await page.getByText(/No se pudo representar el YAML/).waitFor();
+      await page.getByRole("button", { name: "Editar", exact: true }).click();
+      await editor.fill('nombre: Registro\nactivo: true\nlista:\n  - 42');
+      for (const ext of ["coffee", "dart"]) {
+        await selectPreviewFile("preview." + ext);
+        await page.getByRole("button", { name: "Vista previa", exact: true }).click();
+        await page.locator(".hsc-highlight span").first().waitFor();
+        assert.match(await page.locator(".hsc-highlight").textContent(), ext === "coffee" ? /square/ : /void main/);
+        assert.equal(await page.locator(".hsc-markdown").count(), 0);
+        await page.getByRole("button", { name: "Editar", exact: true }).click();
+      }
+      await selectPreviewFile("SKILL.md");
+      state.files = state.files.filter(f => !f.path.startsWith("preview."));
       if (viewport.width < 700)
         await page.getByRole("button", { name: "Chat", exact: true }).click();
       await draft.fill("/code coffee");

@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import Composer, { Icon } from "./skill-chat/Composer";
 import Preview from "./skill-chat/Preview";
 import FileTree from "./skill-chat/FileTree";
+import SkillEditorIcon from "./skill-chat/SkillEditorIcon";
 import {
   createClient,
   downloadBlob,
@@ -11,29 +12,6 @@ import {
 } from "./skill-chat/client";
 import "./skill-chat/skill-chat.css";
 
-function PlatformMark() {
-  return (
-    <svg
-      width="23"
-      height="23"
-      viewBox="0 0 512 512"
-      fill="none"
-      aria-hidden="true"
-    >
-      <path
-        d="M128 344H80C60.118 344 44 327.882 44 308V104C44 84.118 60.118 68 80 68H432C451.882 68 468 84.118 468 104V308C468 327.882 451.882 344 432 344H384"
-        stroke="currentColor"
-        strokeWidth="34"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M247.5 278.5C251.2 272.1 260.8 272.1 264.5 278.5L380.5 448.2C384.5 454.9 379.7 460 372 460H140C132.3 460 127.5 454.9 131.5 448.2L247.5 278.5Z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-}
 const encoded = encodeURIComponent;
 const ACTIVE_JOBS = new Set(["queued", "waiting", "active", "running"]);
 function filesOf(state) {
@@ -469,7 +447,7 @@ export default function SkillChat({ onClose }) {
       >
         <header className="hsc-heading">
           <div className="hsc-brand">
-            <PlatformMark />
+            <SkillEditorIcon />
             <div>
               <span>Hashcod Codespace</span>
               <h2 id="hsc-title">Editor de roles y skills</h2>

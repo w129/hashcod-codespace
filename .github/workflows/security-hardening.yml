@@ -18,6 +18,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Scan tracked files for secrets and runtime state
+        run: |
+          node --check scripts/check_secrets.js
+          node scripts/check_secrets.js
+
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:

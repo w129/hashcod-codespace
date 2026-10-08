@@ -220,6 +220,17 @@ jobs:
       - name: Verify desktop runtime contract
         run: node tests/e2e/test_desktop_runtime_contract.js
 
+      - name: Verify Slot 3 facade in Windows runtime
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $desktopPhp = Join-Path $env:GITHUB_WORKSPACE 'local-app/desktop/payload/php/php.exe'
+          $desktopIni = Join-Path $env:GITHUB_WORKSPACE 'local-app/desktop/payload/php/php.ini'
+          & $desktopPhp -c $desktopIni -l hashcod-skill-chat.php
+          if ($LASTEXITCODE -ne 0) { throw 'Skill editor PHP syntax failed in Windows.' }
+          & $desktopPhp -c $desktopIni tests/security/test-skill-chat.php
+          if ($LASTEXITCODE -ne 0) { throw 'Skill editor authorization failed in Windows.' }
+
       - name: Verify Windows privacy document and data processing license
         shell: pwsh
         run: |

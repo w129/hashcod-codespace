@@ -1905,7 +1905,7 @@ function mountCenterEmptyState() {
 
   window.HashcodCenterEmptyState = Object.freeze({
     mounted: true,
-    version: "20261008-review-chat1",
+    version: "20261008-access-drawer2",
   });
 
   return true;

@@ -280,6 +280,7 @@ jobs:
           export HASHCOD_MOBILE_SCREENSHOT_DIR="$RUNNER_TEMP/hashcod-mobile-evidence"
           node tests/e2e/test_ui_interaction_sounds_browser.js
           node tests/e2e/test_first_screen_mobile_browser.js
+          node tests/e2e/test_review_browser.cjs
 
       - name: Upload first-screen phone evidence
         if: always()

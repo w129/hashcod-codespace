@@ -7,6 +7,7 @@ int hashcod_lock_exec(void) {
   scmp_filter_ctx filter = seccomp_init(SCMP_ACT_ALLOW);
   if (!filter) return -1;
   int result = seccomp_attr_set(filter, SCMP_FLTATR_CTL_NNP, 0);
+  if (!result) result = seccomp_attr_set(filter, SCMP_FLTATR_CTL_TSYNC, 1);
   if (!result) result = seccomp_rule_add(filter, SCMP_ACT_ERRNO(EPERM), SCMP_SYS(execve), 0);
   if (!result) result = seccomp_rule_add(filter, SCMP_ACT_ERRNO(EPERM), SCMP_SYS(execveat), 0);
   if (!result) result = seccomp_load(filter);

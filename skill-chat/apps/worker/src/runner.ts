@@ -28,6 +28,7 @@ const NODE_FLAGS = [
   "--disable-proto=throw",
 ];
 const DART_FLAGS = [
+  "--deterministic",
   "--old-gen-heap-size=96",
   "--scavenger-tasks=1",
   "--marker-tasks=1",

@@ -21,9 +21,11 @@ WASM_ROOT=os.environ.get('REVIEW_WASM_ROOT','/usr/local/share/review-wasm')
 def run(command, directory, timeout=30, readonly=False):
     env={'PATH':os.path.dirname(SEMGREP)+':/usr/local/bin:/usr/bin:/bin','HOME':directory,'TMPDIR':directory,'LANG':'C.UTF-8','PYTHONDONTWRITEBYTECODE':'1','REVIEW_WASM_ROOT':WASM_ROOT,
          'SEMGREP_SEND_METRICS':'off','SEMGREP_ENABLE_VERSION_CHECK':'0','NO_COLOR':'1','GOMAXPROCS':'1','GOMEMLIMIT':'256MiB','UV_THREADPOOL_SIZE':'1'}
+    diagnostic=os.environ.get('REVIEW_STARTUP_DIAGNOSTIC')=='1'
+    if diagnostic: env['REVIEW_STARTUP_DIAGNOSTIC']='1'
     with tempfile.TemporaryFile() as output:
         mode='vm' if len(command)>1 and command[1]==WASM_RUNNER else 'compiler' if command[0]==os.path.join(WASM_ROOT,'javy') else 'readonly' if readonly else 'analysis'
-        process=subprocess.Popen([sys.executable,LAUNCHER,directory,mode,*command],cwd=directory,env=env,stdout=output,stderr=subprocess.DEVNULL,start_new_session=True)
+        process=subprocess.Popen([sys.executable,LAUNCHER,directory,mode,*command],cwd=directory,env=env,stdout=output,stderr=output if diagnostic else subprocess.DEVNULL,start_new_session=True)
         try: status=process.wait(timeout=timeout)
         except subprocess.TimeoutExpired:
             os.killpg(process.pid,signal.SIGKILL); process.wait(); return 124,None
@@ -32,6 +34,7 @@ def run(command, directory, timeout=30, readonly=False):
             try: os.killpg(process.pid,signal.SIGKILL)
             except ProcessLookupError: pass
         output.seek(0); raw=output.read(1024*1024+1)
+        if diagnostic and status!=0: print('Trusted startup check exit '+str(status)+': '+raw[:3000].decode('utf-8',errors='replace'),flush=True)
         if len(raw)>1024*1024: return 124,None
         return (124 if status<0 else status),raw
 

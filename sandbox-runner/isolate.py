@@ -62,6 +62,7 @@ if __name__=='__main__':
     try:
         restrict(os.path.realpath(sys.argv[1]),sys.argv[2] in ('readonly','vm'),sys.argv[2] in ('vm','compiler'))
         os.chdir(sys.argv[1])
-    except Exception:
+    except Exception as error:
+        if os.environ.get('REVIEW_STARTUP_DIAGNOSTIC')=='1': print('Launcher startup: '+type(error).__name__+': '+str(error),file=sys.stderr)
         sys.exit(125)
     os.execv(sys.argv[3],sys.argv[3:])

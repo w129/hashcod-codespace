@@ -39,10 +39,12 @@ if __name__=='__main__':
     if ctypes.CDLL(None).prctl(4,0,0,0,0)!=0: raise RuntimeError('Process protection unavailable')
     # Exercise the actual installed tools as the unprivileged runtime user.
     # Railway must not mark an incomplete isolation deployment healthy.
+    os.environ['REVIEW_STARTUP_DIAGNOSTIC']='1'
     for source,language in [(b'def add(a,b):\n return a+b\n','python'),(b'function add(a,b) { return a+b; }\n','javascript')]:
         checks=analyze(source,language)
         if len(checks)!=5 or not all(check['passed'] and check['status']=='complete' for check in checks):
             raise RuntimeError('Sandbox readiness failed: '+','.join(check['kind'] for check in checks if not check['passed'] or check['status']!='complete'))
+    os.environ.pop('REVIEW_STARTUP_DIAGNOSTIC',None)
     print('Sandbox readiness passed: Python, JavaScript, isolation, SAST, secrets and dependencies',flush=True)
     worker=Worker(env_key('REVIEW_BACKEND_PUBLIC_KEY'),env_key('REVIEW_ATTESTATION_KEY',True))
     JsonHandler.max_bytes=2900000

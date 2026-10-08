@@ -35,4 +35,6 @@ def execute(module_path,job,python_args=None):
 
 if __name__=='__main__':
     try: sys.exit(execute(sys.argv[1],sys.argv[2],sys.argv[3:] if len(sys.argv)>3 else None))
-    except Exception: sys.exit(124)
+    except Exception as error:
+        if os.environ.get('REVIEW_STARTUP_DIAGNOSTIC')=='1': print('WASM startup: '+type(error).__name__+': '+str(error),file=sys.stderr)
+        sys.exit(124)

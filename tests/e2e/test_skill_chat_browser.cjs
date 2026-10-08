@@ -371,7 +371,7 @@ const commands = [
         { path: "preview.dart", ext: "dart", content: 'void main() { print("hola"); }' },
       );
       await selectPreviewFile("SKILL.md");
-      await page.getByRole("button", { name: "Abrir preview.yaml", exact: true }).waitFor({ state: "attached" });
+      await page.locator('.hsc-file-tree button[title="preview.yaml"]').waitFor({ state: "attached" });
       await selectPreviewFile("preview.yaml");
       await page.getByRole("button", { name: "Vista previa", exact: true }).click();
       await page.getByRole("heading", { name: "Datos YAML", exact: true }).waitFor();

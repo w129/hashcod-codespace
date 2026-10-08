@@ -46,6 +46,8 @@ def restrict(input_dir, output_dir, runtime_dir):
         # glibc pthread_getattr_np needs the main thread's own stack map.
         # The rule anchors this PID's inode, not the /proc tree or other PIDs.
         paths.append(('/proc/self/maps', READ_FILE))
+        # The offline Dart analyzer reads only its own RSS counters.
+        paths.append(('/proc/self/statm', READ_FILE))
         for exe in ['node/bin/node', 'dart/bin/dart', 'dart/bin/dartaotruntime', 'dart/bin/dartvm']:
             paths.append((runtime_dir + '/' + exe, EXEC | READ_FILE))
         # ELF exec also checks its PT_INTERP loader. Permit the exact Debian

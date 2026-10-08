@@ -6,7 +6,7 @@ bytes and is shared only with the API supervisor. No database/JWT/AI/signing key
 belongs on this service. HMAC-SHA256 covers sorted-key canonical compact JSON;
 proof timestamp has a ±60 second window and nonce is single-use for 120 seconds.
 Only one job runs; at most 30 authorized jobs/minute. Guests inherit an explicit
-minimal environment, never the supervisor environment, and cannot read other process data. Only their own `/proc/self/maps` inode is readable for glibc stack discovery; environment, memory, file descriptors and other PIDs remain blocked.
+minimal environment, never the supervisor environment, and cannot read other process data. Only their own `/proc/self/maps` and `/proc/self/statm` inodes are readable for glibc stack discovery and Dart RSS counters; environment, memory, file descriptors and other PIDs remain blocked.
 
 Linux x86_64, **Landlock ABI >=3, libseccomp and dedicated UID 53219 are mandatory**.
 Unsupported kernels stop the service before a health endpoint is exposed. There

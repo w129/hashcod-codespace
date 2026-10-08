@@ -1,4 +1,5 @@
 'use strict';
+require('/opt/runtime/hashcod/lock-exec.node');
 const fs = require('node:fs');
 const path = require('node:path');
 const CoffeeScript = require('/opt/runtime/coffeescript/lib/coffeescript');

@@ -43,6 +43,9 @@ def restrict(input_dir, output_dir, runtime_dir):
                  ('/lib', READ_FILE | READ_DIR), ('/lib64', READ_FILE | READ_DIR),
                  ('/dev/null', READ_FILE | 2), ('/dev/urandom', READ_FILE),
                  ('/dev/random', READ_FILE), ('/etc/localtime', READ_FILE)]
+        # glibc pthread_getattr_np needs the main thread's own stack map.
+        # The rule anchors this PID's inode, not the /proc tree or other PIDs.
+        paths.append(('/proc/self/maps', READ_FILE))
         for exe in ['node/bin/node', 'dart/bin/dart', 'dart/bin/dartaotruntime', 'dart/bin/dartvm']:
             paths.append((runtime_dir + '/' + exe, EXEC | READ_FILE))
         # ELF exec also checks its PT_INTERP loader. Permit the exact Debian

@@ -1,6 +1,7 @@
 'use strict';
 const fs = require('node:fs');
 const manifest = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+require('/opt/runtime/hashcod/lock-exec.node');
 Promise.resolve().then(() => {
   const tool = require(manifest.compiled);
   if (!tool || typeof tool.run !== 'function') throw new Error('Tool must export run(args)');

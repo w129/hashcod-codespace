@@ -390,7 +390,7 @@ export async function runJob(job: Job): Promise<JobResult> {
     const relative = "./" + selected.path;
     await writeFile(
       wrapper,
-      `import 'dart:convert';\nimport 'dart:io';\nimport '${relative}' as tool;\nFuture<void> main(List<String> argv) async {\n  final args = Map<String,dynamic>.from(jsonDecode(File(argv.single).readAsStringSync()));\n  final result = await Future.value(tool.${className}().run(args));\n  stdout.write(jsonEncode(result));\n}\n`,
+      `import 'dart:convert';\nimport 'dart:io';\nimport 'dart:ffi';\nimport '${relative}' as tool;\nFuture<void> main(List<String> argv) async {\n  final lock = DynamicLibrary.open('/opt/runtime/hashcod/lock-exec.so').lookupFunction<Int32 Function(), int Function()>('hashcod_lock_exec');\n  if (lock() != 0) throw StateError('Runtime execution lock unavailable');\n  final args = Map<String,dynamic>.from(jsonDecode(File(argv.single).readAsStringSync()));\n  final result = await Future.value(tool.${className}().run(args));\n  stdout.write(jsonEncode(result));\n}\n`,
       { flag: "wx", mode: 0o400 },
     );
     return result(

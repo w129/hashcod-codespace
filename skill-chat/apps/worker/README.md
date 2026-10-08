@@ -6,7 +6,7 @@ bytes and is shared only with the API supervisor. No database/JWT/AI/signing key
 belongs on this service. HMAC-SHA256 covers sorted-key canonical compact JSON;
 proof timestamp has a ±60 second window and nonce is single-use for 120 seconds.
 Only one job runs; at most 30 authorized jobs/minute. Guests inherit an explicit
-minimal environment, never the supervisor environment, and cannot read `/proc`.
+minimal environment, never the supervisor environment, and cannot read other process data. Only their own `/proc/self/maps` inode is readable for glibc stack discovery; environment, memory, file descriptors and other PIDs remain blocked.
 
 Linux x86_64, **Landlock ABI >=3, libseccomp and dedicated UID 53219 are mandatory**.
 Unsupported kernels stop the service before a health endpoint is exposed. There
@@ -18,7 +18,7 @@ process, parent-signal, environment and networking probes before readiness.
 
 Files are read-only within each private job input tree. Writable temporary output
 is confined to that job. Landlock grants execution only to pinned Node and Dart
-SDK binaries, never shell, Python, package managers or arbitrary uploaded binaries.
+SDK binaries and their exact ELF loader. Before user code runs, the trusted CoffeeScript/Dart wrapper installs a second inherited seccomp filter denying all `execve`/`execveat`, including indirect loader execution. Shell, Python, package managers and uploaded binaries cannot be launched.
 Seccomp denies network sockets, namespace changes, process-memory access, parent
 signals, process-group escape, ownership/mode changes, io_uring and privileged
 kernel interfaces. Process groups are always killed on completion/error/timeout;
@@ -43,7 +43,7 @@ Build context repository root:
 ```sh
 docker build -f skill-chat/apps/worker/Dockerfile -t hashcod-skill-worker .
 docker run --rm --network none --cap-drop ALL --security-opt no-new-privileges \
-  --memory 1g --cpus 0.5 -e SKILL_CHAT_WORKER_SECRET=ci-test-not-a-production-secret-32 \
+  --memory 2g --cpus 0.5 -e SKILL_CHAT_WORKER_SECRET=ci-test-not-a-production-secret-32 \
   hashcod-skill-worker /opt/runtime/node/bin/node dist/selftest.js
 ```
 

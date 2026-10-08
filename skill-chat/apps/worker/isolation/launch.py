@@ -38,7 +38,8 @@ def restrict(input_dir, output_dir, runtime_dir):
         raise RuntimeError('landlock_ruleset_unavailable')
     try:
         paths = [(input_dir, READ_FILE | READ_DIR), (output_dir, ALL_FS & ~EXEC),
-                 (runtime_dir, READ_FILE | READ_DIR), ('/usr', READ_FILE | READ_DIR),
+                 (runtime_dir, READ_FILE | READ_DIR), ('/usr/lib', READ_FILE | READ_DIR),
+                 ('/usr/lib64', READ_FILE | READ_DIR),
                  ('/lib', READ_FILE | READ_DIR), ('/lib64', READ_FILE | READ_DIR),
                  ('/dev/null', READ_FILE | 2), ('/dev/urandom', READ_FILE),
                  ('/dev/random', READ_FILE), ('/etc/localtime', READ_FILE)]

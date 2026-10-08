@@ -1,0 +1,983 @@
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import Composer, { Icon } from "./skill-chat/Composer";
+import Preview from "./skill-chat/Preview";
+import FileTree from "./skill-chat/FileTree";
+import {
+  createClient,
+  downloadBlob,
+  validVirtualPath,
+  uploadName,
+} from "./skill-chat/client";
+import "./skill-chat/skill-chat.css";
+
+function PlatformMark() {
+  return (
+    <svg
+      width="23"
+      height="23"
+      viewBox="0 0 512 512"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M128 344H80C60.118 344 44 327.882 44 308V104C44 84.118 60.118 68 80 68H432C451.882 68 468 84.118 468 104V308C468 327.882 451.882 344 432 344H384"
+        stroke="currentColor"
+        strokeWidth="34"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M247.5 278.5C251.2 272.1 260.8 272.1 264.5 278.5L380.5 448.2C384.5 454.9 379.7 460 372 460H140C132.3 460 127.5 454.9 131.5 448.2L247.5 278.5Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+const encoded = encodeURIComponent;
+const ACTIVE_JOBS = new Set(["queued", "waiting", "active", "running"]);
+function filesOf(state) {
+  return Array.isArray(state?.files)
+    ? state.files.filter(
+        (f) => validVirtualPath(f.path) && typeof f.content === "string",
+      )
+    : [];
+}
+export default function SkillChat({ onClose }) {
+  const [boot, setBoot] = useState(null),
+    [state, setState] = useState(null),
+    [busy, setBusy] = useState(true),
+    [error, setError] = useState(""),
+    [tab, setTab] = useState("chat"),
+    [settings, setSettings] = useState(false),
+    [registry, setRegistry] = useState(null),
+    [job, setJob] = useState(null),
+    [connection, setConnection] = useState("Conectando…");
+  const [preview, setPreview] = useState(false),
+    [edit, setEdit] = useState(""),
+    [dirty, setDirty] = useState(false),
+    [closeConfirm, setCloseConfirm] = useState(false),
+    [version, setVersion] = useState(""),
+    [celebrate, setCelebrate] = useState(false),
+    [notice, setNotice] = useState("");
+  const [apiKey, setApiKey] = useState(""),
+    [model, setModel] = useState(""),
+    [budget, setBudget] = useState("1"),
+    [consent, setConsent] = useState(false),
+    [aiReady, setAiReady] = useState(false);
+  const root = useRef(null),
+    thread = useRef(null),
+    client = useRef(null),
+    alive = useRef(true),
+    pending = useRef(false),
+    current = useRef(null),
+    dirtyRef = useRef(false),
+    editRef = useRef("");
+  if (!client.current) client.current = createClient();
+  current.current = state;
+  dirtyRef.current = dirty;
+  editRef.current = edit;
+  const files = filesOf(state),
+    active = files.find((f) => f.path === state?.activeFile),
+    ready = !!state && !busy;
+  useLayoutEffect(() => {
+    const previous = document.activeElement,
+      targets = [...document.querySelectorAll("body > main,body > footer")],
+      inert = targets.map((n) => n.inert),
+      overflow = document.body.style.overflow;
+    targets.forEach((n) => {
+      n.inert = true;
+    });
+    document.body.style.overflow = "hidden";
+    root.current?.focus();
+    return () => {
+      targets.forEach((n, i) => {
+        n.inert = document.body.classList.contains("hpa-locked")
+          ? true
+          : inert[i];
+      });
+      document.body.style.overflow = overflow;
+      previous?.focus?.();
+    };
+  }, []);
+  useEffect(() => {
+    load()
+      .catch((e) => alive.current && setError(e.message))
+      .finally(() => alive.current && setBusy(false));
+    return () => {
+      alive.current = false;
+      client.current.dispose();
+    };
+  }, []);
+  useEffect(() => {
+    if (!dirty) setEdit(active?.content || "");
+  }, [state?.revision, state?.activeFile, active?.content, dirty]);
+  useEffect(() => {
+    thread.current?.scrollTo({
+      top: thread.current.scrollHeight,
+      behavior: "auto",
+    });
+  }, [state?.messages?.length, busy, job]);
+  useEffect(() => {
+    if (!celebrate) return;
+    const timer = setTimeout(() => setCelebrate(false), 1600);
+    return () => clearTimeout(timer);
+  }, [celebrate]);
+  useEffect(() => {
+    const handler = (e) => {
+      if (dirtyRef.current) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, []);
+  useEffect(() => {
+    if (!state?.sessionId || !job || !ACTIVE_JOBS.has(job.status)) return;
+    let stopped = false,
+      socket = null,
+      polling = false,
+      timer = null;
+    const reload = async () => {
+      if (stopped || polling || pending.current) return;
+      polling = true;
+      try {
+        const data = await client.current.request(
+          "/sessions/" + encoded(state.sessionId) + "/state",
+        );
+        if (!stopped) {
+          setState(data.state);
+          const latest = data.state.jobs?.find((j) => j.id === job.id);
+          if (latest) setJob(latest);
+          setConnection("Conectado");
+        }
+      } catch (e) {
+        if (!stopped) setConnection("Reconectando…");
+      } finally {
+        polling = false;
+      }
+    };
+    client.current
+      .request("/sessions/" + encoded(state.sessionId) + "/events-token")
+      .then((data) => {
+        if (stopped) return;
+        const url = new URL(data.url);
+        const approved =
+          boot?.config?.eventsOrigin || boot?.config?.websocketOrigin || "";
+        if (url.protocol !== "wss:" || !approved || url.origin !== approved)
+          throw new Error("Canal de eventos no disponible.");
+        socket = new WebSocket(url.href);
+        socket.onopen = () => !stopped && setConnection("En tiempo real");
+        socket.onmessage = async (e) => {
+          try {
+            if (typeof e.data !== "string" || e.data.length > 16000) return;
+            const event = JSON.parse(e.data);
+            if (event.type === "job" && event.id === job.id) {
+              const data = await client.current.request(
+                "/sessions/" + encoded(state.sessionId) + "/state",
+              );
+              if (!stopped) {
+                setState(data.state);
+                setJob((j) => ({ ...j, ...event }));
+              }
+            }
+          } catch {
+            if (!stopped) setConnection("Consulta periódica");
+          }
+        };
+        socket.onerror = () => !stopped && setConnection("Consulta periódica");
+        socket.onclose = () => !stopped && setConnection("Consulta periódica");
+      })
+      .catch(() => !stopped && setConnection("Consulta periódica"));
+    timer = setInterval(reload, 2500);
+    return () => {
+      stopped = true;
+      clearInterval(timer);
+      socket?.close();
+    };
+  }, [
+    state?.sessionId,
+    job?.id,
+    ACTIVE_JOBS.has(job?.status),
+    boot?.config?.eventsOrigin,
+  ]);
+  async function load() {
+    const data = await client.current.request("/bootstrap");
+    if (!alive.current) return;
+    setBoot(data);
+    setModel((m) => m || data.config?.models?.[0]?.id || "");
+    let next;
+    if (current.current?.sessionId)
+      next = await client.current.request(
+        "/sessions/" + encoded(current.current.sessionId) + "/state",
+      );
+    else if (data.sessions?.length)
+      next = await client.current.request(
+        "/sessions/" + encoded(data.sessions[0].id) + "/state",
+      );
+    else
+      next = await client.current.request("/sessions", {
+        method: "POST",
+        body: {},
+      });
+    if (alive.current) {
+      setState(next.state);
+      setConnection("Conectado");
+      const running = next.state.jobs?.find((j) => ACTIVE_JOBS.has(j.status));
+      if (running) setJob(running);
+    }
+  }
+  async function perform(work) {
+    if (pending.current) return false;
+    pending.current = true;
+    setBusy(true);
+    setError("");
+    setNotice("");
+    try {
+      await work();
+      return true;
+    } catch (e) {
+      if (alive.current) {
+        setError(e.message);
+        if (e.status === 409 && current.current?.sessionId) {
+          try {
+            const fresh = await client.current.request(
+              "/sessions/" + encoded(current.current.sessionId) + "/state",
+            );
+            if (alive.current) setState(fresh.state);
+          } catch {}
+        }
+      }
+      return false;
+    } finally {
+      pending.current = false;
+      if (alive.current) setBusy(false);
+    }
+  }
+  async function saveInternal() {
+    if (!dirtyRef.current) return;
+    const snapshot = current.current;
+    if (!snapshot?.activeFile)
+      throw new Error("Selecciona un archivo antes de guardar.");
+    const data = await client.current.request(
+      "/sessions/" + encoded(snapshot.sessionId) + "/file",
+      {
+        method: "POST",
+        body: {
+          path: snapshot.activeFile,
+          content: editRef.current,
+          revision: snapshot.revision,
+        },
+      },
+    );
+    if (alive.current) {
+      current.current = data.state;
+      setState(data.state);
+      setDirty(false);
+      dirtyRef.current = false;
+      setNotice("Archivo guardado.");
+    }
+  }
+  async function exec(input) {
+    if (!current.current) return false;
+    return perform(async () => {
+      await saveInternal();
+      const snapshot = current.current;
+      const data = await client.current.request(
+        "/sessions/" + encoded(snapshot.sessionId) + "/exec",
+        { method: "POST", body: { input, revision: snapshot.revision } },
+      );
+      if (!alive.current) return;
+      setState(data.state);
+      if (data.job) setJob(data.job);
+      if (
+        /^\/(build|validate)\b/.test(input) &&
+        !data.issues?.some((i) =>
+          ["error", "critical", "high"].includes(i.severity || i.level),
+        )
+      )
+        setCelebrate(true);
+      if (data.download) await exportFile(data.download.format, data.state);
+    });
+  }
+  async function openFile(path) {
+    if (!validVirtualPath(path)) return;
+    await exec("/open " + path);
+  }
+  async function exportFile(format = "zip", snapshot = current.current) {
+    if (!snapshot?.projectId)
+      throw new Error("Crea un paquete antes de exportarlo.");
+    const blob = await client.current.request(
+      "/projects/" +
+        encoded(snapshot.projectId) +
+        "/export?format=" +
+        encoded(format),
+      { binary: true },
+    );
+    downloadBlob(blob, (snapshot.pkg?.name || "hashcod-skill") + "." + format);
+  }
+  async function upload(file) {
+    await perform(async () => {
+      if (file.size > 1024 * 1024)
+        throw new Error("Cada archivo puede ocupar hasta 1 MB.");
+      if (!/\.(md|ya?ml|coffee|dart|json)$/i.test(file.name))
+        throw new Error(
+          "Importa un archivo Markdown, YAML, CoffeeScript, Dart o JSON.",
+        );
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      let content;
+      try {
+        content = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+      } catch {
+        throw new Error("El archivo debe contener texto UTF-8.");
+      }
+      await saveInternal();
+      const snapshot = current.current;
+      const data = await client.current.request(
+        "/sessions/" + encoded(snapshot.sessionId) + "/import",
+        {
+          method: "POST",
+          body: {
+            name: uploadName(file.name),
+            content,
+            revision: snapshot.revision,
+          },
+        },
+      );
+      if (alive.current) {
+        setState(data.state);
+        setTab("editor");
+      }
+    });
+  }
+  async function switchSession(id) {
+    await perform(async () => {
+      await saveInternal();
+      const data =
+        id === "new"
+          ? await client.current.request("/sessions", {
+              method: "POST",
+              body: {},
+            })
+          : await client.current.request("/sessions/" + encoded(id) + "/state");
+      if (alive.current) {
+        setState(data.state);
+        setJob(null);
+        setAiReady(false);
+        const updated = await client.current.request("/bootstrap");
+        setBoot(updated);
+      }
+    });
+  }
+  async function setupAi() {
+    const key = apiKey;
+    setApiKey("");
+    await perform(async () => {
+      await client.current.request(
+        "/sessions/" + encoded(state.sessionId) + "/ai",
+        {
+          method: "POST",
+          body: {
+            apiKey: key,
+            model,
+            budgetMicros: Math.round(Number(budget) * 1000000),
+            consent: true,
+          },
+        },
+      );
+      if (alive.current) {
+        setAiReady(true);
+        setNotice(
+          "Clave validada. Ya puedes usar /test; cada prueba consume tu presupuesto.",
+        );
+        setConsent(false);
+      }
+    });
+  }
+  async function clearAi() {
+    await perform(async () => {
+      await client.current.request(
+        "/sessions/" + encoded(state.sessionId) + "/ai",
+        { method: "DELETE" },
+      );
+      if (alive.current) {
+        setAiReady(false);
+        setNotice("Clave temporal eliminada.");
+      }
+    });
+  }
+  function close() {
+    if (busy) return;
+    if (dirty) {
+      setCloseConfirm(true);
+      return;
+    }
+    setApiKey("");
+    onClose();
+  }
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(edit);
+      setNotice("Archivo copiado.");
+    } catch {
+      setError(
+        "No se pudo copiar. Selecciona el texto del editor para copiarlo.",
+      );
+    }
+  }
+  const versionRows = Array.isArray(state?.versions) ? state.versions : [];
+  return createPortal(
+    <div
+      className="hsc-backdrop"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) close();
+      }}
+    >
+      <section
+        id="d5SkillChat"
+        ref={root}
+        tabIndex={-1}
+        className="hsc-shell"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="hsc-title"
+        onKeyDown={(e) => {
+          if (e.key === "Escape" && !e.defaultPrevented) {
+            e.preventDefault();
+            if (closeConfirm) setCloseConfirm(false);
+            else if (settings) setSettings(false);
+            else if (registry) setRegistry(null);
+            else close();
+          }
+          if (e.key === "Tab") {
+            const nodes = [
+              ...root.current.querySelectorAll(
+                "button,input,select,textarea,a[href]",
+              ),
+            ].filter((n) => !n.disabled && n.offsetParent !== null);
+            if (!nodes.length) return;
+            if (e.shiftKey && document.activeElement === nodes[0]) {
+              e.preventDefault();
+              nodes.at(-1).focus();
+            } else if (!e.shiftKey && document.activeElement === nodes.at(-1)) {
+              e.preventDefault();
+              nodes[0].focus();
+            }
+          }
+        }}
+      >
+        <header className="hsc-heading">
+          <div className="hsc-brand">
+            <PlatformMark />
+            <div>
+              <span>Hashcod Codespace</span>
+              <h2 id="hsc-title">Editor de roles y skills</h2>
+            </div>
+          </div>
+          <div className="hsc-heading-actions">
+            <button
+              className="hsc-icon"
+              aria-label="Ajustes de IA"
+              aria-expanded={settings}
+              onClick={() => setSettings(!settings)}
+              disabled={!ready}
+            >
+              <Icon>
+                <path d="M12 8v8M8 12h8" />
+                <circle cx="12" cy="12" r="9" />
+              </Icon>
+            </button>
+            <button
+              className="hsc-icon"
+              aria-label="Cerrar editor de skills"
+              disabled={busy}
+              onClick={close}
+            >
+              ×
+            </button>
+          </div>
+        </header>
+        <div className="hsc-project-bar">
+          <label>
+            Proyecto
+            <select
+              aria-label="Proyecto guardado"
+              value={state?.sessionId || ""}
+              disabled={busy}
+              onChange={(e) => switchSession(e.target.value)}
+            >
+              <option value="">Selecciona un proyecto</option>
+              {(boot?.sessions || []).map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name || "Sin título"}
+                </option>
+              ))}
+              {state &&
+                !boot?.sessions?.some((s) => s.id === state.sessionId) && (
+                  <option value={state.sessionId}>
+                    {state.pkg?.name || "Nuevo proyecto"}
+                  </option>
+                )}
+              <option value="new">+ Nuevo proyecto</option>
+            </select>
+          </label>
+          <span className="hsc-connection" role="status">
+            {connection}
+          </span>
+          <button
+            disabled={!ready}
+            onClick={() =>
+              perform(async () => {
+                await saveInternal();
+                await exportFile();
+              })
+            }
+          >
+            Descargar ZIP
+          </button>
+          <button
+            disabled={!ready}
+            onClick={() =>
+              perform(async () => {
+                const data = await client.current.request("/registry");
+                setRegistry(data.items);
+              })
+            }
+          >
+            Catálogo
+          </button>
+        </div>
+        {settings && (
+          <form
+            className="hsc-settings"
+            onSubmit={(e) => {
+              e.preventDefault();
+              setupAi();
+            }}
+          >
+            <div className="hsc-settings-title">
+              <strong>Pruebas con tu cuenta de Anthropic</strong>
+              <span>Los comandos y la edición no requieren una API key.</span>
+            </div>
+            <div className="hsc-ai-fields">
+              <label>
+                Modelo
+                <select
+                  value={model}
+                  disabled={busy}
+                  onChange={(e) => setModel(e.target.value)}
+                >
+                  {boot?.config?.models?.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.id}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Presupuesto máximo USD
+                <input
+                  type="number"
+                  min="0.1"
+                  max="20"
+                  step="0.1"
+                  value={budget}
+                  disabled={busy}
+                  onChange={(e) => setBudget(e.target.value)}
+                />
+              </label>
+              <label>
+                API key de Anthropic
+                <input
+                  type="password"
+                  autoComplete="off"
+                  spellCheck={false}
+                  maxLength={320}
+                  value={apiKey}
+                  disabled={busy}
+                  onChange={(e) => setApiKey(e.target.value)}
+                  placeholder="sk-ant-…"
+                />
+              </label>
+            </div>
+            <label className="hsc-consent">
+              <input
+                type="checkbox"
+                checked={consent}
+                disabled={busy}
+                onChange={(e) => setConsent(e.target.checked)}
+              />
+              <span>
+                Autorizo enviar las instrucciones y herramientas de este paquete
+                a Anthropic al usar /test. La clave se cifra temporalmente por
+                30 minutos. Las llamadas consumen mi cuota hasta el presupuesto
+                indicado.{" "}
+                <a
+                  href="/privacy#dpa-ia"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Uso y privacidad
+                </a>
+                .
+              </span>
+            </label>
+            <div className="hsc-settings-actions">
+              <button
+                className="hsc-primary"
+                disabled={
+                  busy ||
+                  !apiKey.trim() ||
+                  !consent ||
+                  Number(budget) < 0.1 ||
+                  Number(budget) > 20 ||
+                  !model
+                }
+              >
+                Validar clave
+              </button>
+              <button type="button" disabled={busy} onClick={clearAi}>
+                Eliminar clave temporal
+              </button>
+              {aiReady && <span>Clave validada en esta sesión</span>}
+            </div>
+          </form>
+        )}
+        {registry && (
+          <div className="hsc-registry">
+            <div>
+              <strong>Paquetes publicados</strong>
+              <button
+                className="hsc-icon"
+                aria-label="Cerrar catálogo"
+                onClick={() => setRegistry(null)}
+              >
+                ×
+              </button>
+            </div>
+            {registry.length ? (
+              registry.map((item) => (
+                <article key={item.id}>
+                  <strong>{item.name}</strong>
+                  <span>
+                    {item.kind} · {item.version}
+                  </span>
+                  <p>{item.description}</p>
+                  <button
+                    disabled={busy}
+                    onClick={() => {
+                      setRegistry(null);
+                      perform(async () => {
+                        await saveInternal();
+                        const snapshot = current.current;
+                        const data = await client.current.request(
+                          "/sessions/" +
+                            encoded(snapshot.sessionId) +
+                            "/registry",
+                          {
+                            method: "POST",
+                            body: { id: item.id, revision: snapshot.revision },
+                          },
+                        );
+                        if (alive.current) setState(data.state);
+                      });
+                    }}
+                  >
+                    Importar paquete
+                  </button>
+                </article>
+              ))
+            ) : (
+              <p>Aún no hay paquetes publicados.</p>
+            )}
+          </div>
+        )}
+        <nav className="hsc-mobile-tabs" aria-label="Vistas del editor">
+          {[
+            ["files", "Archivos"],
+            ["chat", "Chat"],
+            ["editor", "Editor"],
+          ].map(([name, label]) => (
+            <button
+              key={name}
+              aria-pressed={tab === name}
+              onClick={() => setTab(name)}
+            >
+              {label}
+            </button>
+          ))}
+        </nav>
+        <div className="hsc-workspace" data-view={tab}>
+          <aside className="hsc-tree">
+            <div className="hsc-panel-title">
+              <strong>Archivos</strong>
+              <span>{files.length}/200</span>
+            </div>
+            <FileTree
+              files={files}
+              folders={state?.folders}
+              activeFile={state?.activeFile}
+              disabled={busy}
+              onOpen={openFile}
+            />
+            <div className="hsc-versions">
+              <strong>Versiones guardadas</strong>
+              <select
+                aria-label="Versión a restaurar"
+                value={version}
+                disabled={!ready}
+                onChange={(e) => setVersion(e.target.value)}
+              >
+                <option value="">Elige una versión</option>
+                {versionRows.map((v) => (
+                  <option key={v.number} value={v.number}>
+                    Versión {v.number}
+                  </option>
+                ))}
+              </select>
+              <button
+                disabled={!ready || !version}
+                onClick={() => exec("/restore " + version)}
+              >
+                Restaurar versión
+              </button>
+              <button disabled={!ready} onClick={() => exec("/save")}>
+                Guardar versión
+              </button>
+            </div>
+          </aside>
+          <section className="hsc-chat-panel" aria-label="Chat del editor">
+            <div
+              className="hsc-chat-log"
+              ref={thread}
+              aria-live="polite"
+              aria-busy={busy}
+            >
+              {!state?.messages?.length && (
+                <div className="hsc-empty">
+                  <Icon size={30}>
+                    <path d="M5 4h14v12H9l-4 4zM9 8h6M9 12h4" />
+                  </Icon>
+                  <h3>De una idea a un paquete</h3>
+                  <p>
+                    Escribe / para explorar los comandos. Crea instrucciones,
+                    herramientas y archivos desde una conversación.
+                  </p>
+                  <button disabled={!ready} onClick={() => exec("/help")}>
+                    Ver comandos
+                  </button>
+                </div>
+              )}
+              {state?.messages?.map((m, i) => (
+                <div
+                  key={i}
+                  className={
+                    m.role === "user"
+                      ? "hsc-user-message"
+                      : "hsc-system-message"
+                  }
+                >
+                  <span>
+                    {m.role === "user"
+                      ? "Tú"
+                      : m.role === "assistant"
+                        ? "Prueba de IA"
+                        : "Editor"}
+                  </span>
+                  <pre>{m.content}</pre>
+                </div>
+              ))}
+              {job && (
+                <div className="hsc-job" role="status">
+                  <strong>
+                    {job.type === "run"
+                      ? "Ejecución"
+                      : job.type === "test"
+                        ? "Prueba de IA"
+                        : job.type === "compile"
+                          ? "Compilación"
+                          : "Construcción"}
+                  </strong>
+                  <span>
+                    {ACTIVE_JOBS.has(job.status)
+                      ? "En curso"
+                      : job.status === "completed"
+                        ? "Completada"
+                        : job.status === "failed"
+                          ? "No se pudo completar"
+                          : job.status}
+                  </span>
+                  {job.message && <pre>{job.message}</pre>}
+                </div>
+              )}
+              {busy && (
+                <div className="hsc-working" role="status">
+                  Procesando…
+                </div>
+              )}
+            </div>
+            {state?.pendingConfirm && (
+              <div className="hsc-confirm">
+                <strong>Confirma la acción</strong>
+                <p>
+                  {/^\/?publish$/.test(state.pendingConfirm.command)
+                    ? "Se publicará una copia de este paquete en el catálogo. Revisa que no contenga información privada."
+                    : `Acción pendiente: ${state.pendingConfirm.command}`}
+                </p>
+                <div>
+                  <button
+                    className="hsc-primary"
+                    disabled={busy}
+                    onClick={() => exec("/yes")}
+                  >
+                    Confirmar
+                  </button>
+                  <button disabled={busy} onClick={() => exec("/no")}>
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            )}
+            <Composer
+              commands={boot?.commands || []}
+              skills={(boot?.projects || []).filter(
+                (p) => p.kind === "skill" && typeof p.name === "string",
+              )}
+              files={files}
+              activeFile={state?.activeFile}
+              disabled={!ready}
+              onSend={exec}
+              onOpen={openFile}
+              onImport={upload}
+              celebrate={celebrate}
+            />
+          </section>
+          <section className="hsc-preview" aria-label="Archivo editable">
+            <div className="hsc-preview-title">
+              <div>
+                <strong>{active?.path || "Archivo activo"}</strong>
+                <span>
+                  {active ? active.ext.toUpperCase() : "Texto"} ·{" "}
+                  {dirty ? "Sin guardar" : "Guardado"}
+                </span>
+              </div>
+              <button
+                aria-pressed={preview}
+                disabled={!active}
+                onClick={() => setPreview(!preview)}
+              >
+                {preview ? "Editar" : "Vista previa"}
+              </button>
+              <button
+                className="hsc-icon"
+                aria-label="Copiar archivo"
+                disabled={!active}
+                onClick={copy}
+              >
+                <Icon>
+                  <rect x="8" y="8" width="12" height="12" rx="2" />
+                  <path d="M16 8V4H4v12h4" />
+                </Icon>
+              </button>
+            </div>
+            {preview ? (
+              <Preview content={edit} ext={active?.ext} />
+            ) : (
+              <textarea
+                className="hsc-editor"
+                aria-label="Contenido del archivo activo"
+                value={edit}
+                disabled={!active || busy}
+                maxLength={1024 * 1024}
+                spellCheck={false}
+                placeholder="Selecciona o crea un archivo para editarlo."
+                onChange={(e) => {
+                  setEdit(e.target.value);
+                  setDirty(e.target.value !== active?.content);
+                }}
+                onKeyDown={(e) => {
+                  if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+                    e.preventDefault();
+                    perform(saveInternal);
+                  }
+                }}
+              />
+            )}
+            <div className="hsc-editor-actions">
+              <button
+                disabled={!ready || !dirty}
+                className="hsc-primary"
+                onClick={() => perform(saveInternal)}
+              >
+                Guardar archivo
+              </button>
+              <button disabled={!ready} onClick={() => exec("/undo")}>
+                Deshacer
+              </button>
+              <button disabled={!ready} onClick={() => exec("/redo")}>
+                Rehacer
+              </button>
+            </div>
+            <div className="hsc-editor-note">
+              UTF-8 · Hasta 1 MB por archivo · Ctrl/⌘ + S para guardar
+            </div>
+          </section>
+        </div>
+        {closeConfirm && (
+          <div className="hsc-close-confirm" role="alert">
+            <strong>Hay cambios sin guardar.</strong>
+            <button
+              className="hsc-primary"
+              disabled={busy}
+              onClick={() =>
+                perform(async () => {
+                  await saveInternal();
+                  onClose();
+                })
+              }
+            >
+              Guardar y cerrar
+            </button>
+            <button
+              disabled={busy}
+              onClick={() => {
+                setApiKey("");
+                onClose();
+              }}
+            >
+              Descartar y cerrar
+            </button>
+            <button disabled={busy} onClick={() => setCloseConfirm(false)}>
+              Seguir editando
+            </button>
+          </div>
+        )}
+        {error && (
+          <div className="hsc-error" role="alert">
+            <p>{error}</p>
+            <button disabled={busy} onClick={() => perform(load)}>
+              Reconectar
+            </button>
+          </div>
+        )}
+        {notice && (
+          <p className="hsc-notice" role="status">
+            {notice}
+          </p>
+        )}
+        <footer className="hsc-footer">
+          <span>
+            {state
+              ? `Revisión ${state.revision}`
+              : "Tus proyectos se guardan en tu sesión de acceso."}
+          </span>
+          <span>
+            {boot?.config?.scope || "Markdown · YAML · CoffeeScript · Dart"}
+          </span>
+        </footer>
+      </section>
+    </div>,
+    document.body,
+  );
+}

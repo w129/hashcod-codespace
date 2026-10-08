@@ -1,0 +1,12 @@
+{
+  "tasks": {
+    "build": { "dependsOn": ["^build"], "outputs": ["dist/**"] },
+    "typecheck": { "dependsOn": ["^build"] },
+    "test": {
+      "dependsOn": ["^build"],
+      "outputs": [],
+      "cache": false,
+      "env": ["SKILL_CHAT_INTEGRATION", "DATABASE_URL", "REDIS_URL", "NODE_ENV"]
+    }
+  }
+}

@@ -11,6 +11,7 @@ import PlatformPeriod from "./PlatformPeriod";
 import TokenizationTool, { TokenizationIcon } from "./TokenizationTool";
 import ReviewChat from './ReviewChat';
 import { ReviewIcon } from './ReviewIcons';
+import SkillChat from './SkillChat';
 
 const HATCH_STORAGE_KEY = "hashcod:hatch-code:v1";
 const JAVA_HATCH_STORAGE_KEY = "hashcod:hatch-java-code:v1";
@@ -1022,8 +1023,8 @@ const EXPANDING_BUTTON_ITEMS = Object.freeze([
   {
     id: "slot-3",
     domId: "d5ExpandingAction3",
-    label: "Slot 3",
-    icon: <ExpandingPlaceholderIcon kind="dots" />,
+    label: "Editor de roles y skills",
+    icon: <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m8 8-4 4 4 4m8-8 4 4-4 4M14 5l-4 14" /></svg>,
   },
 ]);
 
@@ -1849,6 +1850,7 @@ function CenterWorkspaceEmptyState() {
   const [hatchOpen, setHatchOpen] = useState(false);
   const [tokenizationOpen, setTokenizationOpen] = useState(false);
   const [reviewOpen, setReviewOpen] = useState(false);
+  const [skillChatOpen, setSkillChatOpen] = useState(false);
 
   return (
     <>
@@ -1874,7 +1876,7 @@ function CenterWorkspaceEmptyState() {
               items={EXPANDING_BUTTON_ITEMS}
               label="Additional Hatch actions"
               defaultExpanded="slot-1"
-              onAction={id => { if (id === "slot-1") setTokenizationOpen(true); if (id === "slot-2") setReviewOpen(true); }}
+              onAction={id => { if (id === "slot-1") setTokenizationOpen(true); if (id === "slot-2") setReviewOpen(true); if (id === "slot-3") setSkillChatOpen(true); }}
             />
 
             </>} />
@@ -1891,6 +1893,7 @@ function CenterWorkspaceEmptyState() {
         onClose={() => setHatchOpen(false)}
       />
       {reviewOpen && <ReviewChat onClose={() => setReviewOpen(false)} />}
+      {skillChatOpen && <SkillChat onClose={() => setSkillChatOpen(false)} />}
     </>
   );
 }
@@ -1905,7 +1908,7 @@ function mountCenterEmptyState() {
 
   window.HashcodCenterEmptyState = Object.freeze({
     mounted: true,
-    version: "20261008-access-drawer2",
+    version: "20261008-skill-chat1",
   });
 
   return true;

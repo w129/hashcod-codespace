@@ -1,0 +1,80 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`generates stable Markdown, YAML, CoffeeScript and Dart snapshots 1`] = `
+[
+  {
+    "content": "---
+name: fixture
+description: Defines consistent examples when validating generated skill files.
+version: 1.0.0
+triggers:
+  - generate sample
+---
+
+## Instructions
+
+1. Request the required data
+",
+    "ext": "md",
+    "path": "SKILL.md",
+  },
+  {
+    "content": "# Herramienta generada por Hashcod Codespace
+module.exports =
+  name: "inspect"
+  description: ""
+  params: [{"name":"item","type":"object","required":true},{"name":"title","type":"string","required":false}]
+  run: (args = {}) ->
+    throw new Error "Argumentos inválidos" unless args? and typeof args is "object" and not Array.isArray(args)
+    throw new Error "Falta item" unless Object::hasOwnProperty.call(args, "item") and args["item"]?
+    if args["item"]?
+      throw new Error "item debe ser object" unless typeof args["item"] is "object" and not Array.isArray(args["item"])
+    if args["title"]?
+      throw new Error "title debe ser string" unless typeof args["title"] is "string"
+    return {ok: true, title: args.title}
+",
+    "ext": "coffee",
+    "path": "scripts/inspect.coffee",
+  },
+  {
+    "content": "// Herramienta generada por Hashcod Codespace
+class InspectTool {
+  static const name = "inspect";
+  static const description = "";
+  Map<String, dynamic> run(Map<String, dynamic> args) {
+    final item = args["item"];
+    if (item == null) throw ArgumentError("Falta item");
+    if (item != null && item is! Map<String, dynamic>) throw ArgumentError("item debe ser object");
+    final title = args["title"];
+    if (title != null && title is! String) throw ArgumentError("title debe ser string");
+    return {'ok': true, 'args': args};
+  }
+}
+",
+    "ext": "dart",
+    "path": "scripts/inspect.dart",
+  },
+]
+`;
+
+exports[`generates stable Markdown, YAML, CoffeeScript and Dart snapshots 2`] = `
+[
+  {
+    "content": "name: analyst
+title: analyst
+description: Analyzes submitted records when the user requests a summary.
+version: 1.0.0
+model: configured-model
+tools:
+  - inspect
+skills:
+  - fixture
+variables:
+  locale: es-DO
+instructions: Never invent input data
+",
+    "ext": "yaml",
+    "path": "role.yaml",
+  },
+]
+`;

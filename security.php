@@ -83,6 +83,7 @@ function securityCspProviderOrigins(): array {
 function securityCspConnectSources(): string {
     $sources = ["'self'", 'https://challenges.cloudflare.com', 'https://cdn.jsdelivr.net', 'https://api.github.com', 'https://celestrak.org', 'https://earthquake.usgs.gov', 'https://api.wheretheiss.at', 'https://nominatim.openstreetmap.org', 'https://api.spacexdata.com'];
     $providers = securityCspProviderOrigins();
+    $sources[] = 'wss://hashcod-skill-chat-production.up.railway.app';
     $sources = array_merge($sources, $providers);
     if ($providers !== []) $sources[] = 'wss://' . substr($providers[0], 8);
     return implode(' ', array_unique($sources));
@@ -671,7 +672,7 @@ function securityIsDeniedPath($uri) {
     $deniedPrefixes = [
         '/.git/', '/.git', '/.svn/', '/.hg/', '/.idea/', '/.vscode/',
         '/data_storage/', '/uploads/', '/supabase/', '/vendor/',
-        '/node_modules/', '/.cursor/', '/etc/secrets/', '/secrets/', '/review-backend/', '/sandbox-runner/', '/tools/review/'
+        '/node_modules/', '/.cursor/', '/etc/secrets/', '/secrets/', '/review-backend/', '/sandbox-runner/', '/tools/review/', '/skill-chat/'
     ];
     foreach ($deniedPrefixes as $p) {
         if ($uriLower === rtrim($p, '/') || strpos($uriLower, $p) === 0) return true;
@@ -696,7 +697,7 @@ function securityIsAllowedStatic($uri) {
         return false;
     }
     $lower = strtolower($uri);
-    foreach (['/data_storage/', '/uploads/', '/.git/', '/supabase/', '/vendor/', '/node_modules/', '/review-backend/', '/sandbox-runner/', '/tools/review/'] as $bad) {
+    foreach (['/data_storage/', '/uploads/', '/.git/', '/supabase/', '/vendor/', '/node_modules/', '/review-backend/', '/sandbox-runner/', '/tools/review/', '/skill-chat/'] as $bad) {
         if (strpos($lower, $bad) === 0) return false;
     }
     return true;

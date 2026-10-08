@@ -1,0 +1,9 @@
+packages:
+  - 'packages/*'
+  - 'apps/*'
+allowBuilds:
+  '@prisma/engines': true
+  prisma: true
+  esbuild: true
+  msgpackr-extract: false
+verifyDepsBeforeRun: false

@@ -242,7 +242,7 @@ http://:{$PORT:8000} {
 		not path /supabase/*
 		not path /vendor/*
 		not path /node_modules/*
-		not path /review-backend/* /sandbox-runner/* /tools/review/*
+		not path /review-backend/* /sandbox-runner/* /tools/review/* /skill-chat/*
 	}
 	handle @static {
 		root * /var/www/html
@@ -256,7 +256,7 @@ http://:{$PORT:8000} {
 		header not @versioned Cache-Control "public, max-age=86400, stale-while-revalidate=604800"
 
 		file_server {
-			hide .git data_storage uploads supabase vendor node_modules review-backend sandbox-runner tools/review
+			hide .git data_storage uploads supabase vendor node_modules review-backend sandbox-runner tools/review skill-chat
 		}
 	}
 

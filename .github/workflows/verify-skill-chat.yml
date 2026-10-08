@@ -1,0 +1,72 @@
+name: Verify Slot 3 skill editor
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+    paths: ['skill-chat/**','center-empty-state-build/**','hashcod-skill-chat.php','supabase/functions/hashcod-shared-cloud/**','tests/**skill*','.github/workflows/verify-skill-chat.yml']
+permissions:
+  contents: read
+jobs:
+  commands-api:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: editor_fixture
+          POSTGRES_PASSWORD: fixture_not_production
+          POSTGRES_DB: skill_editor_test
+        ports: ['5432:5432']
+        options: --health-cmd="pg_isready -U editor_fixture -d skill_editor_test" --health-interval=5s --health-timeout=5s --health-retries=20
+      redis:
+        image: redis:8.2
+        ports: ['6379:6379']
+        options: --health-cmd="redis-cli ping" --health-interval=5s --health-timeout=5s --health-retries=20
+    env:
+      DATABASE_URL: postgresql://editor_fixture:fixture_not_production@127.0.0.1:5432/skill_editor_test
+      REDIS_URL: redis://127.0.0.1:6379
+      NODE_ENV: test
+      SKILL_CHAT_INTEGRATION: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: skill-chat/package.json
+      - run: pnpm --dir skill-chat install --frozen-lockfile
+      - run: pnpm --dir skill-chat --filter @hashcod/skill-api migrate
+      - run: pnpm --dir skill-chat build
+      - run: pnpm --dir skill-chat typecheck
+      - run: pnpm --dir skill-chat test
+      - name: Verify API production image
+        run: docker build -f skill-chat/apps/api/Dockerfile -t hashcod-skill-api .
+  isolated-runtimes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -f skill-chat/apps/worker/Dockerfile -t hashcod-skill-worker .
+      - name: Real CoffeeScript and Dart security probes
+        run: docker run --rm --network none --cap-drop ALL --security-opt no-new-privileges --memory 2g --cpus 0.5 -e SKILL_CHAT_WORKER_SECRET=ci-test-not-a-production-secret-32 hashcod-skill-worker /opt/runtime/node/bin/node dist/selftest.js
+  browser-and-facade:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: sodium, curl
+      - run: php -l hashcod-skill-chat.php
+      - run: php tests/security/test-skill-chat.php
+      - run: npm ci --prefix center-empty-state-build
+      - run: npm run build --prefix center-empty-state-build
+      - run: node tests/e2e/test_skill_chat_edge.cjs
+      - run: npm install --prefix /tmp/skill-browser playwright@1.62.1
+      - run: /tmp/skill-browser/node_modules/.bin/playwright install --with-deps chromium
+      - run: NODE_PATH=/tmp/skill-browser/node_modules node tests/e2e/test_skill_chat_browser.cjs

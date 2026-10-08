@@ -20,7 +20,7 @@ Deno.serve(async (request: Request) => {
       const raw = await request.text(); if (new TextEncoder().encode(raw).length > 2097152) fail(413, 'Request too large.');
       try { body = JSON.parse(raw); } catch { fail(400, 'Invalid JSON.'); }
     }
-    if (['period.status', 'period.accept'].includes(action)) return await accessPeriod(action.slice(7), body);
+    if (['period.status', 'period.accept', 'period.free'].includes(action)) return await accessPeriod(action.slice(7), body);
     if (action.startsWith('tokenization.')) return await tokenization(action.slice(13), request, body);
     if (action === 'review.bridge') return await review(request, body);
     if (action === 'editor.identity') return await editorIdentity(request, body);

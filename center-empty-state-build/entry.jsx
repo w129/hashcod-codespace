@@ -1909,7 +1909,7 @@ function mountCenterEmptyState() {
 
   window.HashcodCenterEmptyState = Object.freeze({
     mounted: true,
-    version: "20261008-skill-icon1",
+    version: "20261008-entry-checkout1",
   });
 
   return true;

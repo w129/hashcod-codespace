@@ -17,6 +17,11 @@ async function main() {
     const body = JSON.parse(Buffer.concat(chunks).toString() || '{}');
     const action = new URL(req.url, 'http://localhost').searchParams.get('action');
     if (action.startsWith('period.')) {
+      if (action === 'period.free') {
+        assert.equal(body.token, period.token, 'Free entry must keep cookie identity');
+        assert.deepEqual(Object.keys(body), ['token'], 'Checkout data must not reach the session ledger');
+        if (period.state !== 'active') period = {...period, state:'active', days:10, expiresAt:Math.floor(Date.now()/1000)+864000};
+      }
       if (action === 'period.accept') {
         assert.equal(body.token, period.token, 'browser-supplied identity must be ignored');
         if (period.state === 'expired' && body.code !== 'test-renewal-key') {
@@ -108,7 +113,14 @@ async function main() {
     assert.equal(upstreamCalls,beforeBlocked,'expired workspace actions reached upstream');
     assert.equal((await periodPost({days:30,code:'incorrect'})).status,403);
     const renewed=await periodPost({days:30,code:'test-renewal-key'});assert.equal(renewed.status,200);assert.equal((await renewed.json()).state,'active');
-    console.log('Period PHP facade: HttpOnly identity, bounds, CSRF, expired API guards and renewal OK');
+    const oldToken = period.token;
+    period={...period,state:'expired',expiresAt:Math.floor(Date.now()/1000)-1};
+    assert.equal((await periodPost({entry:'free'}, {Origin:'https://other.example'})).status,403);
+    const free = await periodPost({entry:'free', days:60, token:'forged', cedula:'must-not-forward', otp:'123456', paid:true});
+    assert.equal(free.status,200); const result=await free.json();
+    assert.equal(result.days,10); assert.equal(result.state,'active'); assert.equal(period.token,oldToken);
+    assert(!JSON.stringify(result).includes(period.token),'Free identity must remain HttpOnly');
+    console.log('Period PHP facade: HttpOnly identity, free-entry bounds/CSRF/privacy, expired API guards and legacy renewal OK');
     console.log('Shared PHP facade: exact JSON/text bytes, wrong-code errors and same-origin enforcement OK');
   } finally {
     php.kill();

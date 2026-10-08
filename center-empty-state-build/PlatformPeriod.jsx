@@ -1,24 +1,19 @@
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import RecommendationCard from './RecommendationCard';
+import EntryCheckout from './EntryCheckout';
 import './platform-period.css';
 
 export default function PlatformPeriod() {
-  const [period, setPeriod] = useState(() => {
-    const initial = document.body.dataset;
-    if (initial.hashcodPeriodExpired === '1') return { state: 'expired' };
-    if (initial.hashcodPeriodExpiresAt) return { state: 'active', days: Number(initial.hashcodPeriodDays), expiresAt: Number(initial.hashcodPeriodExpiresAt), serverNow: Number(initial.hashcodPeriodNow) };
-    return { state: 'loading' };
-  });
-  const [error, setError] = useState(''), [busy, setBusy] = useState(false), [days, setDays] = useState(10), [code, setCode] = useState('');
-  const queue = useRef(Promise.resolve()), mounted = useRef(true), controller = useRef(null);
-  const clock = useRef({ now: period.serverNow || 0, at: performance.now() }), input = useRef(null), dialog = useRef(null);
-  const expired = period.state === 'expired';
-  const locked = period.state !== 'active';
-  const choosing = period.state === 'choose';
+  const initial = document.body.dataset;
+  const [period, setPeriod] = useState(() => initial.hashcodPeriodExpiresAt && initial.hashcodPeriodExpired !== '1'
+    ? { state: 'active', days: Number(initial.hashcodPeriodDays), expiresAt: Number(initial.hashcodPeriodExpiresAt), serverNow: Number(initial.hashcodPeriodNow) }
+    : { state: 'loading' });
+  const [open, setOpen] = useState(() => !initial.hashcodPeriodExpiresAt || initial.hashcodPeriodExpired === '1');
+  const [error, setError] = useState(''), [busy, setBusy] = useState(false);
+  const queue = useRef(Promise.resolve()), mounted = useRef(true), controller = useRef(null), entering = useRef(false);
+  const current = useRef(period), entered = useRef(period.state === 'active');
+  const clock = useRef({ now: period.serverNow || 0, at: performance.now() });
 
-  // Serialize status/accept requests so an older response cannot replace the
-  // newly renewed cookie or state when another tab becomes visible.
   const request = useCallback(body => {
     const task = queue.current.then(async () => {
       if (!mounted.current) return;
@@ -26,83 +21,57 @@ export default function PlatformPeriod() {
       const response = await fetch('/api/platform-period', { method: body ? 'POST' : 'GET', credentials: 'same-origin', cache: 'no-store',
         signal: controller.current.signal, headers: body ? { 'Content-Type': 'application/json' } : {}, body: body ? JSON.stringify(body) : undefined });
       const data = await response.json();
-      if (!response.ok || !data.ok) throw new Error(data.error || 'No se pudo verificar el plazo.');
+      if (!response.ok || !data.ok) throw new Error('No se pudo conectar con la plataforma. Intenta de nuevo.');
       if (mounted.current) {
-        clock.current = { now: data.serverNow, at: performance.now() };
+        current.current = data; clock.current = { now: data.serverNow, at: performance.now() };
         setPeriod(data); setError('');
-        if (body && data.state === 'active') window.dispatchEvent(new CustomEvent('hashcod:platform-period-granted'));
+        if (data.state === 'active') {
+          delete document.body.dataset.hashcodPeriodRequired;
+          if (body) window.dispatchEvent(new CustomEvent('hashcod:platform-period-granted'));
+        }
       }
       return data;
     });
-    // Failure is still returned to the caller; keep the queue usable for retry.
     queue.current = task.catch(() => {});
     return task;
   }, []);
+
   useEffect(() => {
-    let alive = true; mounted.current = true;
-    const refresh = () => request().catch(() => { if (alive) setError('No se pudo comprobar el plazo. Intenta de nuevo.'); });
+    mounted.current = true;
+    const refresh = async () => {
+      try {
+        const data = await request();
+        // Free entry keeps the same signed browser identity. The technical
+        // session refresh never promotes a user to a paid subscription.
+        if (entered.current && data?.state !== 'active') await request({ entry: 'free' });
+        else if (!entered.current && data?.state === 'active') { entered.current = true; setOpen(false); }
+      } catch (_) { if (mounted.current) setError('No se pudo conectar con la plataforma. Intenta de nuevo.'); }
+    };
     refresh();
     const poll = setInterval(refresh, 60000);
     const visible = () => { if (!document.hidden) refresh(); };
     document.addEventListener('visibilitychange', visible);
-    return () => { alive = false; mounted.current = false; controller.current?.abort(); clearInterval(poll); document.removeEventListener('visibilitychange', visible); };
+    return () => { mounted.current = false; controller.current?.abort(); clearInterval(poll); document.removeEventListener('visibilitychange', visible); };
   }, [request]);
-  useEffect(() => {
-    if (period.state !== 'active') return;
-    const tick = () => {
-      const now = clock.current.now + (performance.now() - clock.current.at) / 1000;
-      if (now >= period.expiresAt) setPeriod(current => ({ ...current, state: 'expired' }));
-    };
-    const timer = setInterval(tick, 1000); tick();
-    return () => clearInterval(timer);
-  }, [period.state, period.expiresAt]);
-  useLayoutEffect(() => {
-    if (!locked) { delete document.body.dataset.hashcodPeriodRequired; return; }
-    document.body.classList.add('hpa-locked');
-    const targets = Array.from(document.querySelectorAll('body > main, body > footer'));
-    const previous = targets.map(n => n.inert);
-    targets.forEach(n => { n.inert = true; });
-    const oldFocus = document.activeElement;
-    (input.current || dialog.current?.querySelector('select,button'))?.focus();
-    return () => { document.body.classList.remove('hpa-locked'); targets.forEach((n, i) => { n.inert = previous[i]; }); oldFocus?.focus?.(); };
-  }, [locked, period.state]);
 
-  async function renew(event) {
-    event.preventDefault(); setBusy(true); setError('');
-    try { await request(expired ? { days, code } : { days }); setCode(''); }
-    catch (reason) { setError(reason.message); }
-    finally { setBusy(false); }
+  async function enter() {
+    if (entering.current) return;
+    entering.current = true; setBusy(true); setError('');
+    try {
+      const now = clock.current.now + (performance.now() - clock.current.at) / 1000;
+      if (current.current.state !== 'active' || current.current.expiresAt <= now) {
+        const data = await request({ entry: 'free' });
+        if (data?.state !== 'active') throw new Error('No se pudo iniciar la sesión gratuita. Intenta de nuevo.');
+      }
+      if (mounted.current) { entered.current = true; setOpen(false); }
+    } catch (_) { if (mounted.current) setError('No se pudo iniciar la sesión gratuita. Comprueba tu conexión e intenta de nuevo.'); }
+    finally { entering.current = false; if (mounted.current) setBusy(false); }
   }
+
   return <>
-    <RecommendationCard onAccept={option => request({ days: option.days })} activeDays={period.state === 'active' ? period.days : null}
-      locked={period.state !== 'choose'} labels={{ accepted: 'Activo' }} />
-    {period.state === 'active' && <p className="hpa-period-status" role="status">Acceso hasta {new Date(period.expiresAt * 1000).toLocaleString('es-DO')}</p>}
-    {error && !locked && <p className="hpa-error" role="alert">{error} <button type="button" onClick={() => request().catch(reason => setError(reason.message))}>Reintentar</button></p>}
-    {locked && createPortal(<div id="hpaGatePortal" className="hpa-backdrop">
-      <section ref={dialog} className="hpa-dialog" role="dialog" aria-modal="true" aria-labelledby="hpa-title" aria-describedby="hpa-description"
-        onKeyDown={event => {
-          if (event.key === 'Escape') { event.preventDefault(); return; }
-          if (event.key !== 'Tab') return;
-          const nodes = Array.from(dialog.current.querySelectorAll('input,select,button')).filter(n => !n.disabled);
-          if (event.shiftKey && document.activeElement === nodes[0]) { event.preventDefault(); nodes.at(-1)?.focus(); }
-          else if (!event.shiftKey && document.activeElement === nodes.at(-1)) { event.preventDefault(); nodes[0]?.focus(); }
-        }}>
-        <div className="hpa-dialog-head"><span className="hpa-expired-pill">{expired ? 'Plazo finalizado' : 'Paso obligatorio'}</span>
-          <h2 id="hpa-title">{expired ? 'Vuelve a la plataforma' : <>¿Cuántos días vas a durar en la <span className="hpa-entity-chip">plataforma</span>?</>}</h2>
-          <p id="hpa-description">{expired ? 'Tu tiempo de acceso ha terminado. Introduce la clave de renovación y elige tu nuevo plazo.' : 'Selecciona y confirma tu plazo para poder usar la plataforma.'}</p></div>
-        {expired || choosing ? <form onSubmit={renew}>
-          {expired && <><label htmlFor="hpa-code">Clave de renovación</label>
-            <input ref={input} id="hpa-code" type="password" autoComplete="current-password" value={code} onChange={event => setCode(event.target.value)} maxLength={256} required disabled={busy} /></>}
-          <label htmlFor="hpa-days">{expired ? 'Nuevo plazo' : 'Tiempo de permanencia'}</label>
-          <select id="hpa-days" value={days} onChange={event => setDays(Number(event.target.value))} disabled={busy}>
-            {[10, 20, 30, 60].map(value => <option key={value} value={value}>{value} days</option>)}
-          </select>
-          {error && <p className="hpa-error" role="alert">{error}</p>}
-          <div className="hpa-dialog-footer"><span className="hpa-period-note">Acceso protegido</span><button type="submit" className="hrc-button hrc-button--accent" disabled={busy}>{busy ? 'Verificando…' : expired ? 'Renovar acceso' : 'Confirmar y entrar'}</button></div>
-        </form> : <div className="hpa-loading" role="status">
-          {error ? <><p className="hpa-error" role="alert">{error}</p><button className="hrc-button" type="button" onClick={() => request().catch(reason => setError(reason.message))}>Reintentar</button></> : 'Comprobando el acceso…'}
-        </div>}
-      </section>
-    </div>, document.body)}
+    <RecommendationCard activeDays={period.state === 'active' ? period.days : null} locked labels={{ accepted: 'Activo' }} />
+    <button type="button" className="hco-reopen" onClick={() => { setError(''); setOpen(true); }}>Ver planes de Hashcod Pro</button>
+    {error && !open && <p className="hpa-error" role="alert">{error}</p>}
+    {open && <EntryCheckout onEnter={enter} busy={busy} error={error} />}
   </>;
 }

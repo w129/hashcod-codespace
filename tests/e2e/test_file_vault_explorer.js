@@ -31,9 +31,11 @@ async function scenario(origin, shared = false) {
   w.HashcodFileVaultPdf = { load: data => { pdfData.push(data); return { promise: Promise.resolve({ numPages: 2, getPage: async () => ({ getViewport: () => ({ width: 300, height: 400 }), render: () => ({ promise: Promise.resolve(), cancel() {} }) }) }), destroy: async () => {} }; } };
   const cloud = { id: 'fv_cloud_preview_12345', name: 'report.pdf', type: 'application/pdf', size: 20, cloud: true, accessProtection: 'access-code', priceUsdCents: 1250 };
   let cloudRows = [cloud];
+  let periodDays = null;
   w.fetch = async (url, options = {}) => {
     if (url === '/api/platform-period') {
-      const days = options.body ? JSON.parse(options.body).days : null;
+      if (options.body) { const body = JSON.parse(options.body); periodDays = body.entry === 'free' ? 10 : body.days; }
+      const days = periodDays;
       return new Response(JSON.stringify({ ok: true, state: days ? 'active' : 'choose', days, expiresAt: days ? Math.floor(Date.now()/1000) + days*86400 : null, serverNow: Math.floor(Date.now()/1000) }));
     }
     requests.push({ url, options });
@@ -72,18 +74,17 @@ async function scenario(origin, shared = false) {
     assert.match(card.querySelector('.hrc-title').textContent, /¿Cuántos días vas a durar en la plataforma\?/);
     assert.equal(card.querySelector('.hrc-entity-chip').textContent, 'plataforma');
     assert(card.querySelector('.hrc-drawer').hasAttribute('inert'));
+    const free = [...w.document.querySelectorAll('button')].find(n => n.textContent === 'Entrar Gratis');
+    free.click(); await until(() => !w.document.querySelector('#hashcodEntryCheckout'));
+    await until(() => card.dataset.accepted === 'true');
     card.querySelector('.hrc-button--secondary').click();
-    await until(() => card.querySelector('.hrc-button--secondary').getAttribute('aria-expanded') === 'true');
+    await until(() => !card.querySelector('.hrc-drawer').hasAttribute('inert'));
     for (const days of [20, 30, 60]) {
-      card.querySelector(`[data-option="${days}"]`).click();
-      await until(() => card.dataset.selected === String(days));
-      assert.match(card.querySelector('.hrc-body').textContent, new RegExp(days + ' days'));
+      assert(card.querySelector(`[data-option="${days}"]`).disabled, 'Free technical session cannot be changed through alternatives');
     }
     card.querySelector('.hrc-button--secondary').click();
     await until(() => card.querySelector('.hrc-drawer').hasAttribute('inert'));
-    card.querySelector('[data-recommendation-accept]').click();
-    await until(() => card.dataset.accepted === 'true');
-    assert.match(card.querySelector('[role="status"]').textContent, /Activo: 60 days/);
+    assert.match(card.querySelector('[role="status"]').textContent, /Activo: 10 days/);
     assert(card.querySelector('[data-recommendation-accept]').disabled);
     assert.equal(released.length, 0, 'recommendations must not unlock files');
     if (shared) {
@@ -92,7 +93,7 @@ async function scenario(origin, shared = false) {
       cloudRows = [cloud, otherDeviceFile];
       refreshFromPoll();
       await until(() => w.document.querySelector(`[data-hfv-preview-id="${otherDeviceFile.id}"]`));
-      assert.equal(card.dataset.selected, '60', 'file polling must preserve the selected recommendation');
+      assert.equal(card.dataset.selected, '10', 'file polling must preserve the selected recommendation');
       assert.match(w.document.querySelector(`[data-hfv-preview-id="${otherDeviceFile.id}"]`).textContent, /\$99.00 USD/);
       assert.equal(pdfData.length, 0, 'sync must not expose file contents without a code');
       cloudRows = [cloud];

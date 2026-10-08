@@ -55,8 +55,10 @@ jobs:
           npm install --no-audit --no-fund
           npm run build
 
-      - name: Verify Slot 3 file format previews
-        run: node tests/e2e/test_skill_chat_preview.cjs
+      - name: Verify file previews and free checkout session
+        run: |
+          node tests/e2e/test_skill_chat_preview.cjs
+          node tests/e2e/test_checkout_access.cjs
 
       - name: Build first-screen menu and current-date calendar
         working-directory: first-screen-branched-menu-build

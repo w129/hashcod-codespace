@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 require_once __DIR__ . '/platform-period-lib.php';
-platformPeriodGuard();
+platformPeriodGuard(true);
 
 @ini_set('display_errors', '0');
 @ini_set('expose_php', '0');

@@ -39,7 +39,7 @@ if ($public!=='') {
     $result=reviewBackend(['action'=>$public,'id'=>is_string($_GET['id']??null)?$_GET['id']:'']);
     hcsJson($result['data'],$result['status']);
 }
-platformPeriodGuard();
+platformPeriodGuard(true);
 securityBootstrap('api');
 $token=(string)(platformPeriodData()['token']??'');
 if (($_SERVER['REQUEST_METHOD']??'')==='GET') {

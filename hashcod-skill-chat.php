@@ -100,7 +100,7 @@ function skillChatReply(array $result): void {
     hcsJson($data,$result['status']);
 }
 if (defined('HSC_EDITOR_LIBRARY_ONLY') && HSC_EDITOR_LIBRARY_ONLY) return;
-platformPeriodGuard(); securityBootstrap('api');
+platformPeriodGuard(true); securityBootstrap('api');
 $method=(string)($_SERVER['REQUEST_METHOD']??'GET');
 $path=(string)($_SERVER['HASHCOD_SKILL_CHAT_PATH']??'');
 $route=skillChatRoute($path,$method);

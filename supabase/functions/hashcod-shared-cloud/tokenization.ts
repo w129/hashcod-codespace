@@ -1,5 +1,6 @@
 import { sql, json, fail, mac, equal, rate, code, fileId, ticket, openTicket } from './core.ts';
 import { contact, adminKey, statusUpdate } from './tokenization-validation.ts';
+import { requirePro } from './subscription.ts';
 
 export async function activePeriod(value: unknown) {
   if (typeof value !== 'string') fail(403, 'Primero confirma tu plazo en la plataforma.');
@@ -18,6 +19,7 @@ export async function tokenization(action: string, request: Request, body: any) 
   if (request.method !== 'POST') fail(405, 'Method not allowed.');
   const period = await activePeriod(body.token);
   if (action === 'submit') {
+    await requirePro(period);
     const id = fileId(body.id), supplied = code(body.code), details = contact(body);
     await rate('tokenization-submit|' + period, 10);
     await rate('tokenization-file|' + id, 8);
@@ -25,10 +27,20 @@ export async function tokenization(action: string, request: Request, body: any) 
     const file = rows[0];
     if (!file || !equal(file.code_hash, await mac('code|' + id + '|' + supplied))) fail(403, 'Código del archivo incorrecto o archivo no disponible.');
     // Idempotent for retries/double clicks; metadata comes only from the file ledger.
-    const saved = await sql`insert into hashcod_shared.tokenization_requests
+    const saved = await sql.begin(async tx => {
+      // One subscriber lock serialises quota checks across tabs and files.
+      const active = await tx`select period_id from hashcod_shared.subscriptions where period_id=${period} and expires_at>now() for update`;
+      if (!active[0]) fail(403, 'Esta función requiere Hashcod Pro.');
+      const duplicate = await tx`select id from hashcod_shared.tokenization_requests where period_id=${period} and file_id=${id}`;
+      if (duplicate[0]) return [];
+      const used = await tx`select count(*)::integer as total from hashcod_shared.tokenization_requests
+        where period_id=${period} and created_at >= date_trunc('month',now() at time zone 'UTC') at time zone 'UTC'`;
+      if (Number(used[0].total)>=25) fail(429, 'Has alcanzado las 25 solicitudes de este mes.');
+      return await tx`insert into hashcod_shared.tokenization_requests
       (period_id, file_id, file_name, mime, size, price_usd_cents, phone, email)
       values (${period}, ${id}, ${file.name}, ${file.mime}, ${file.size}, ${file.price_usd_cents}, ${details.phone}, ${details.email})
       on conflict (period_id, file_id) do nothing returning id, status, created_at`;
+    });
     const result = saved[0] || (await sql`select id, status, created_at from hashcod_shared.tokenization_requests where period_id = ${period} and file_id = ${id}`)[0];
     return json({ ok: true, request: { id: result.id, status: result.status, createdAt: result.created_at } });
   }

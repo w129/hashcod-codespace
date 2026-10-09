@@ -15,7 +15,7 @@ const esbuild=require('../../center-empty-state-build/node_modules/esbuild');
  };
  const core={sql,json:v=>Response.json(v),fail,rate:async()=>{}};
  const module={exports:{}};
- vm.runInNewContext(esbuild.transformSync(fs.readFileSync('supabase/functions/hashcod-shared-cloud/editor-identity.ts','utf8'),{loader:'ts',format:'cjs'}).code,{module,exports:module.exports,require:p=>p==='./core.ts'?core:{activePeriod:async token=>{if(token!=='owned'||expired)fail(403,'Invalid period');return owner;}},crypto:crypto.webcrypto,TextEncoder,Uint8Array,Response,Date,atob,Number});
+ vm.runInNewContext(esbuild.transformSync(fs.readFileSync('supabase/functions/hashcod-shared-cloud/editor-identity.ts','utf8'),{loader:'ts',format:'cjs'}).code,{module,exports:module.exports,require:p=>p==='./core.ts'?core:p==='./subscription.ts'?{requirePro:async()=>{},subscriptionStatus:async()=>({tier:'pro',expiresAt:9999999999})}:{activePeriod:async token=>{if(token!=='owned'||expired)fail(403,'Invalid period');return owner;}},crypto:crypto.webcrypto,TextEncoder,Uint8Array,Response,Date,atob,Number});
  const {editorIdentity,canonicalEditor}=module.exports,request=new Request('https://example.test',{method:'POST'});
  const sign=(data={token:'owned'},extra={},domain='hashcod.skill-chat.identity.v1\0')=>{const payload={data,key_id:'skill-chat-backend-v1',nonce:crypto.randomBytes(16).toString('hex'),timestamp:Math.floor(Date.now()/1000),...extra};return{...payload,signature:crypto.sign(null,Buffer.from(domain+canonicalEditor(payload)),pair.privateKey).toString('base64')};};
  const good=sign();assert.equal((await (await editorIdentity(request,good)).json()).owner,owner);

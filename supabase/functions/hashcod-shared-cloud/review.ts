@@ -1,5 +1,6 @@
 import { sql, json, fail, storage, objectPath, rate, openTicket } from './core.ts';
 import { activePeriod } from './tokenization.ts';
+import { requirePro } from './subscription.ts';
 
 const encoder = new TextEncoder();
 export function canonical(value: any): string {
@@ -59,6 +60,7 @@ export async function review(request: Request, body: any) {
     return json({ok:true,valid:!c.revoked_at && current,revoked:!!c.revoked_at,current,payload:c.payload,signature:c.signature,key_id:c.key_id});
   }
   const owner=await activePeriod(input.token);
+  if (action !== 'revoke') await requirePro(owner);
   await rate('review-'+String(action)+'|'+owner,action==='create'?6:60);
   if(action==='list') {
     const rows=await sql`select r.id,r.file_name,r.size,r.status,r.created_at,coalesce(f.status='ready',false) as available,

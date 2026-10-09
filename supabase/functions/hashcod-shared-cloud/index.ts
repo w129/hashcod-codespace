@@ -5,6 +5,8 @@ import { accessPeriod } from './period.ts';
 import { tokenization } from './tokenization.ts';
 import { review } from './review.ts';
 import { editorIdentity } from './editor-identity.ts';
+import { activePeriod } from './tokenization.ts';
+import { subscription, requirePro } from './subscription.ts';
 
 // Shared file metadata is public; reads/deletions require the uploader code.
 // Tokenization contacts use a separate private ledger and signed admin sessions.
@@ -21,10 +23,17 @@ Deno.serve(async (request: Request) => {
       try { body = JSON.parse(raw); } catch { fail(400, 'Invalid JSON.'); }
     }
     if (['period.status', 'period.accept', 'period.free'].includes(action)) return await accessPeriod(action.slice(7), body);
+    if (action.startsWith('subscription.')) {
+      // Validate the signed identity even before first free entry.
+      const status = await accessPeriod('status', body);
+      const identity = await status.json();
+      return await subscription(action.slice(13), identity.reference, body, request);
+    }
     if (action.startsWith('tokenization.')) return await tokenization(action.slice(13), request, body);
     if (action === 'review.bridge') return await review(request, body);
     if (action === 'editor.identity') return await editorIdentity(request, body);
-    if (action === 'state') return await sharedState(request, body);
+    if (action === 'state' || action === 'state.read' || (action.startsWith('files.') && action !== 'files.list')) await requirePro(await activePeriod((body as any).token));
+    if (action === 'state' || action === 'state.read') return await sharedState(request, body, action === 'state.read');
     if (action.startsWith('files.')) return await files(action.slice(6), request, body);
     fail(400, 'Unsupported action.');
   } catch (error: any) {

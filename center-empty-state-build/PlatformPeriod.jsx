@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import RecommendationCard from './RecommendationCard';
 import EntryCheckout from './EntryCheckout';
+import SubscriptionAdmin from './SubscriptionAdmin';
 import './platform-period.css';
 
 export default function PlatformPeriod() {
@@ -21,10 +22,11 @@ export default function PlatformPeriod() {
       const response = await fetch('/api/platform-period', { method: body ? 'POST' : 'GET', credentials: 'same-origin', cache: 'no-store',
         signal: controller.current.signal, headers: body ? { 'Content-Type': 'application/json' } : {}, body: body ? JSON.stringify(body) : undefined });
       const data = await response.json();
-      if (!response.ok || !data.ok) throw new Error('No se pudo conectar con la plataforma. Intenta de nuevo.');
+      if (!response.ok || !data.ok) throw new Error(data.error || 'No se pudo conectar con la plataforma. Intenta de nuevo.');
       if (mounted.current) {
         current.current = data; clock.current = { now: data.serverNow, at: performance.now() };
-        setPeriod(data); setError('');
+        setPeriod(data); if (body) setError('');
+        window.dispatchEvent(new CustomEvent('hashcod:subscription', { detail: data.subscription || { tier: 'free' } }));
         if (data.state === 'active') {
           delete document.body.dataset.hashcodPeriodRequired;
           if (body) window.dispatchEvent(new CustomEvent('hashcod:platform-period-granted'));
@@ -54,6 +56,22 @@ export default function PlatformPeriod() {
     return () => { mounted.current = false; controller.current?.abort(); clearInterval(poll); document.removeEventListener('visibilitychange', visible); };
   }, [request]);
 
+  useEffect(() => {
+    const reopen = () => setOpen(true);
+    window.addEventListener('hashcod:pro-required', reopen);
+    return () => window.removeEventListener('hashcod:pro-required', reopen);
+  }, []);
+
+  async function verify(code) {
+    if (entering.current) return;
+    entering.current = true; setBusy(true);
+    try {
+      const data = await request({ entry: 'pro', code });
+      if (data.subscription?.tier !== 'pro') throw new Error('No se pudo activar Hashcod Pro.');
+      entered.current = true; setOpen(false);
+    } finally { entering.current = false; if (mounted.current) setBusy(false); }
+  }
+
   async function enter() {
     if (entering.current) return;
     entering.current = true; setBusy(true); setError('');
@@ -71,7 +89,9 @@ export default function PlatformPeriod() {
   return <>
     <RecommendationCard activeDays={period.state === 'active' ? period.days : null} locked labels={{ accepted: 'Activo' }} />
     <button type="button" className="hco-reopen" onClick={() => { setError(''); setOpen(true); }}>Ver planes de Hashcod Pro</button>
+    <p className="hco-free-note">{period.subscription?.tier === 'pro' ? `Hashcod Pro activo · 25 solicitudes al mes · hasta ${new Date(period.subscription.expiresAt * 1000).toLocaleDateString()}` : 'Modo gratuito · Los beneficios Pro están bloqueados hasta validar tu código.'}</p>
+    {!open && period.state === 'active' && <SubscriptionAdmin />}
     {error && !open && <p className="hpa-error" role="alert">{error}</p>}
-    {open && <EntryCheckout onEnter={enter} busy={busy} error={error} />}
+    {open && <EntryCheckout onEnter={enter} onVerify={verify} reference={period.reference || ''} busy={busy} error={error} />}
   </>;
 }

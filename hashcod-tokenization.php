@@ -24,6 +24,7 @@ if ($action === 'logout') {
 // Never accept platform identity or administrative tickets from browser JSON.
 $forward = ['token' => (string)(platformPeriodData()['token'] ?? '')];
 if ($action === 'submit') {
+    platformPeriodGuard(true);
     foreach (['id', 'code', 'phone', 'email'] as $name) $forward[$name] = is_string($body[$name] ?? null) ? $body[$name] : '';
 } elseif ($action === 'auth') {
     $forward['key'] = is_string($body['key'] ?? null) ? $body['key'] : '';

@@ -144,6 +144,16 @@ on:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    services:
+      subscription-postgres:
+        image: postgres:16.6
+        env:
+          POSTGRES_PASSWORD: subscription-ci-only
+          POSTGRES_DB: subscription_test
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
     steps:
       - uses: actions/checkout@v4
 
@@ -163,6 +173,7 @@ jobs:
           php -l hashcod-shared-cloud.php
           php -l platform-period-api.php
           php -l platform-period-lib.php
+          php -l platform-subscription-api.php
           php tests/security/test-platform-period.php
 
       - name: Set up Requests backend
@@ -251,7 +262,7 @@ jobs:
           npm run build --prefix center-empty-state-build
           npm install --prefix first-screen-branched-menu-build --no-fund --no-audit
           npm run build --prefix first-screen-branched-menu-build
-          npm install --prefix "$RUNNER_TEMP/hashcod-dom-tests" --no-fund --no-audit jsdom@26.1.0 fake-indexeddb@6.2.4
+          npm install --prefix "$RUNNER_TEMP/hashcod-dom-tests" --no-fund --no-audit jsdom@26.1.0 fake-indexeddb@6.2.4 postgres@3.4.8
           export NODE_PATH="$RUNNER_TEMP/hashcod-dom-tests/node_modules"
           node tests/e2e/test_ui_interaction_sounds.js
           node tests/e2e/test_file_vault_value.js
@@ -260,6 +271,7 @@ jobs:
           node tests/e2e/test_file_vault_device_flow.js
           node tests/e2e/test_file_vault_explorer.js
           node tests/e2e/test_checkout_access.cjs
+          HASHCOD_TEST_POSTGRES_URL=postgres://postgres:subscription-ci-only@127.0.0.1:5432/subscription_test node tests/e2e/test_subscription_postgres.cjs
           node tests/e2e/test_platform_period.js
           node tests/e2e/test_tokenization_edge.js
           node tests/e2e/test_tokenization_ui.js

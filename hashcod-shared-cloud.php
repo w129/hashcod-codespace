@@ -124,7 +124,7 @@ function hcsTextResponse(array $response, string $key): void {
 
 function hashcodSharedCloudHandle(): void {
     require_once __DIR__ . '/platform-period-lib.php';
-    platformPeriodGuard();
+    platformPeriodGuard(true);
     securityBootstrap('api');
     $route = (string)($_SERVER['HASHCOD_SHARED_ROUTE'] ?? '/api/hashcod-shared-files');
     $method = strtoupper((string)($_SERVER['REQUEST_METHOD'] ?? 'GET'));
@@ -151,7 +151,10 @@ function hashcodSharedCloudHandle(): void {
         $rate = securityRateAllowSliding('hashcod_shared_cloud', 120, 60);
         if (empty($rate['allowed'])) hcsJson(['ok' => false, 'error' => 'Too many requests.'], 429);
     }
-    $response = hcsCall((string)$action, is_array($forwardBody) ? $forwardBody : null);
+    $forwardBody = is_array($forwardBody) ? $forwardBody : [];
+    $forwardBody['token'] = (string)(platformPeriodData()['token'] ?? '');
+    if ($action === 'state' && $method === 'GET') $action = 'state.read';
+    $response = hcsCall((string)$action, $forwardBody);
     if ($textKey !== null) hcsTextResponse($response, $textKey);
     hcsForwardResponse($response, $action === 'files.download');
 }

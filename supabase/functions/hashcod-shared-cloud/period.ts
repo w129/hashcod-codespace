@@ -1,4 +1,5 @@
 import { sql, json, fail, mac, equal, rate } from './core.ts';
+import { subscriptionStatus } from './subscription.ts';
 
 const DAYS = [10, 20, 30, 60];
 export async function accessPeriod(action: string, body: any) {
@@ -53,6 +54,6 @@ export async function accessPeriod(action: string, body: any) {
     if (!rows[0]) fail(409, 'Your current period is still active.');
     row = rows[0];
   }
-  return json({ ok: true, token, state: !row ? 'choose' : Number(row.expires_at) <= now ? 'expired' : 'active',
+  return json({ ok: true, token, reference: id, subscription: await subscriptionStatus(id), state: !row ? 'choose' : Number(row.expires_at) <= now ? 'expired' : 'active',
     days: row ? Number(row.days) : null, expiresAt: row ? Number(row.expires_at) : null, serverNow: now });
 }

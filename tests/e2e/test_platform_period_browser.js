@@ -11,8 +11,11 @@ async function run() {
     if (pathname === '/api/platform-period') {
       if (req.method === 'POST') {
         let raw = ''; for await (const part of req) raw += part;
-        const body = JSON.parse(raw); posts.push(body); assert.deepEqual(body, { entry: 'free' });
-        period = { ok: true, state: 'active', days: 10, expiresAt: Math.floor(Date.now()/1000) + 864000, serverNow: Math.floor(Date.now()/1000) };
+        const body = JSON.parse(raw); posts.push(body); if (body.entry === 'pro') {
+          assert.deepEqual(Object.keys(body).sort(), ['code','entry']);
+          if (body.code !== '654321') { res.statusCode=403; res.setHeader('Content-Type','application/json'); res.end(JSON.stringify({ok:false,error:'Código incorrecto, caducado o ya utilizado.'})); return; }
+        } else assert.deepEqual(body, { entry: 'free' });
+        period = { ok: true, reference:'11111111-1111-4111-8111-111111111111',subscription:body.entry==='pro'?{tier:'pro',expiresAt:Math.floor(Date.now()/1000)+2592000}:{tier:'free'}, state: 'active', days: 10, expiresAt: Math.floor(Date.now()/1000) + 864000, serverNow: Math.floor(Date.now()/1000) };
       }
       res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify(period)); return;
     }
@@ -31,7 +34,7 @@ async function run() {
   try {
     browser = await chromium.launch({ headless: true });
     for (const width of [1280, 390, 320]) {
-      period = { ok: true, state: 'choose', serverNow: Math.floor(Date.now()/1000) }; posts = [];
+      period = { ok: true, state: 'choose', reference:'11111111-1111-4111-8111-111111111111',subscription:{tier:'free'}, serverNow: Math.floor(Date.now()/1000) }; posts = [];
       const context = await browser.newContext({ viewport: { width, height: 820 }, reducedMotion: 'reduce' });
       await context.route(/^https:\/\/wa\.me\//, route => route.fulfill({ status: 200, contentType: 'text/plain', body: 'WhatsApp link fixture; no message sent.' }));
       const page = await context.newPage(), errors = []; page.on('pageerror', e => errors.push(e.message));
@@ -54,8 +57,8 @@ async function run() {
       await page.locator('#hco-otp').fill('a12345'); assert.equal(await page.locator('#hco-otp').inputValue(), '12345');
       await page.locator('#hco-otp').fill('123456');
       await checkout.getByRole('button', { name: 'Verificar pago', exact: true }).click();
-      await checkout.getByRole('status').filter({ hasText: 'aún no está habilitada' }).waitFor();
-      assert.equal(posts.length, requestsBeforeOtp, 'Random OTP must not grant access or submit personal input');
+      await checkout.getByRole('status').filter({ hasText: 'Código incorrecto' }).waitFor();
+      assert.equal(posts.length, requestsBeforeOtp+1); assert.deepEqual(posts.at(-1),{entry:'pro',code:'123456'}); assert.equal(period.subscription.tier,'free');
       assert.equal(await checkout.count(), 1);
       await checkout.getByRole('button', { name: 'Otro país', exact: true }).click();
       assert.doesNotMatch(await message(), /Cédula:/); assert.match(await message(), /País de facturación: Otro país/);
@@ -63,7 +66,7 @@ async function run() {
       const [popup] = await Promise.all([context.waitForEvent('page'), pay.click()]);
       await popup.waitForURL('https://wa.me/**');
       assert.match(popup.url(), /^https:\/\/wa\.me\/18294721257\?text=/); await popup.close();
-      assert.equal(posts.length, 0, 'Opening WhatsApp must not grant or imply payment');
+      assert.equal(posts.length, 1, 'Opening WhatsApp must not submit payment');
       assert.equal(await page.evaluate(() => localStorage.length + sessionStorage.length), 0, 'Checkout must not store cedula or OTP');
       assert(await checkout.evaluate(n => n.scrollWidth <= n.clientWidth), 'Checkout must fit phone width');
       const summary = await checkout.locator('.hco-summary').boundingBox(), form = await checkout.locator('.hco-form').boundingBox();
@@ -77,12 +80,19 @@ async function run() {
       }
       await checkout.getByRole('button', { name: 'Entrar Gratis', exact: true }).click();
       await checkout.waitFor({ state: 'detached' });
-      assert.equal(posts.length, 1); assert(!(await page.locator('main').evaluate(n => n.inert)));
+      assert.equal(posts.length, 2); assert(!(await page.locator('main').evaluate(n => n.inert)));
       await page.reload(); await page.locator('#d5RecommendationCard[data-accepted="true"]').waitFor();
       await checkout.waitFor({ state: 'detached' });
       await page.getByRole('button', { name: 'Ver planes de Hashcod Pro' }).click(); await checkout.waitFor();
       assert.equal(await page.locator('#hco-cedula').inputValue(), ''); assert.equal(await page.locator('#hco-otp').inputValue(), '');
-      await page.keyboard.press('Escape'); await checkout.waitFor({ state: 'detached' }); assert.equal(posts.length, 1);
+      await page.keyboard.press('Escape'); await checkout.waitFor({ state: 'detached' }); assert.equal(posts.length, 2);
+      await page.getByRole('button',{name:'Activar beneficios Pro'}).click(); await checkout.waitFor();
+      assert.equal(await page.locator('#d5FileVaultUploadInput').count(),0);
+      await page.locator('#hco-otp').fill('654321'); await checkout.getByRole('button',{name:'Verificar pago',exact:true}).click();
+      await checkout.waitFor({state:'detached'}); await page.locator('#d5ExpandingAction3').waitFor();
+      assert.equal(period.subscription.tier,'pro'); assert.equal(posts.length,3);
+      await page.reload(); await page.locator('#d5ExpandingAction3').waitFor();
+      assert.equal(await checkout.count(),0);
       assert.deepEqual(errors, []); await context.close();
       console.log(`Checkout ${width}px: complete layout, billing/country/fiscal, safe WhatsApp, pending OTP, free entry/reload/Escape and input privacy OK`);
     }

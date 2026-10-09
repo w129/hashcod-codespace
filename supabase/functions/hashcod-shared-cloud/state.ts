@@ -6,8 +6,8 @@ function safeKey(key: string): boolean {
   if (!/^[A-Za-z0-9:_\-.]{1,180}$/.test(key) || key.startsWith('__hashcod_cloud_')) return false;
   return !/(^|[_:\-.])(auth|token|secret|password|passwd|private|credential|dilithium|webauthn|csrf|nonce|challenge|turnstile|session|jwt|oauth|supabase|api[_-]?key|access[_-]?code|crypto|certified|certificate|validated)(?=$|[_:\-.])/i.test(key);
 }
-export async function sharedState(request: Request, body: any) {
-  if (request.method === 'POST') {
+export async function sharedState(request: Request, body: any, readOnly = false) {
+  if (request.method === 'POST' && !readOnly) {
     if (!body.entries || typeof body.entries !== 'object' || Array.isArray(body.entries)) fail(400, 'Invalid entries.');
     await sql.begin(async tx => {
       for (const [key, raw] of Object.entries(body.entries).slice(0, 256)) {

@@ -20,12 +20,17 @@ function DominicanFlag() {
   return <svg width="24" height="16" viewBox="0 0 24 16" aria-hidden="true"><rect width="24" height="16" fill="#fff" /><rect width="10" height="6.5" fill="#002D62" /><rect x="14" width="10" height="6.5" fill="#CE1126" /><rect y="9.5" width="10" height="6.5" fill="#CE1126" /><rect x="14" y="9.5" width="10" height="6.5" fill="#002D62" /></svg>;
 }
 
-export default function EntryCheckout({ onEnter, busy = false, error = '' }) {
+export default function EntryCheckout({ onEnter, onVerify, reference = '', busy = false, error = '' }) {
   const [yearly, setYearly] = useState(false), [rd, setRd] = useState(true);
   const [cedula, setCedula] = useState(''), [fiscal, setFiscal] = useState(false);
   const [otp, setOtp] = useState(''), [otpMessage, setOtpMessage] = useState('');
   const root = useRef(null), back = useRef(null), identity = useRef(null);
-  const order = checkoutOrder({ yearly, rd, cedula, fiscal });
+  const order = checkoutOrder({ yearly, rd, cedula, fiscal, reference });
+  async function verify() {
+    setOtpMessage('');
+    try { await onVerify(otp); setOtp(''); }
+    catch (e) { setOtpMessage(e.message); }
+  }
   useLayoutEffect(() => {
     const oldFocus = document.activeElement;
     const targets = [...document.querySelectorAll('body > main, body > footer, .code-access-root')];
@@ -58,6 +63,7 @@ export default function EntryCheckout({ onEnter, busy = false, error = '' }) {
         </div>
         <div className="hco-totals"><div><span><strong>Hashcod Pro</strong><small>Acceso completo a la plataforma, IA y almacenamiento en la nube</small></span><span>{order.amount}</span></div>
           <div><strong>Total a pagar hoy</strong><strong>{order.amount}</strong></div></div>
+        <div className="hco-benefits"><strong>Qué incluye</strong><ul><li>Acceso a la Toolbook</li><li>Permiso y Certificación de IA</li><li>Uso de las Herramientas</li><li>+20 solicitudes /mes <small>(25 solicitudes al mes)</small></li></ul></div>
         <div className="hco-summary-footer"><span>Cancela cuando quieras</span><span aria-hidden="true">·</span><span>Confirmación directa por WhatsApp</span></div>
       </aside>
       <div className="hco-form"><div className="hco-form-inner">
@@ -73,13 +79,13 @@ export default function EntryCheckout({ onEnter, busy = false, error = '' }) {
         <ol className="hco-steps">{[
           'Pulsa el botón: se abre WhatsApp con tu pedido ya escrito (plan, período, país y total).',
           'Envía el mensaje. Un asesor de Hashcod te responde con las instrucciones de pago.',
-          'Al confirmar tu pago se activa tu suscripción.',
+          'Al confirmar tu pago, el asesor te envía un código. Valídalo aquí para activar tu suscripción.',
         ].map((text, i) => <li key={text}><span>{i + 1}</span><p>{text}</p></li>)}</ol>
-        <a className="hco-pay" href={order.href} aria-disabled={!order.valid} target="_blank" rel="noopener noreferrer" onClick={e => { if (!order.valid) { e.preventDefault(); identity.current?.focus(); } }}><WhatsappIcon />Pagar {order.amount} por WhatsApp</a>
+        <a className="hco-pay" href={reference ? order.href : undefined} aria-disabled={!order.valid || !reference} target="_blank" rel="noopener noreferrer" onClick={e => { if (!order.valid || !reference) { e.preventDefault(); identity.current?.focus(); } }}><WhatsappIcon />Pagar {order.amount} por WhatsApp</a>
         <div className="hco-verification hco-field"><label htmlFor="hco-otp">Código de verificación del pago</label>
-          <p>Después de pagar, el asesor te enviará por WhatsApp un código de 6 dígitos. La verificación automática se habilitará próximamente; por ahora, confirma la activación con el asesor.</p>
+          <p>Después de pagar, el asesor te enviará por WhatsApp un código de 6 dígitos. Escríbelo aquí para activar tu suscripción. Caduca en 15 minutos y solo funciona en esta sesión.</p>
           <input id="hco-otp" inputMode="numeric" autoComplete="one-time-code" maxLength={6} placeholder="······" value={otp} onChange={e => { setOtp(e.target.value.replace(/\D/g, '').slice(0, 6)); setOtpMessage(''); }} />
-          <button type="button" className="hco-verify" disabled={otp.length !== 6} onClick={() => setOtpMessage('La verificación automática aún no está habilitada. Contacta con el asesor por WhatsApp para confirmar tu pago. Este código no activa una suscripción.')}>Verificar pago</button>
+          <button type="button" className="hco-verify" disabled={otp.length !== 6 || busy || !reference} onClick={verify}>{busy ? 'Verificando…' : 'Verificar pago'}</button>
           <span className="hco-otp-status" role="status">{otpMessage || (otp.length > 0 && otp.length < 6 ? `Faltan ${6 - otp.length} dígitos.` : '')}</span>
         </div>
         <div className="hco-field hco-fiscal" role="group" aria-label="Comprobante fiscal"><span>¿Quieres comprobante fiscal?</span><div className="hco-choice">
@@ -88,6 +94,7 @@ export default function EntryCheckout({ onEnter, busy = false, error = '' }) {
         </div><small>{fiscal ? 'Se solicitará con tu pedido. El asesor te pedirá por WhatsApp los datos para emitirlo.' : 'Se emitirá solo el recibo de pago, sin comprobante fiscal.'}</small></div>
         <div className="hco-divider"><span />o<span /></div>
         <button type="button" className="hco-free" onClick={onEnter} disabled={busy}>{busy ? 'Entrando…' : 'Entrar Gratis'}</button>
+        <p className="hco-free-note">El acceso gratuito permite explorar la presentación y los planes. Toolbook, herramientas, nube y certificación requieren un código de pago válido.</p>
         {error && <p className="hco-error" role="alert">{error}</p>}
         <p className="hco-knowledge">¿No tienes dinero para pagar? ¡Paga con tu conocimiento en el área de software!</p>
         <p className="hco-privacy">La cédula se pide para la coordinación de facturación y solo se incluye en el mensaje de WhatsApp si seleccionas República Dominicana. No se guarda en la plataforma. No pedimos datos de tarjeta y nunca compartas contraseñas por WhatsApp.</p>

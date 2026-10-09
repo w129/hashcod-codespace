@@ -8,6 +8,13 @@ function periodCookie(array $override = []): void {
     $_COOKIE['hashcod_platform_period_v1'] = mldsaSeal(array_merge(['kind'=>'platform-period-v1','host'=>mldsaHost(),'token'=>'private-test-token','state'=>'active','days'=>10,'expiresAt'=>time()+864000], $override));
 }
 periodCheck(!platformPeriodActive(), 'Missing selection must be blocked');
+putenv('L8_CODE_ACCESS_REQUIRED=1');
+foreach (['/', '/l8/', '/l8-codespace/'] as $base) {
+    $entry = mldsaGateHtml($base, true);
+    periodCheck(!str_contains($entry, 'd5CodeAccessMount') && !str_contains($entry, 'code-access.bundle.'), 'Retired credential window still loads');
+    periodCheck(str_contains($entry, 'data-hashcod-code-access-required="0"'), 'Legacy server configuration restored the retired window');
+    periodCheck(str_contains($entry, 'd5CenterEmptyStateMount'), 'Current checkout must remain available');
+}
 periodCheck(str_contains(mldsaGateHtml('/',true), 'data-hashcod-period-required="1"'), 'Initial HTML must require selection');
 periodCookie(['state'=>'choose','expiresAt'=>null]); periodCheck(!platformPeriodActive(), 'Unconfirmed choice allowed');
 periodCookie(['days'=>11]); periodCheck(!platformPeriodActive(), 'Invalid duration allowed');

@@ -234,14 +234,11 @@ async function waitFor(page,predicate,arg,options){
     assert.equal(state.calendar.today,state.calendar.expected,'today marker must use the real current date');
     assert.equal(state.calendar.unavailable,0,'calendar must not invent unavailable appointments');
     assert.equal(state.calendar.accent,'black','calendar accent must be black');
-    assert.equal(state.codeAccess.exists,true,'Code access React mount must exist');
-    assert.equal(state.codeAccess.component,'CodeAccessGate','Code access component marker changed');
-    assert.equal(state.codeAccess.required,'0','CI first-screen flow must explicitly disable the production code gate');
-    assert.equal(state.codeAccess.authorized,'1','disabled CI code gate must be treated as authorized');
-    assert.equal(state.codeAccess.mounted,true,'Code access React island must mount');
+    assert.equal(state.codeAccess.exists,false,'retired numeric access island must not render');
+    assert.equal(state.codeAccess.mounted,true,'ordinary runtime bootstrap must mount');
     assert.equal(state.codeAccess.mode,'open-entry','disabled gate must report open entry');
     assert.equal(state.codeAccess.bound,false,'open entry must not claim a credential binding');
-    assert.equal(state.codeAccess.gateCount,0,'disabled CI code gate must not cover ordinary first-screen tests');
+    assert.equal(state.codeAccess.gateCount,0,'retired numeric gate must never appear');
     assert.equal(state.previewPolicy.exists,true,'Preview Link Card footer must exist at the end of the platform');
     assert.equal(state.previewPolicy.afterMain,true,'Preview Link Card footer must follow the main platform content');
     assert.equal(state.previewPolicy.text,'Antes de continuar, lee la Use and Privacy Policy.','Preview Link Card footer text must match exactly');

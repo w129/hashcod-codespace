@@ -37,5 +37,7 @@ const caddy=fs.readFileSync(path.join(repoDir,'Caddyfile'),'utf8');
 const gate=fs.readFileSync(path.join(repoDir,'mldsa-access.php'),'utf8');
 assert(!caddy.includes('rewrite * /components/mldsa-access-gate-loader.js'),'Caddy must not replace the real FAQ/Documents runtime');
 assert(gate.includes('components/mldsa-access-gate-loader.js?v=20261007-security1'),'both distributions must explicitly load the bootstrap');
-assert(loader.includes("dataset.hashcodCodeAccessRequired==='1'"),'bootstrap must honor server-required credentials');
+assert(gate.includes('data-hashcod-code-access-required="0"'),'public entry must retire the numeric credential window');
+assert(!gate.includes('components/code-access.bundle.'),'retired access bundle must not load');
+assert(!gate.includes('id="d5CodeAccessMount"'),'retired access mount must not render');
 console.log('Direct platform entry and actual UI delivery contract OK');

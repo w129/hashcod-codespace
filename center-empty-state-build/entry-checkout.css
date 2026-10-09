@@ -9,12 +9,8 @@ body.hco-open { overflow: hidden !important; }
 .hco-summary { flex: 1 1 480px; min-width: 0; padding: 48px 56px; display: flex; flex-direction: column; gap: 40px; background: #f8fafc; border-right: 1px solid #e2e8f0; }
 .hco-header { display: flex; align-items: center; gap: 12px; }
 .hco-back { width: 44px; height: 44px; flex: none; border-radius: 50%; border: 1px solid #e2e8f0; background: transparent; color: #64748b !important; display: grid; place-items: center; }
-.hco-brand { display: flex; align-items: center; gap: 10px; color: #000; }
-.hco-brand > svg { flex: none; border: 1px solid #e2e8f0; border-radius: 8px; }
-.hco-brand > span { display: flex; flex-direction: column; gap: 2px; font-family: 'Inter', system-ui, sans-serif; line-height: 1; }
-.hco-brand strong { font-size: 20px; font-weight: 700; letter-spacing: -.02em; }
-.hco-brand sup { font-size: 9px; margin-left: 1px; }
-.hco-brand span span { font-size: 14px; letter-spacing: -.015em; }
+.hco-brand { display: flex; flex: 1 1 auto; min-width: 0; align-items: center; color: #000; }
+.hco-brand-logo { display: block; width: min(420px, 100%); height: auto; }
 .hco-pricing { display: flex; flex-direction: column; gap: 8px; }
 .hco-pricing > span { font: 12px/1.5 'IBM Plex Mono', monospace; letter-spacing: .12em; text-transform: uppercase; color: #64748b; }
 .hco-pricing > div { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
@@ -149,3 +145,6 @@ body.hco-open { overflow: hidden !important; }
 .hpa-panel .hco-reopen--primary:hover { background:#27272a; border-color:#27272a; color:#fff; }
 .hpa-panel .hco-reopen--primary:hover .hco-ico { color:#fff; }
 .hpa-panel .hco-admin-form { align-self:center; width:min(440px,calc(100vw - 32px)); margin:2px 0 0; }
+
+/* Narrow screens: the logo gets its own full-width row so the PSOT line stays readable. */
+@media (max-width: 520px) { .hco-header { flex-wrap: wrap; row-gap: 12px; } .hco-brand { flex-basis: 100%; } .hco-brand-logo { width: 100%; max-width: 360px; } }

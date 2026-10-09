@@ -7,12 +7,7 @@ import './entry-checkout.css';
 
 function Brand() {
   return <div className="hco-brand">
-    <svg width="32" height="32" viewBox="0 0 512 512" fill="none" aria-hidden="true">
-      <rect width="512" height="512" rx="112" fill="#fff" />
-      <path d="M128 344H80C60.118 344 44 327.882 44 308V104C44 84.118 60.118 68 80 68H432C451.882 68 468 84.118 468 104V308C468 327.882 451.882 344 432 344H384" stroke="#000" strokeWidth="34" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M247.5 278.5C251.2 272.1 260.8 272.1 264.5 278.5L380.5 448.2C384.5 454.9 379.7 460 372 460H140C132.3 460 127.5 454.9 131.5 448.2L247.5 278.5Z" fill="#000" />
-    </svg>
-    <span><strong>Hashcod<sup>®</sup></strong><span>codespace</span></span>
+    <img className="hco-brand-logo" src="/components/hashcod-logo-psot.png?v=20261009-psot1" width="1100" height="237" alt="Hashcod Codespace · PSOT Prueba Sellada de Objeto y Tiempo" decoding="async" />
   </div>;
 }
 function WhatsappIcon() {

@@ -51,7 +51,7 @@ export async function subscription(action: string, owner: string, body: any, req
   if (action !== 'redeem') fail(400, 'Unsupported subscription action.');
   // Persistent rolling-window limit survives reloads and code reissues.
   await redeemRate('subscription-redeem|' + owner, 6);
-  await redeemRate('subscription-redeem-ip|' + await mac(request.headers.get('x-forwarded-for') || 'unknown'), 30);
+  await redeemRate('subscription-redeem-ip|' + await mac(request.headers.get('x-forwarded-for') || 'unknown'), 300);
   if (typeof body.code !== 'string' || !/^[0-9]{6}$/.test(body.code)) fail(400, 'Introduce el código de 6 dígitos.');
   const digest = await mac('subscription|' + owner + '|' + body.code);
   const result = await sql.begin(async tx => {

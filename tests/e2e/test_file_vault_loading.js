@@ -22,6 +22,7 @@ async function scenario(origin) {
   w.clearInterval = timer => { timers.delete(timer); clear(timer); };
   let release;
   w.fetch = url => {
+    if (url === '/api/platform-period') return Promise.resolve(Response.json({ok:true,state:'active',days:10,expiresAt:9999999999,serverNow:Math.floor(Date.now()/1000),subscription:{tier:'pro',expiresAt:9999999999}}));
     assert.equal(url, '/api/hashcod-shared-files?action=list');
     return new Promise(resolve => { release = resolve; });
   };

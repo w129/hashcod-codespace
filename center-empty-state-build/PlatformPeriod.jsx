@@ -19,8 +19,10 @@ export default function PlatformPeriod() {
     const task = queue.current.then(async () => {
       if (!mounted.current) return;
       controller.current = new AbortController();
-      const response = await fetch('/api/platform-period', { method: body ? 'POST' : 'GET', credentials: 'same-origin', cache: 'no-store',
-        signal: controller.current.signal, headers: body ? { 'Content-Type': 'application/json' } : {}, body: body ? JSON.stringify(body) : undefined });
+      const timeout = setTimeout(() => controller.current?.abort(), 35000);
+      let response;
+      try { response = await fetch('/api/platform-period', { method: body ? 'POST' : 'GET', credentials: 'same-origin', cache: 'no-store',
+        signal: controller.current.signal, headers: body ? { 'Content-Type': 'application/json' } : {}, body: body ? JSON.stringify(body) : undefined }); } finally { clearTimeout(timeout); }
       const data = await response.json();
       if (!response.ok || !data.ok) throw new Error(data.error || 'No se pudo conectar con la plataforma. Intenta de nuevo.');
       if (mounted.current) {

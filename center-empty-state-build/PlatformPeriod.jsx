@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import RecommendationCard from './RecommendationCard';
 import EntryCheckout from './EntryCheckout';
+import { PlansIcon } from './ProIcons';
 import SubscriptionAdmin from './SubscriptionAdmin';
 import './platform-period.css';
 
@@ -90,7 +91,7 @@ export default function PlatformPeriod() {
 
   return <>
     <RecommendationCard activeDays={period.state === 'active' ? period.days : null} locked labels={{ accepted: 'Activo' }} />
-    <button type="button" className="hco-reopen" onClick={() => { setError(''); setOpen(true); }}>Ver planes de Hashcod Pro</button>
+    <button type="button" className="hco-reopen" onClick={() => { setError(''); setOpen(true); }}><PlansIcon />Ver planes de Hashcod Pro</button>
     <p className="hco-free-note">{period.subscription?.tier === 'pro' ? `Hashcod Pro activo · 25 solicitudes al mes · hasta ${new Date(period.subscription.expiresAt * 1000).toLocaleDateString()}` : 'Modo gratuito · Los beneficios Pro están bloqueados hasta validar tu código.'}</p>
     {!open && period.state === 'active' && <SubscriptionAdmin />}
     {error && !open && <p className="hpa-error" role="alert">{error}</p>}

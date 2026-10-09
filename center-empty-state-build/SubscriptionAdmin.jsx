@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { activationMessage, parseOrderMessage } from './checkout-data';
 import TokenizationTool from './TokenizationTool';
+import { PaymentsIcon, RequestsIcon } from './ProIcons';
 
 export default function SubscriptionAdmin() {
   const [open, setOpen] = useState(false), [authorized, setAuthorized] = useState(false);
@@ -40,8 +41,8 @@ export default function SubscriptionAdmin() {
     } catch (e) { setMessage(e.message); }
     finally { setKey(''); setBusy(false); }
   }
-  return <div className="hco-admin"><button type="button" className="hco-reopen" onClick={() => { setOpen(!open); setKey(''); setResult(null); setMessage(''); }}>Administrar pagos</button>
-    <button type="button" className="hco-reopen" onClick={() => setRequestsOpen(true)}>Área privada de solicitudes</button>
+  return <div className="hco-admin"><button type="button" className="hco-reopen" onClick={() => { setOpen(!open); setKey(''); setResult(null); setMessage(''); }}><PaymentsIcon />Administrar pagos</button>
+    <button type="button" className="hco-reopen" onClick={() => setRequestsOpen(true)}><RequestsIcon />Área privada de solicitudes</button>
     {requestsOpen && <TokenizationTool initialView="auth" files={[]} loading={false} onRefresh={() => {}} onClose={() => setRequestsOpen(false)} />}
     {open && <form onSubmit={submit} className="hco-admin-form">
       <strong>Confirmación administrativa del pago</strong>

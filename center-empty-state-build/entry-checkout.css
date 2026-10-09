@@ -70,6 +70,12 @@ body.hco-open { overflow: hidden !important; }
 .hco-business strong { font-weight: 600; color: #0f172a; }
 .hco-error { margin: 0; color: #b91c1c; font-size: 13px; }
 .hco-reopen { display: block; margin: 12px auto 0; min-height: 44px; padding: 8px 16px; border: 1px solid #e2e8f0; border-radius: 10px; background: #fff; color: #334155; font: 13px 'IBM Plex Sans', system-ui, sans-serif; cursor: pointer; }
+.hco-reopen { display: flex; width: fit-content; max-width: 100%; align-items: center; justify-content: center; gap: 10px; background: rgba(255,255,255,.55); transition: background .15s, border-color .15s, color .15s; }
+.hco-reopen .hco-ico { flex: none; color: #64748b; transition: color .15s, transform .15s; }
+.hco-reopen:hover { background: rgba(255,255,255,.9); border-color: #cbd5e1; color: #0f172a; }
+.hco-reopen:hover .hco-ico { color: #0f172a; transform: translateY(-1px); }
+.hco-reopen:focus-visible { outline: 2px solid #141413; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .hco-reopen, .hco-reopen .hco-ico { transition: none; } .hco-reopen:hover .hco-ico { transform: none; } }
 @media (max-width: 999px) {
   .hco-summary, .hco-form { flex-basis: 100%; padding: 32px 24px; }
   .hco-summary { gap: 24px; border-right: 0; border-bottom: 1px solid #e2e8f0; }

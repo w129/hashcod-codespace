@@ -9,6 +9,7 @@ import FilesExplorer from "./FilesExplorer";
 import FilePreview from "./FilePreview";
 import PlatformPeriod from "./PlatformPeriod";
 import ToolbookPanel from "./ToolbookPanel";
+import RequestFlowchart from "./RequestFlowchart";
 import PolicyConsent from "./PolicyConsent";
 import TokenizationTool, { TokenizationIcon } from "./TokenizationTool";
 import ReviewChat from './ReviewChat';
@@ -1897,6 +1898,7 @@ function CenterWorkspaceEmptyState() {
       <div className="hashcod-workspace-recommendation">
         <PlatformPeriod />
         <ToolbookPanel />
+        <RequestFlowchart />
       </div>
 
       <HatchCodeEditor

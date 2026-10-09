@@ -4,7 +4,7 @@ const esbuild = require('../../center-empty-state-build/node_modules/esbuild');
 const root = path.resolve(__dirname, '../../supabase/functions/hashcod-shared-cloud');
 const period = '12345678-1234-1234-1234-123456789abc';
 const mac = async value => crypto.createHmac('sha256', 'only-a-test-secret').update(value).digest('hex');
-let active = true, revision = 'test-revision', saved = null, inserts = 0;
+let active = true, revision = 'test-revision', saved = null, inserts = 0; const mineQueries = [];
 const key = 'only-a-test-administrator-key';
 const core = {
   fail: (status, message) => { throw Object.assign(Error(message), { status }); }, json: data => Response.json(data),
@@ -15,6 +15,7 @@ const core = {
   },
   sql: async (parts, ...values) => {
     const query = parts.join('?');
+    if (query.includes('tokenization_requests r where r.period_id')) { mineQueries.push(values); return saved ? [{id:saved.id,file_name:saved.file_name,status:saved.status,created_at:saved.created_at,updated_at:saved.updated_at||saved.created_at,certificate_id:null,phone:saved.phone,email:saved.email}] : []; }
     if (query.includes('from hashcod_shared.subscriptions')) return [{plan:'monthly',expires_at:9999999999,period_id:period}];
     if (query.includes('count(*)')) return [{total:0}];
     if (query.includes('access_periods')) return active ? [{ id: period }] : [];
@@ -49,6 +50,11 @@ function load(name) {
  const result=await (await tokenization('submit',request,body)).json();
  assert.equal(result.request.status,'pending'); assert(!JSON.stringify(result).includes(body.email));assert(!JSON.stringify(result).includes(body.phone));assert(!JSON.stringify(result).includes(body.code));
  await tokenization('submit',request,body);assert.equal(inserts,1,'retry must not duplicate requests');assert.notEqual(saved.file_name,body.name);
+ const mineEmpty=await(await tokenization('mine',request,{token})).json();assert.deepEqual(mineEmpty.requests.length,1,'the submitted request is listed for its own period');
+ await assert.rejects(tokenization('mine',request,{token:''}),e=>e.status===403);
+ active=false;await assert.rejects(tokenization('mine',request,{token}),e=>e.status===403);active=true;
+ const mineText=JSON.stringify(mineEmpty);assert(!mineText.includes(body.email)&&!mineText.includes(body.phone)&&!mineText.includes('chosen-code'),'own-request view never returns contact data or the file code');
+ assert.deepEqual(mineQueries.at(-1),[period],'the view is scoped to the signed period only');assert.equal(mineEmpty.quota.limit,25);
  await assert.rejects(tokenization('list',request,{token}),e=>e.status===403);
  await assert.rejects(tokenization('auth',request,{token,key:'wrong'}),e=>e.status===403);
  await assert.rejects(tokenization('auth',request,{token,key:'a'.repeat(8193)}),e=>e.status===403);

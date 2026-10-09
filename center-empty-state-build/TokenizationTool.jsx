@@ -109,6 +109,7 @@ export default function TokenizationTool({ files, loading, onRefresh, onClose, i
         if (!alive.current) return;
         setSubmitted(current => new Set([...current, selected.id])); setCode(''); setPhone(''); setEmail('');
         setNotice(`Solicitud guardada: ${selected.name}. Pendiente de revisión (${data.request.id.slice(0, 8)}).`); setView('files');
+        window.dispatchEvent(new CustomEvent('hashcod:requests-changed'));
       }); }}>
         <div className="htk-form-body"><p className="htk-selected"><span className="htk-file-mark">↗</span><span>{selected.name}<small>{bytes(selected.size)}</small></span></p>
           <p className="htk-muted">Introduce tus datos de contacto y el código que se eligió al subir este archivo.</p>

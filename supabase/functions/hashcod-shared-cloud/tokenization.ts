@@ -44,6 +44,18 @@ export async function tokenization(action: string, request: Request, body: any) 
     const result = saved[0] || (await sql`select id, status, created_at from hashcod_shared.tokenization_requests where period_id = ${period} and file_id = ${id}`)[0];
     return json({ ok: true, request: { id: result.id, status: result.status, createdAt: result.created_at } });
   }
+  if (action === 'mine') {
+    // The caller's own requests only (scoped by the signed period); no contact data, file code or admin fields.
+    await rate('tokenization-mine|' + period, 120);
+    const rows = await sql`select r.id, r.file_name, r.status, r.created_at, r.updated_at,
+      (select c.id from hashcod_shared.certificates c where c.request_id=r.id and c.revoked_at is null order by c.created_at desc limit 1) as certificate_id
+      from hashcod_shared.tokenization_requests r where r.period_id = ${period}
+      order by r.created_at desc, r.id desc limit 25`;
+    const used = await sql`select count(*)::integer as total from hashcod_shared.tokenization_requests
+      where period_id=${period} and created_at >= date_trunc('month',now() at time zone 'UTC') at time zone 'UTC'`;
+    return json({ ok: true, quota: { used: Number(used[0].total), limit: 25 },
+      requests: rows.map(row => ({ id: row.id, name: row.file_name, status: row.status, createdAt: row.created_at, updatedAt: row.updated_at, certificateId: row.certificate_id ?? null })) });
+  }
   if (action === 'auth') {
     await rate('tokenization-auth|' + period, 6);
     await rate('tokenization-auth-ip|' + await mac(request.headers.get('x-forwarded-for') || 'unknown'), 30);

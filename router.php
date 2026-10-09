@@ -18,6 +18,12 @@ if (in_array($bootstrapSyncPath, ['/api/hashcod-review/verify', '/api/hashcod-re
     require __DIR__ . '/hashcod-review.php';
     exit;
 }
+if ($bootstrapSyncPath === '/api/platform-requests') {
+    // Polled status view; it shares the non-interactive polling bucket and applies the period/consent guards itself.
+    $_SERVER['REQUEST_URI'] = '/api/admin-device/status';
+    require __DIR__ . '/platform-requests-api.php';
+    exit;
+}
 if ($bootstrapSyncPath === '/api/policy-consent') {
     // Acceptance precedes every other feature; it uses the non-interactive polling bucket.
     $_SERVER['REQUEST_URI'] = '/api/admin-device/status';

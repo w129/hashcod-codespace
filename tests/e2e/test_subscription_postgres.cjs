@@ -7,7 +7,7 @@ const sql=postgres(process.env.HASHCOD_TEST_POSTGRES_URL,{max:8,prepare:false});
 const owner=crypto.randomUUID(),admin=crypto.randomUUID(),other=crypto.randomUUID();
 const fail=(status,message)=>{throw Object.assign(Error(message),{status});};
 const mac=async value=>crypto.createHmac('sha256','fixture-only-hmac-key').update(value).digest('hex');
-const core={sql,fail,mac,equal:(a,b)=>a===b,json:v=>Response.json(v),rate:async()=>{},
+const core={sql,fail,mac,equal:(a,b)=>a===b,json:(v,status=200)=>Response.json(v,{status}),rate:async()=>{},
  openTicket:async t=>{if(t!=='admin-fixture')fail(403,'Admin required');return {kind:'tokenization-admin',period:admin,revision:'fixture'};},fileId:v=>v,code:v=>v};
 const modules={};
 function load(name){if(modules[name])return modules[name];const module={exports:{}};const source=esbuild.transformSync(fs.readFileSync('supabase/functions/hashcod-shared-cloud/'+name,'utf8'),{loader:'ts',format:'cjs'}).code;

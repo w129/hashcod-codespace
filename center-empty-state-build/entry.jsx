@@ -1895,7 +1895,7 @@ function CenterWorkspaceEmptyState() {
 
       <div className="hashcod-workspace-recommendation">
         <PlatformPeriod />
-        <ToolbookPanel pro={pro} />
+        <ToolbookPanel />
       </div>
 
       <HatchCodeEditor

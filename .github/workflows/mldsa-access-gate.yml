@@ -13,6 +13,7 @@ on:
       - policy-consent-lib.php
       - policy-consent-api.php
       - tests/e2e/test_policy_consent_browser.js
+      - tests/e2e/test_toolbook_progress_browser.js
       - tests/security/test-policy-consent.php
       - mldsa-access-api.php
       - pqc-actions.php
@@ -214,6 +215,7 @@ jobs:
         run: |
           php tests/security/test-policy-consent.php
           node tests/e2e/test_policy_consent_browser.js
+          node tests/e2e/test_toolbook_progress_browser.js
 
       - name: Verify entry asset freshness through the PHP router
         run: python3 tests/e2e/test_entry_asset_freshness.py http://127.0.0.1:8097

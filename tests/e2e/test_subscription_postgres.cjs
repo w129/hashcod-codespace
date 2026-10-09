@@ -11,7 +11,7 @@ const core={sql,fail,mac,equal:(a,b)=>a===b,json:v=>Response.json(v),rate:async(
  openTicket:async t=>{if(t!=='admin-fixture')fail(403,'Admin required');return {kind:'tokenization-admin',period:admin,revision:'fixture'};},fileId:v=>v,code:v=>v};
 const modules={};
 function load(name){if(modules[name])return modules[name];const module={exports:{}};const source=esbuild.transformSync(fs.readFileSync('supabase/functions/hashcod-shared-cloud/'+name,'utf8'),{loader:'ts',format:'cjs'}).code;
- vm.runInNewContext(source,{module,exports:module.exports,require:p=>p==='./core.ts'?core:load(p.replace('./','')),crypto:crypto.webcrypto,TextEncoder,Uint32Array,Uint8Array,Response,Date,console});return modules[name]=module.exports;}
+ vm.runInNewContext(source,{module,exports:module.exports,require:p=>p==='./core.ts'?core:load(p.replace('./','')),crypto:crypto.webcrypto,TextEncoder,Uint32Array,Uint8Array,Response,Request,URL,Date,console,Deno:{serve:fn=>{modules.handler=fn;}}});return modules[name]=module.exports;}
 (async()=>{try{
  await sql.unsafe(`create schema hashcod_shared;
  create role anon; create role authenticated;
@@ -59,6 +59,11 @@ function load(name){if(modules[name])return modules[name];const module={exports:
  await sql`update hashcod_shared.tokenization_requests set created_at=date_trunc('month',now())-interval '1 day'`;
  await tokenization('submit',req,{...contact,id:'fv_fixture26'});
  await assert.rejects(tokenization('submit',req,{...contact,token:other+'.'+await mac('period|'+other),id:'fv_fixture26'}),e=>e.status===403);
+ load('index.ts');
+ for(const action of ['state','state.read','files.prepare','files.complete','files.download','files.delete']) {
+   const denied=await modules.handler(new Request('https://fixture.invalid?action='+action,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:other+'.'+await mac('period|'+other),paid:true,subscription:{tier:'pro'}})}));
+   assert.equal(denied.status,403,'Direct Edge '+action+' must deny expired/free entitlement');
+ }
  const privateTables=await sql`select relname,relrowsecurity from pg_class where relname in ('subscriptions','subscription_codes')`;assert(privateTables.every(r=>r.relrowsecurity));
  console.log('Actual PostgreSQL: admin boundary, owner binding, HMAC-only storage, one use, expiry, replacement, concurrent redemption, paid terms, free/expired denial, persistent guessing limit, concurrent 25/month quota, retry and monthly reset OK');
  }finally{await sql.end();}})().catch(e=>{console.error(e.message);process.exitCode=1;});

@@ -1,0 +1,29 @@
+/* Animate UI Accordion: scoped equivalents of the upstream Tailwind utilities (no global Tailwind reset). */
+.hco-faq { display:flex; flex-direction:column; gap:6px; border-top:1px solid #e2e8f0; padding-top:24px; color:#0f172a; }
+.hco-faq-title { margin:0; font:600 12px/1.4 'IBM Plex Mono', ui-monospace, monospace; letter-spacing:.12em; text-transform:uppercase; }
+.hco-faq, .hco-faq * { box-sizing:border-box; }
+.hco-faq .w-full { width:100%; }
+.hco-faq .border-b { border-bottom:1px solid #e2e8f0; }
+.hco-faq .flex { display:flex; }
+.hco-faq .flex-1 { flex:1 1 0%; }
+.hco-faq .text-start { text-align:start; }
+.hco-faq .items-start { align-items:flex-start; }
+.hco-faq .justify-between { justify-content:space-between; }
+.hco-faq .gap-4 { gap:16px; }
+.hco-faq .py-4 { padding-block:16px; }
+.hco-faq .pb-4 { padding-bottom:16px; }
+.hco-faq .pt-0 { padding-top:0; }
+.hco-faq .text-sm { font-size:14px; line-height:20px; }
+.hco-faq .font-medium { font-weight:500; }
+.hco-faq [data-slot=accordion-trigger] { border:0; background:transparent; padding-inline:0; color:inherit; font-family:inherit; cursor:pointer; }
+.hco-faq [data-slot=accordion-trigger]:hover { text-decoration:underline; }
+.hco-faq [data-slot=accordion-trigger]:disabled { pointer-events:none; opacity:.5; }
+.hco-faq [data-slot=accordion-trigger]:focus-visible { outline:2px solid #141413; outline-offset:2px; border-radius:4px; }
+.hco-faq [data-slot=accordion-header] { margin:0; font:inherit; }
+.hco-faq [data-slot=accordion-trigger][data-state=open] > svg { transform:rotate(180deg); }
+.hco-faq .size-5 { width:20px; height:20px; }
+.hco-faq .shrink-0 { flex-shrink:0; }
+.hco-faq .text-muted-foreground { color:#64748b; }
+.hco-faq .transition-transform { transition:transform .2s cubic-bezier(.4,0,.2,1); }
+.hco-faq [data-slot=accordion-content] { color:#475569; }
+@media (prefers-reduced-motion: reduce) { .hco-faq .transition-transform { transition:none; } }

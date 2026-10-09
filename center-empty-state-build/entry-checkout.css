@@ -124,3 +124,9 @@ body.hco-open { overflow: hidden !important; }
 @keyframes hco-blink { 50% { opacity:0; } }
 @keyframes hco-pulse { 50% { opacity:.4; } }
 @media (prefers-reduced-motion: reduce) { .hco-caret,.hco-code-live { animation:none; } }
+.hco-admin-form textarea { min-height:88px; padding:8px; border:1px solid #cbd5e1; border-radius:8px; max-width:100%; font:inherit; resize:vertical; }
+.hco-admin-detected { margin:0; font-size:12px; color:#475569; }
+.hco-admin-result { display:flex; flex-direction:column; gap:6px; }
+.hco-admin-actions { display:flex; gap:8px; flex-wrap:wrap; }
+.hco-admin-actions button,.hco-admin-actions a { flex:1 1 140px; min-height:44px; display:grid; place-items:center; border:1px solid #cbd5e1; border-radius:8px; background:#fff; color:#0f172a; text-decoration:none; font-weight:600; }
+.hco-admin-actions a[aria-disabled=true] { opacity:.5; pointer-events:none; }

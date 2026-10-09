@@ -11,7 +11,7 @@ import './checkout-faq.css';
 const ITEMS = [
   {
     title: '¿Qué recibo al pagar Hashcod Pro?',
-    content: 'Acceso a la Toolbook, permiso y certificación de IA, uso de las herramientas y 25 solicitudes al mes. El plan cuesta US$20 al mes, o US$192 al año con 20 % de descuento.',
+    content: 'Acceso a la Toolbook, permiso de IA, la Prueba Sellada de Objeto y Tiempo (PSOT), uso de las herramientas y 25 solicitudes al mes. El plan cuesta US$20 al mes, o US$192 al año con 20 % de descuento.',
   },
   {
     title: '¿Cómo funciona el pago?',
@@ -26,6 +26,10 @@ const ITEMS = [
     content: 'Solo para coordinar la facturación en República Dominicana. Se incluye en el mensaje de WhatsApp únicamente si eliges ese país y no se guarda en la plataforma.',
   },
   {
+    title: '¿Qué es la PSOT y tiene valor legal?',
+    content: 'La Prueba Sellada de Objeto y Tiempo es un registro que Hashcod emite con la huella de tu archivo y la fecha y hora exactas, para demostrar que existía tal cual en ese momento. Es una prueba de la plataforma: no es una firma ni un certificado digital cualificado de una entidad autorizada por el INDOTEL.',
+  },
+  {
     title: '¿Puedo cancelar cuando quiera?',
     content: 'Sí. La suscripción se puede cancelar cuando quieras, y la confirmación del pago es directa por WhatsApp con un asesor.',
   },
@@ -35,7 +39,7 @@ const ITEMS = [
   },
   {
     title: '¿Puedo entrar sin pagar?',
-    content: 'Sí, con "Entrar Gratis" puedes explorar la presentación y los planes. Toolbook, herramientas, nube y certificación requieren un código de pago válido.',
+    content: 'Sí, con "Entrar Gratis" puedes explorar la presentación y los planes. Toolbook, herramientas, nube y PSOT requieren un código de pago válido.',
   },
 ];
 

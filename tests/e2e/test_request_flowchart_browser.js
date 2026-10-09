@@ -43,8 +43,8 @@ const A = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', B = 'bbbbbbbb-bbbb-bbbb-bbbb-b
       assert.equal(options.length, 3);
       assert(options[1].includes('informe.pdf') && options[1].includes('Completada'));
       await page.getByRole('option', { name: /informe\.pdf/ }).click();
-      await page.getByText('Tokenizada y certificada').waitFor();
-      await page.getByText('Certificado cccccccc').waitFor();
+      await page.getByText('Tokenizada y sellada (PSOT)').waitFor();
+      await page.getByText('Sello PSOT cccccccc').waitFor();
       assert.match(await page.locator('.hfc-card--condition').textContent(), /Emitido/);
       await page.locator('.hfc-chip').click(); await page.keyboard.press('Escape');
       assert.equal(await page.getByRole('listbox').count(), 0, 'Escape closes the menu');

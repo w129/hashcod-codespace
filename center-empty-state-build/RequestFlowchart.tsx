@@ -46,7 +46,7 @@ const STATUS = {
   in_progress: { label: 'En curso', hue: '#3b82f6', outcome: 'En proceso', caption: 'Un asesor está tokenizando tu archivo.' },
   delayed: { label: 'Retrasada', hue: AMBER, outcome: 'Con retraso', caption: 'Tardará más de lo previsto; el asesor te contactará.' },
   awaiting_payment: { label: 'Falta de pago', hue: '#e5484d', outcome: 'Pago pendiente', caption: 'Falta confirmar el pago para continuar.' },
-  completed: { label: 'Completada', hue: '#16a34a', outcome: 'Tokenizada', caption: 'Completada. El certificado se está emitiendo.' },
+  completed: { label: 'Completada', hue: '#16a34a', outcome: 'Tokenizada', caption: 'Completada. El sello PSOT se está emitiendo.' },
 } as const;
 
 const EST_H: Record<string, number> = { trigger: 92, cond: 134, outcome: 92, empty: 92 };
@@ -68,8 +68,8 @@ export function buildSteps(request: RequestRow | undefined, notice: string): Ste
     { id: 'cond', row: 1, x: 0.5, w: 356, kind: { label: 'If / Else', hue: AMBER }, condition: true },
     {
       id: 'outcome', row: 2, x: 0.5, w: 320, kind: { label: 'Resultado', hue: state.hue }, hue: state.hue,
-      title: certified ? 'Tokenizada y certificada' : state.outcome,
-      caption: certified ? `Certificado ${request.certificateId!.slice(0, 8)}` : state.caption,
+      title: certified ? 'Tokenizada y sellada (PSOT)' : state.outcome,
+      caption: certified ? `Sello PSOT ${request.certificateId!.slice(0, 8)}` : state.caption,
     },
   ];
 }
@@ -187,7 +187,7 @@ function ConditionBody({ requests, selected, onSelect }: { requests: RequestRow[
       <div className="hfc-line hfc-line--wrap">
         <Handle />
         <span className="hfc-word hfc-word--lead">y</span>
-        <SourceChip label="certificado" />
+        <SourceChip label="sello PSOT" />
         <span className="hfc-word">está</span>
         <StaticChip label={certified ? 'Emitido' : 'En espera'} hue={certified ? '#16a34a' : '#94a3b8'} />
       </div>
@@ -331,7 +331,7 @@ export default function RequestFlowchart() {
     : status === 'loading' ? 'Cargando tus solicitudes…'
     : 'Envía un archivo desde Tokenización y aquí verás su proceso.';
   const steps = buildSteps(selected, notice);
-  const summary = selected ? `Solicitud ${selected.name}: ${(STATUS[selected.status] ?? STATUS.pending).label}${selected.certificateId ? ', certificada' : ''}.` : notice;
+  const summary = selected ? `Solicitud ${selected.name}: ${(STATUS[selected.status] ?? STATUS.pending).label}${selected.certificateId ? ', sellada con PSOT' : ''}.` : notice;
 
   return (
     <section className="hfc" aria-labelledby="hfc-title">

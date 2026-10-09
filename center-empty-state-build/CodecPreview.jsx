@@ -116,7 +116,7 @@ export default function CodecPreview() {
   return (
     <section className="hco-codec" aria-labelledby="hco-codec-title">
       <p className="hco-codec-quote">
-        Imagina tu IA en esta plataforma, trabajando en este espacio. Y lo que es más: puedes ver su trabajo, y lo que crea queda tokenizado y certificado… ¿te imaginas?
+        Imagina tu IA en esta plataforma, trabajando en este espacio. Y lo que es más: puedes ver su trabajo, y lo que crea queda tokenizado y sellado con una Prueba Sellada de Objeto y Tiempo (PSOT)… ¿te imaginas?
       </p>
       <h2 id="hco-codec-title" className="hco-codec-title">Imagina ver tu IA escribiendo aquí</h2>
       <div className="hco-code">

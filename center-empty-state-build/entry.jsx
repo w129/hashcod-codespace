@@ -1890,7 +1890,7 @@ function CenterWorkspaceEmptyState() {
               onAction={id => requirePaid(() => { if (id === "slot-1") setTokenizationOpen(true); if (id === "slot-2") setReviewOpen(true); if (id === "slot-3") setSkillChatOpen(true); })}
             />
 
-            </>} /> : <div className="hco-free-note"><p>Toolbook, Files, herramientas y certificación son beneficios de Hashcod Pro.</p><button type="button" className="hco-reopen" onClick={() => requirePaid(() => {})}>Activar beneficios Pro</button></div>}
+            </>} /> : <div className="hco-free-note"><p>Toolbook, Files, herramientas y PSOT son beneficios de Hashcod Pro.</p><button type="button" className="hco-reopen" onClick={() => requirePaid(() => {})}>Activar beneficios Pro</button></div>}
           </div>
         }
       />

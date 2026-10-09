@@ -65,7 +65,7 @@ export default function EntryCheckout({ onEnter, onVerify, reference = '', busy 
         </div>
         <div className="hco-totals"><div><span><strong>Hashcod Pro</strong><small>Acceso completo a la plataforma, IA y almacenamiento en la nube</small></span><span>{order.amount}</span></div>
           <div><strong>Total a pagar hoy</strong><strong>{order.amount}</strong></div></div>
-        <div className="hco-benefits"><strong>Qué incluye</strong><ul><li>Acceso a la Toolbook</li><li>Permiso y Certificación de IA</li><li>Uso de las Herramientas</li><li>+20 solicitudes /mes <small>(25 solicitudes al mes)</small></li></ul></div>
+        <div className="hco-benefits"><strong>Qué incluye</strong><ul><li>Acceso a la Toolbook</li><li>Permiso de IA y Prueba Sellada de Objeto y Tiempo (PSOT)</li><li>Uso de las Herramientas</li><li>+20 solicitudes /mes <small>(25 solicitudes al mes)</small></li></ul></div>
         <CodecPreview />
         <CheckoutFaq />
         <div className="hco-summary-footer"><span>Cancela cuando quieras</span><span aria-hidden="true">·</span><span>Confirmación directa por WhatsApp</span></div>
@@ -98,7 +98,7 @@ export default function EntryCheckout({ onEnter, onVerify, reference = '', busy 
         </div><small>{fiscal ? 'Se solicitará con tu pedido. El asesor te pedirá por WhatsApp los datos para emitirlo.' : 'Se emitirá solo el recibo de pago, sin comprobante fiscal.'}</small></div>
         <div className="hco-divider"><span />o<span /></div>
         <button type="button" className="hco-free" onClick={onEnter} disabled={busy}>{busy ? 'Entrando…' : 'Entrar Gratis'}</button>
-        <p className="hco-free-note">El acceso gratuito permite explorar la presentación y los planes. Toolbook, herramientas, nube y certificación requieren un código de pago válido.</p>
+        <p className="hco-free-note">El acceso gratuito permite explorar la presentación y los planes. Toolbook, herramientas, nube y PSOT requieren un código de pago válido.</p>
         {error && <p className="hco-error" role="alert">{error}</p>}
         <p className="hco-knowledge">¿No tienes dinero para pagar? ¡Paga con tu conocimiento en el área de software!</p>
         <p className="hco-privacy">La cédula se pide para la coordinación de facturación y solo se incluye en el mensaje de WhatsApp si seleccionas República Dominicana. No se guarda en la plataforma. No pedimos datos de tarjeta y nunca compartas contraseñas por WhatsApp.</p>

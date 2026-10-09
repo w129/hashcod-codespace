@@ -1,9 +1,7 @@
-/* Request flowchart: dotted editor canvas with draggable step cards. Tokens are scoped; light and dark adapt. */
-.hfc { --hfc-surface:#fff; --hfc-page:#f8fafc; --hfc-ink:#0f172a; --hfc-ink-2:#475569; --hfc-ink-3:#94a3b8; --hfc-line:#e2e8f0; --hfc-line-strong:#cbd5e1; --hfc-field:#f1f5f9; --hfc-hover:#f1f5f9; --hfc-hover-2:#e2e8f0; --hfc-accent:#141413;
+/* Request flowchart: dotted editor canvas with draggable step cards. Always light, like the rest of the platform. */
+.hfc { --hfc-surface:#fff; --hfc-page:#f5f5f5; --hfc-ink:#0f172a; --hfc-ink-2:#475569; --hfc-ink-3:#94a3b8; --hfc-line:#e2e8f0; --hfc-line-strong:#cbd5e1; --hfc-field:#f1f5f9; --hfc-hover:#f1f5f9; --hfc-hover-2:#e2e8f0; --hfc-accent:#141413;
   --hfc-shadow-card:0 0 0 1px rgba(15,23,42,.06),0 1px 2px rgba(15,23,42,.05); --hfc-shadow-raised:0 0 0 1px rgba(15,23,42,.08),0 6px 18px rgba(15,23,42,.1);
   display:flex; flex-direction:column; gap:10px; width:100%; margin-top:20px; font-family:'IBM Plex Sans', system-ui, sans-serif; color:var(--hfc-ink); }
-@media (prefers-color-scheme: dark) { .hfc { --hfc-surface:#1c1c1f; --hfc-page:#121214; --hfc-ink:#f4f4f5; --hfc-ink-2:#a1a1aa; --hfc-ink-3:#71717a; --hfc-line:#27272a; --hfc-line-strong:#3f3f46; --hfc-field:#27272a; --hfc-hover:#27272a; --hfc-hover-2:#3f3f46; --hfc-accent:#f4f4f5;
-  --hfc-shadow-card:0 0 0 1px rgba(255,255,255,.06); --hfc-shadow-raised:0 0 0 1px rgba(255,255,255,.1),0 6px 18px rgba(0,0,0,.4); } }
 .hfc, .hfc * { box-sizing:border-box; }
 .hfc-head { display:flex; align-items:center; justify-content:space-between; gap:8px; }
 .hfc-head h2 { margin:0; font:600 12px/1.4 'IBM Plex Mono', ui-monospace, monospace; letter-spacing:.12em; text-transform:uppercase; }

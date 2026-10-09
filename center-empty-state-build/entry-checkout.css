@@ -89,3 +89,38 @@ body.hco-open { overflow: hidden !important; }
 .hco-admin-form { display:flex; flex-direction:column; gap:12px; max-width:440px; padding:20px; margin:12px auto; border:1px solid #e2e8f0; border-radius:12px; background:#fff; color:#334155; }
 .hco-admin-form input:not([type=checkbox]),.hco-admin-form select,.hco-admin-form button { min-height:44px; padding:8px; border:1px solid #cbd5e1; border-radius:8px; max-width:100%; }
 .hco-admin-form p { overflow-wrap:anywhere; }
+
+/* Codec Pro — "Imagina ver tu IA escribiendo aquí" */
+.hco-codec { --c-ink:#0f172a; --c-ink3:#64748b; --c-line:#e2e8f0; --c-kw:#4f46e5; --c-lit:#c2410c; --c-green:#15803d; --c-red:#b91c1c; display:flex; flex-direction:column; gap:14px; border-top:1px solid #e2e8f0; padding-top:24px; font-family:'IBM Plex Mono', ui-monospace, monospace; }
+.hco-codec-quote { margin:0; padding:14px 16px; border-left:3px solid #141413; border-radius:0 12px 12px 0; background:linear-gradient(135deg,#eef2ff 0%,#f1f5f9 100%); color:#334155; font-size:13px; line-height:1.65; font-style:italic; }
+.hco-codec-title { margin:0; font-size:12px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:#0f172a; }
+.hco-code { overflow:hidden; border:1px solid var(--c-line); border-radius:14px; background:#fff; box-shadow:0 1px 2px rgba(15,23,42,.06),0 8px 24px -12px rgba(15,23,42,.18); }
+.hco-code-head { display:flex; align-items:center; flex-wrap:wrap; gap:8px; min-height:44px; padding:6px 12px 6px 16px; border-bottom:1px solid var(--c-line); background:#f8fafc; font-size:12.5px; }
+.hco-code-file { display:inline-flex; align-items:center; gap:7px; min-width:0; color:var(--c-ink); }
+.hco-code-file svg { color:var(--c-ink3); flex:none; }
+.hco-code-live { font-style:normal; font-size:11px; color:var(--c-kw); animation:hco-pulse 1.1s ease-in-out infinite; }
+.hco-code-tabs { display:inline-flex; margin-left:auto; padding:2px; gap:2px; border:1px solid var(--c-line); border-radius:8px; background:#f1f5f9; }
+.hco-code-tabs button { min-height:24px; padding:0 10px; border:0; border-radius:6px; background:transparent; color:var(--c-ink3); font-size:12px; }
+.hco-code-tabs button[aria-pressed=true] { background:#fff; color:var(--c-ink); box-shadow:0 1px 2px rgba(15,23,42,.12); }
+.hco-code-actions,.hco-code-stat { display:inline-flex; align-items:center; gap:6px; }
+.hco-code-actions button { min-height:24px; padding:0 8px; border:0; border-radius:6px; background:transparent; color:var(--c-ink3); font-size:12px; font-weight:500; }
+.hco-code-actions button:hover { background:#e2e8f0; color:var(--c-ink); }
+.hco-code-actions .hco-ok { color:var(--c-green); }
+.hco-add { color:var(--c-green); } .hco-del { color:var(--c-red); }
+.hco-code-stat b { font-weight:500; font-size:12px; }
+.hco-code-body { position:relative; padding:12px 0; font-size:12.5px; line-height:1.65; color:#334155; }
+.hco-code-body::before { content:''; position:absolute; top:0; bottom:0; left:20px; width:1px; background:var(--c-line); pointer-events:none; }
+.hco-row { position:relative; display:grid; grid-template-columns:20px minmax(0,1fr); align-items:start; min-height:1.65em; }
+.hco-row code { padding:0 12px 0 8px; font:inherit; white-space:pre-wrap; overflow-wrap:anywhere; }
+.hco-num { text-align:center; font-size:11px; color:var(--c-ink3); user-select:none; }
+.hco-row-add { background:#f0fdf4; } .hco-row-del { background:#fef2f2; }
+.hco-row-add::after,.hco-row-del::after { content:''; position:absolute; top:0; bottom:0; left:0; width:3px; }
+.hco-row-add::after { background:var(--c-green); } .hco-row-del::after { background:var(--c-red); }
+.hco-row-add .hco-num { color:var(--c-green); } .hco-row-del .hco-num { color:var(--c-red); }
+.hco-chg { border-radius:3px; padding:0 2px; margin:0 -1px; }
+.hco-chg-add { background:rgba(21,128,61,.18); } .hco-chg-del { background:rgba(185,28,28,.18); }
+.hco-tk-kw { color:var(--c-kw); } .hco-tk-lit { color:var(--c-lit); } .hco-tk-fn { color:var(--c-ink); font-weight:500; }
+.hco-caret { display:inline-block; width:7px; height:1.1em; margin-left:1px; vertical-align:text-bottom; background:#141413; animation:hco-blink 1s steps(1) infinite; }
+@keyframes hco-blink { 50% { opacity:0; } }
+@keyframes hco-pulse { 50% { opacity:.4; } }
+@media (prefers-reduced-motion: reduce) { .hco-caret,.hco-code-live { animation:none; } }

@@ -1,6 +1,7 @@
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { checkoutOrder, formatCedula } from './checkout-data';
+import CodecPreview from './CodecPreview';
 import './entry-checkout.css';
 
 function Brand() {
@@ -64,6 +65,7 @@ export default function EntryCheckout({ onEnter, onVerify, reference = '', busy 
         <div className="hco-totals"><div><span><strong>Hashcod Pro</strong><small>Acceso completo a la plataforma, IA y almacenamiento en la nube</small></span><span>{order.amount}</span></div>
           <div><strong>Total a pagar hoy</strong><strong>{order.amount}</strong></div></div>
         <div className="hco-benefits"><strong>Qué incluye</strong><ul><li>Acceso a la Toolbook</li><li>Permiso y Certificación de IA</li><li>Uso de las Herramientas</li><li>+20 solicitudes /mes <small>(25 solicitudes al mes)</small></li></ul></div>
+        <CodecPreview />
         <div className="hco-summary-footer"><span>Cancela cuando quieras</span><span aria-hidden="true">·</span><span>Confirmación directa por WhatsApp</span></div>
       </aside>
       <div className="hco-form"><div className="hco-form-inner">

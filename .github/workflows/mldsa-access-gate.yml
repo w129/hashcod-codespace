@@ -142,7 +142,7 @@ jobs:
 
       - name: Start Hashcod locally
         run: |
-          L8_CODE_ACCESS_REQUIRED=0 php -S 127.0.0.1:8097 router.php >/tmp/mldsa-direct-entry.log 2>&1 &
+          L8_CODE_ACCESS_REQUIRED=1 php -S 127.0.0.1:8097 router.php >/tmp/mldsa-direct-entry.log 2>&1 &
           echo $! >/tmp/mldsa-direct-entry.pid
           ready=0
           for i in $(seq 1 40); do
@@ -159,11 +159,11 @@ jobs:
           grep -q 'id="d5PreviewPolicyFooter"' /tmp/hashcod-home.html
           grep -q 'id="d5PreviewPolicyMount"' /tmp/hashcod-home.html
           grep -q 'data-hashcod-component="PreviewLinkCard"' /tmp/hashcod-home.html
-          grep -q 'id="d5CodeAccessMount"' /tmp/hashcod-home.html
-          grep -q 'data-hashcod-component="CodeAccessGate"' /tmp/hashcod-home.html
-          grep -q 'data-required="0"' /tmp/hashcod-home.html
-          grep -q 'code-access.bundle.css?v=20261007-access-brand2' /tmp/hashcod-home.html
-          grep -q 'code-access.bundle.js?v=20261007-access-brand2' /tmp/hashcod-home.html
+          ! grep -q 'id="d5CodeAccessMount"' /tmp/hashcod-home.html
+          ! grep -q 'data-hashcod-component="CodeAccessGate"' /tmp/hashcod-home.html
+          grep -q 'data-hashcod-code-access-required="0"' /tmp/hashcod-home.html
+          ! grep -q 'code-access.bundle.css?v=20261007-access-brand2' /tmp/hashcod-home.html
+          ! grep -q 'code-access.bundle.js?v=20261007-access-brand2' /tmp/hashcod-home.html
           grep -q 'first-screen-branched-menu.bundle.css?v=20261007-entry-fixes1' /tmp/hashcod-home.html
           grep -q 'first-screen-branched-menu.bundle.js?v=20261007-entry-fixes1' /tmp/hashcod-home.html
           grep -q 'id="d5CenterEmptyStateStage"' /tmp/hashcod-home.html
@@ -219,8 +219,8 @@ jobs:
           grep -q 'id="d5FirstBranchedMenuMount"' /tmp/hashcod-laragon.html
           grep -q 'id="d5PreviewPolicyFooter"' /tmp/hashcod-laragon.html
           grep -q 'id="d5PreviewPolicyMount"' /tmp/hashcod-laragon.html
-          grep -q 'id="d5CodeAccessMount"' /tmp/hashcod-laragon.html
-          grep -q 'code-access.bundle.js?v=20261007-access-brand2' /tmp/hashcod-laragon.html
+          ! grep -q 'id="d5CodeAccessMount"' /tmp/hashcod-laragon.html
+          ! grep -q 'code-access.bundle.js?v=20261007-access-brand2' /tmp/hashcod-laragon.html
           grep -q 'first-screen-branched-menu.bundle.js?v=20261007-entry-fixes1' /tmp/hashcod-laragon.html
           grep -q 'id="d5CenterEmptyStateMount"' /tmp/hashcod-laragon.html
           grep -q 'center-empty-state.bundle.js?v=20261007-security1' /tmp/hashcod-laragon.html

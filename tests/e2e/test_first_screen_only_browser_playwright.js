@@ -47,7 +47,7 @@ async function waitFor(page,predicate,arg,options){
     await page.waitForSelector('.branched-menu',{state:'visible',timeout:5000});
     await waitFor(page,()=>document.getElementById('d5PreviewPolicyMount')?.dataset.reactMounted==='true',{timeout:5000});
     await page.waitForSelector('#d5PreviewPolicyTrigger',{state:'attached',timeout:5000});
-    await waitFor(page,()=>document.getElementById('d5CodeAccessMount')?.dataset.reactMounted==='true',{timeout:15000});
+    await waitFor(page,()=>window.HashcodCodeAccess?.mode==='open-entry',{timeout:15000});
     await waitFor(page,()=>document.getElementById('d5CenterEmptyStateMount')?.dataset.reactMounted==='true',{timeout:15000});
     await page.waitForSelector('#d5CenterEmptyStateAction',{state:'visible',timeout:5000});
     await page.mouse.move(700,450);

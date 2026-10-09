@@ -16,6 +16,11 @@ async function main() {
     for await (const chunk of req) chunks.push(chunk);
     const body = JSON.parse(Buffer.concat(chunks).toString() || '{}');
     const action = new URL(req.url, 'http://localhost').searchParams.get('action');
+    if (action==='policy.consent') {
+      assert.deepEqual(Object.keys(body).sort(),['agent','client','host','version']);
+      assert(/^[a-f0-9]{64}$/.test(body.client),'only a salted client hash may reach the evidence ledger');
+      res.setHeader('Content-Type','application/json');res.end(JSON.stringify({ok:true,receipt:'0b9c1f3e-1a2b-4c3d-8e4f-5a6b7c8d9e0f',acceptedAt:Math.floor(Date.now()/1000),version:body.version}));return;
+    }
     if (action==='subscription.redeem') {
       assert.deepEqual(Object.keys(body).sort(),['code','token']); assert.equal(body.token,period.token);
       res.setHeader('Content-Type','application/json');
@@ -75,6 +80,18 @@ async function main() {
       await new Promise(resolve => setTimeout(resolve, 100));
     }
     assert(ready, 'PHP facade must start');
+    // Nothing works before acceptance: the evidence is stored first and a signed cookie is issued.
+    const blocked = await fetch(base + '/api/platform-period', { method: 'POST', headers: { 'Content-Type': 'application/json', Origin: base }, body: '{"entry":"free"}' });
+    assert.equal(blocked.status, 403); assert.equal((await blocked.json()).code, 'policy_consent_required');
+    const guarded = await fetch(base + '/api/hashcod-shared-files?action=list'); assert.equal((await guarded.json()).code, 'policy_consent_required');
+    const refused = await fetch(base + '/api/policy-consent', { method: 'POST', headers: { 'Content-Type': 'application/json', Origin: base }, body: '{"accept":true,"version":"1999.01.01-1"}' });
+    assert.equal(refused.status, 400, 'a stale policy version cannot be accepted');
+    const consentResponse = await fetch(base + '/api/policy-consent', { method: 'POST', headers: { 'Content-Type': 'application/json', Origin: base }, body: '{"accept":true,"version":"2026.09.18-2"}' });
+    assert.equal(consentResponse.status, 200);
+    const consentCookie = consentResponse.headers.get('set-cookie'); assert.match(consentCookie, /hashcod_policy_consent_v1=/); assert.match(consentCookie, /HttpOnly/i); assert.match(consentCookie, /SameSite=Strict/i);
+    const consentPair = consentCookie.split(';')[0];
+    const realFetch = globalThis.fetch;
+    globalThis.fetch = (target, options = {}) => { const h = { ...(options.headers || {}) }; h.Cookie = (h.Cookie ? h.Cookie + '; ' : '') + consentPair; return realFetch(target, { ...options, headers: h }); };
     const untouched=upstreamCalls;
     for(const route of ['/api/hashcod-shared-files?action=list','/api/hashcod-shared-state','/hashcod-sync.php','/hashcod-file-vault-fast-upload.php','/l8-codespace/api/hashcod-shared-files?action=list']) {
       const denied=await fetch(base+route);assert.equal(denied.status,403);assert.equal((await denied.json()).code,'platform_period_required');

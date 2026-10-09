@@ -16,7 +16,8 @@ const root=path.resolve(__dirname,'../..'),phpBin=process.env.PHP_BIN||'php';
  const env={...process.env,APP_ENV:'test',L8_ACCESS_GATE_COOKIE_SECRET:'only-a-test-cookie-secret-'.repeat(3),HASHCOD_TOKENIZATION_ALLOW_TEST_HTTP:'1',HASHCOD_SHARED_CLOUD_URL:`http://127.0.0.1:${upstream.address().port}/functions/v1/hashcod-shared-cloud`};
  const base=`http://127.0.0.1:${port}`;
  const script='$_SERVER["HTTP_HOST"]='+JSON.stringify('127.0.0.1:'+port)+';require "platform-period-lib.php";echo mldsaSeal(["kind"=>"platform-period-v1","host"=>mldsaHost(),"state"=>"active","days"=>10,"expiresAt"=>time()+86400,"proExpiresAt"=>time()+86400,"token"=>"server-period-token"]);';
- let cookie='hashcod_platform_period_v1='+execFileSync(phpBin,['-r',script],{cwd:root,env,encoding:'utf8'}).trim();
+ const consentScript='$_SERVER["HTTP_HOST"]='+JSON.stringify('127.0.0.1:'+port)+';require "policy-consent-lib.php";echo mldsaSeal(["kind"=>"policy-consent-v1","host"=>mldsaHost(),"version"=>POLICY_CONSENT_VERSION,"receipt"=>"0b9c1f3e-1a2b-4c3d-8e4f-5a6b7c8d9e0f","acceptedAt"=>time()]);';
+ let cookie='hashcod_platform_period_v1='+execFileSync(phpBin,['-r',script],{cwd:root,env,encoding:'utf8'}).trim()+'; hashcod_policy_consent_v1='+execFileSync(phpBin,['-r',consentScript],{cwd:root,env,encoding:'utf8'}).trim();
  const php=spawn(phpBin,['-S','127.0.0.1:'+port,'-t',root,path.join(root,'router.php')],{cwd:root,env,stdio:'ignore'});
  const post=(body,extra={})=>fetch(base+'/api/hashcod-tokenization',{method:'POST',headers:{Origin:base,'Content-Type':'application/json','X-Requested-With':'XMLHttpRequest',Cookie:cookie,...extra},body:JSON.stringify(body)});
  try {

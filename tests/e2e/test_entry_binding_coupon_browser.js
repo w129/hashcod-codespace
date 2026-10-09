@@ -36,6 +36,7 @@ const series = Array(9865).fill('1 2 3 4 5 6 7 8').join('\n');
     L8_ACCESS_GATE_COOKIE_SECRET: crypto.randomBytes(48).toString('hex') };
   const seal = payload => execFileSync(phpBin, ['-r', `$_SERVER['HTTP_HOST']='127.0.0.1:${port}'; require 'mldsa-access.php'; echo mldsaSeal(json_decode($argv[1],true));`, JSON.stringify(payload)], { cwd: runtime, env, encoding: 'utf8' }).trim();
   const period = seal({ kind: 'platform-period-v1', host: `127.0.0.1:${port}`, state: 'active', days: 10, expiresAt: Math.floor(Date.now()/1000)+86400, proExpiresAt:Math.floor(Date.now()/1000)+86400, token: 'server-test-period' });
+  const consent = seal({ kind: 'policy-consent-v1', host: `127.0.0.1:${port}`, version: '2026.09.18-2', receipt: '0b9c1f3e-1a2b-4c3d-8e4f-5a6b7c8d9e0f', acceptedAt: Math.floor(Date.now()/1000) });
   // No PHP controller can transmit to a cloud service during this local suite.
   const php = spawn(phpBin, ['-d','allow_url_fopen=0','-d','disable_functions=curl_exec,fsockopen,pfsockopen,stream_socket_client,socket_connect,exec,shell_exec,passthru,system,proc_open',
     '-d','session.save_path='+path.join(runtime,'sessions'),'-S', `127.0.0.1:${port}`, '-t', runtime, path.join(runtime, 'railway-router.php')], { cwd: runtime, env, stdio: 'ignore' });
@@ -61,7 +62,7 @@ const series = Array(9865).fill('1 2 3 4 5 6 7 8').join('\n');
     browser = await chromium.launch({ headless:true });
     for (const viewport of [{width:390,height:844},{width:1440,height:900}]) {
       const context = await browser.newContext({ viewport, reducedMotion:'reduce', hasTouch:viewport.width<500 });
-      await context.addCookies([{name:'hashcod_platform_period_v1', value:period, url:base, httpOnly:true, sameSite:'Strict'}]);
+      await context.addCookies([{name:'hashcod_platform_period_v1', value:period, url:base, httpOnly:true, sameSite:'Strict'}, {name:'hashcod_policy_consent_v1', value:consent, url:base, httpOnly:true, sameSite:'Strict'}]);
       const page = await context.newPage(), errors=[];
       page.setDefaultTimeout(8000);
       page.on('pageerror', e=>errors.push(e.message));
@@ -150,7 +151,7 @@ const series = Array(9865).fill('1 2 3 4 5 6 7 8').join('\n');
       console.log(`${viewport.width}x${viewport.height}: retired gate absent/reload, legacy API binding, all FAQ tabs, signed coupon/reuse/tamper/copy, responsive headline OK`);
       await context.close();
     }
-    const badOrigin = await fetch(base+'/api/hashcod-coupon', {headers:{Origin:'https://evil.test',Cookie:'hashcod_platform_period_v1='+period}});
+    const badOrigin = await fetch(base+'/api/hashcod-coupon', {headers:{Origin:'https://evil.test',Cookie:'hashcod_platform_period_v1='+period+'; hashcod_policy_consent_v1='+consent}});
     assert.equal(badOrigin.status,403);
     const spoof = await fetch(base+'/api/code-access',{headers:{Cookie:'l8_numeric_series_access_v1=forged'}}).then(r=>r.json());
     assert.equal(spoof.authorized,false); assert.equal(spoof.bound,false);

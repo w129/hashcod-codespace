@@ -21,10 +21,12 @@
 .hpc .size-5 svg { width:14px; height:14px; }
 .hpc [data-slot=checkbox]:focus-visible { outline:none; box-shadow:0 0 0 3px var(--hpc-ring); }
 .hpc [data-slot=checkbox]:disabled { cursor:not-allowed; opacity:.5; }
-.hpc-hint { margin:0; font-size:12px; color:#b45309; text-align:center; }
-.hpc[data-accepted=true] .hpc-hint { color:#15803d; }
+.hpc-note { margin:0; font-size:12px; color:#b45309; text-align:center; }
 /* The footer holds the policy line and, below it, the required checkbox. */
 #d5PreviewPolicyFooter { box-sizing:border-box; flex-direction:column; align-items:center; gap:8px; padding:8px 12px; border-radius:12px; background:rgba(245,245,245,.94); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); }
 .policy-consent-mount { width:100%; display:flex; justify-content:center; pointer-events:auto; }
-.hco-consent { padding:14px 16px; border:1px solid #e2e8f0; border-radius:12px; background:#f8fafc; }
 @media (prefers-reduced-motion: reduce) { .hpc .transition-colors { transition:none; } }
+/* Locked state: the page is dimmed and inert; only the consent footer stays usable. */
+body.hpc-locked::before { content:''; position:fixed; inset:0; z-index:2147482400; background:rgba(245,245,245,.72); -webkit-backdrop-filter:blur(2px); backdrop-filter:blur(2px); }
+body.hpc-locked #d5PreviewPolicyFooter { position:fixed; z-index:2147482500; pointer-events:auto; left:50%; right:auto; bottom:max(12px, env(safe-area-inset-bottom)); top:auto; width:min(520px, calc(100vw - 24px)); margin:0; transform:translateX(-50%); background:#fff; border:1px solid #0f172a; box-shadow:0 12px 32px rgba(15,23,42,.22); }
+.hpc[data-accepted=true] [data-slot=checkbox] { cursor:default; opacity:1; }

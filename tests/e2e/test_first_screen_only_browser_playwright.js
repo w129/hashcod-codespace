@@ -27,6 +27,9 @@ async function waitFor(page,predicate,arg,options){
     const payload={kind:'platform-period-v1',host:localUrl.host,state:'active',subscription:{tier:'pro',expiresAt:Math.floor(Date.now()/1000)+864000},days:10,expiresAt:expiry,proExpiresAt:expiry,token:'first-screen-test-period'};
     const cookie=execFileSync(process.env.PHP_BIN||'php',['-r',"require 'mldsa-access.php'; echo mldsaSeal(json_decode($argv[1],true));",JSON.stringify(payload)],{cwd:path.resolve(__dirname,'../..'),encoding:'utf8'}).trim();
     await page.context().addCookies([{name:'hashcod_platform_period_v1',value:cookie,url:localUrl.origin,httpOnly:true,sameSite:'Strict'}]);
+    const consentPayload={kind:'policy-consent-v1',host:localUrl.host,version:'2026.09.18-2',receipt:'0b9c1f3e-1a2b-4c3d-8e4f-5a6b7c8d9e0f',acceptedAt:Math.floor(Date.now()/1000)};
+    const consentCookie=execFileSync(process.env.PHP_BIN||'php',['-r',"require 'mldsa-access.php'; echo mldsaSeal(json_decode($argv[1],true));",JSON.stringify(consentPayload)],{cwd:path.resolve(__dirname,'../..'),encoding:'utf8'}).trim();
+    await page.context().addCookies([{name:'hashcod_policy_consent_v1',value:consentCookie,url:localUrl.origin,httpOnly:true,sameSite:'Strict'}]);
     await page.route('**/api/platform-period',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,state:'active',subscription:{tier:'pro',expiresAt:Math.floor(Date.now()/1000)+864000},days:10,expiresAt:expiry,serverNow:Math.floor(Date.now()/1000)})}));
     await page.route('**/api/hashcod-shared-*',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,files:[],state:{},text:'',updatedAt:0})}));
   }
@@ -45,8 +48,8 @@ async function waitFor(page,predicate,arg,options){
     await page.waitForSelector('#d5FirstBranchedMenuStage',{state:'visible',timeout:10000});
     await waitFor(page,()=>document.getElementById('d5FirstBranchedMenuMount')?.dataset.reactMounted==='true',{timeout:15000});
     await page.waitForSelector('.branched-menu',{state:'visible',timeout:5000});
-    await waitFor(page,()=>document.getElementById('d5PreviewPolicyMount')?.dataset.reactMounted==='true',{timeout:5000});
-    await page.waitForSelector('#d5PreviewPolicyTrigger',{state:'attached',timeout:5000});
+    await waitFor(page,()=>document.getElementById('d5PolicyConsentMount')?.dataset.reactMounted==='true',{timeout:5000});
+    await page.waitForSelector('#hpc-consent',{state:'attached',timeout:5000});
     await waitFor(page,()=>window.HashcodCodeAccess?.mode==='open-entry',{timeout:15000});
     await waitFor(page,()=>document.getElementById('d5CenterEmptyStateMount')?.dataset.reactMounted==='true',{timeout:15000});
     await page.waitForSelector('#d5CenterEmptyStateAction',{state:'visible',timeout:5000});
@@ -185,10 +188,11 @@ async function waitFor(page,predicate,arg,options){
           exists:Boolean(document.getElementById('d5PreviewPolicyFooter')),
           afterMain:Boolean(document.querySelector('main')?.compareDocumentPosition(document.getElementById('d5PreviewPolicyFooter')) & Node.DOCUMENT_POSITION_FOLLOWING),
           text:document.getElementById('d5PreviewPolicyFooter')?.innerText?.replace(/\s+/g,' ').trim()||'',
-          href:document.getElementById('d5PreviewPolicyTrigger')?.getAttribute('href')||'',
-          target:document.getElementById('d5PreviewPolicyTrigger')?.getAttribute('target')||'',
-          component:document.getElementById('d5PreviewPolicyMount')?.getAttribute('data-hashcod-component')||'',
-          mounted:Boolean(window.HashcodPreviewPolicyLinkCard?.mounted),
+          href:document.querySelector('#d5PreviewPolicyFooter a')?.getAttribute('href')||'',
+          target:document.querySelector('#d5PreviewPolicyFooter a')?.getAttribute('target')||'',
+          component:document.getElementById('d5PolicyConsentMount')?.getAttribute('data-hashcod-component')||'',
+          checked:document.getElementById('hpc-consent')?.getAttribute('aria-checked')||'',
+          mounted:document.getElementById('d5PolicyConsentMount')?.dataset.reactMounted==='true',
           position:getComputedStyle(document.getElementById('d5PreviewPolicyFooter')).position,
           centerX:(()=>{const r=document.getElementById('d5PreviewPolicyFooter').getBoundingClientRect();return r.left+r.width/2;})(),
           viewportCenterX:window.innerWidth/2,
@@ -241,11 +245,12 @@ async function waitFor(page,predicate,arg,options){
     assert.equal(state.codeAccess.gateCount,0,'retired numeric gate must never appear');
     assert.equal(state.previewPolicy.exists,true,'Preview Link Card footer must exist at the end of the platform');
     assert.equal(state.previewPolicy.afterMain,true,'Preview Link Card footer must follow the main platform content');
-    assert.equal(state.previewPolicy.text,'Antes de continuar, lee la Use and Privacy Policy.','Preview Link Card footer text must match exactly');
+    assert.equal(state.previewPolicy.text,'Acepto los términos de la Use and Privacy Policy','Policy consent footer must hold only the checkbox label');
+    assert.equal(state.previewPolicy.checked,'true','A valid consent cookie must render the checkbox as accepted');
     assert.equal(state.previewPolicy.href,'/privacy','Use and Privacy Policy must link to the existing privacy route');
-    assert.equal(state.previewPolicy.target,'_self','Use and Privacy Policy must open directly in the current tab');
-    assert.equal(state.previewPolicy.component,'PreviewLinkCard','Preview Link Card component marker changed');
-    assert.equal(state.previewPolicy.mounted,true,'Preview Link Card React island must mount');
+    assert.equal(state.previewPolicy.target,'_blank','Use and Privacy Policy must open without leaving the platform');
+    assert.equal(state.previewPolicy.component,'PolicyConsent','Policy consent component marker changed');
+    assert.equal(state.previewPolicy.mounted,true,'Policy consent React island must mount');
     assert.equal(state.previewPolicy.position,'fixed','Preview Link Card must remain fixed at the final viewport edge');
     assert(Math.abs(state.previewPolicy.centerX-state.previewPolicy.viewportCenterX)<=2,'Preview Link Card must be horizontally centered');
     assert(state.previewPolicy.bottomGap>=9&&state.previewPolicy.bottomGap<=30,'Preview Link Card must stay at the bottom edge');
@@ -286,34 +291,11 @@ async function waitFor(page,predicate,arg,options){
     assert.equal(state.documentsMenu.fill,'rgb(10, 10, 10)','Documents SVG must inherit black menu ink');
     assert.equal(state.documentsMenu.viewBox,'0 0 24 24','Documents SVG must preserve the supplied viewBox');
 
-    assert.equal(await page.locator('#d5PreviewPolicyContent').getAttribute('data-open'),'false','Preview Link Card must start closed');
-    await page.locator('#d5PreviewPolicyTrigger').hover();
-    await waitFor(page,()=>{
-      const node=document.getElementById('d5PreviewPolicyContent');
-      if(!node||node.getAttribute('data-open')!=='true') return false;
-      const style=getComputedStyle(node);
-      return Number.parseFloat(style.opacity)>=0.99&&style.visibility==='visible';
-    });
-    const previewPolicyState=await page.locator('#d5PreviewPolicyContent').evaluate(node=>({
-      opacity:getComputedStyle(node).opacity,
-      visibility:getComputedStyle(node).visibility,
-      title:node.querySelector('.preview-link-card__document > strong')?.textContent?.replace(/\s+/g,' ').trim()||'',
-      version:node.textContent.includes('2026.09.18-2'),
-      effective:node.textContent.includes('18 de septiembre de 2026')
-    }));
-    assert(Number.parseFloat(previewPolicyState.opacity)>=0.99,'Preview Link Card must become visible on hover');
-    assert.equal(previewPolicyState.visibility,'visible','Preview Link Card must be visually exposed on hover');
-    assert.equal(previewPolicyState.title,'Documento de Aceptación Contractual, Privacidad y Evidencia de Registro','Preview Link Card must mirror the repository privacy document title');
-    assert.equal(previewPolicyState.version,true,'Preview Link Card must show the repository contract version');
-    assert.equal(previewPolicyState.effective,true,'Preview Link Card must show the repository contract effective date');
-
     const privacyResponse=await page.request.get(new URL('/privacy',target).href);
     assert.equal(privacyResponse.status(),200,'Use and Privacy Policy link target must return 200');
     const privacyHtml=await privacyResponse.text();
     assert(privacyHtml.includes('Documento de Aceptación Contractual, Privacidad y Evidencia de Registro'),'privacy route must render the repository contract');
     assert(privacyHtml.includes('Hashcod Codespace® / Documento contractual'),'privacy route must render the platform legal document header');
-    await page.mouse.move(700,450);
-    await waitFor(page,()=>document.getElementById('d5PreviewPolicyContent')?.getAttribute('data-open')==='false');
 
     const chosenDate=state.calendar.expected.slice(0,8)+(state.calendar.expected.endsWith('18')?'17':'18');
     await page.locator(`[data-calendar-date="${chosenDate}"]`).click();

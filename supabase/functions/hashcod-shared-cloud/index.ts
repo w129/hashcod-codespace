@@ -7,6 +7,7 @@ import { review } from './review.ts';
 import { editorIdentity } from './editor-identity.ts';
 import { activePeriod } from './tokenization.ts';
 import { subscription, requirePro } from './subscription.ts';
+import { policyConsent } from './consent.ts';
 
 // Shared file metadata is public; reads/deletions require the uploader code.
 // Tokenization contacts use a separate private ledger and signed admin sessions.
@@ -30,6 +31,7 @@ Deno.serve(async (request: Request) => {
       return await subscription(action.slice(13), identity.reference, body, request);
     }
     if (action.startsWith('tokenization.')) return await tokenization(action.slice(13), request, body);
+    if (action === 'policy.consent') return await policyConsent(body);
     if (action === 'review.bridge') return await review(request, body);
     if (action === 'editor.identity') return await editorIdentity(request, body);
     if (action === 'state' || action === 'state.read' || (action.startsWith('files.') && action !== 'files.list')) await requirePro(await activePeriod((body as any).token));

@@ -3,8 +3,6 @@ import { createPortal } from 'react-dom';
 import { checkoutOrder, formatCedula } from './checkout-data';
 import CodecPreview from './CodecPreview';
 import CheckoutFaq from './CheckoutFaq';
-import PolicyConsent from './PolicyConsent';
-import { usePolicyConsent } from './policy-consent';
 import './entry-checkout.css';
 
 function Brand() {
@@ -29,7 +27,6 @@ export default function EntryCheckout({ onEnter, onVerify, reference = '', busy 
   const [cedula, setCedula] = useState(''), [fiscal, setFiscal] = useState(false);
   const [otp, setOtp] = useState(''), [otpMessage, setOtpMessage] = useState('');
   const root = useRef(null), back = useRef(null), identity = useRef(null);
-  const [consent] = usePolicyConsent();
   const order = checkoutOrder({ yearly, rd, cedula, fiscal, reference });
   async function verify() {
     setOtpMessage('');
@@ -88,12 +85,11 @@ export default function EntryCheckout({ onEnter, onVerify, reference = '', busy 
           'Envía el mensaje. Un asesor de Hashcod te responde con las instrucciones de pago.',
           'Al confirmar tu pago, el asesor te envía un código. Valídalo aquí para activar tu suscripción.',
         ].map((text, i) => <li key={text}><span>{i + 1}</span><p>{text}</p></li>)}</ol>
-        <PolicyConsent id="hpc-checkout" className="hco-consent" />
-        <a className="hco-pay" href={reference ? order.href : undefined} aria-disabled={!order.valid || !reference || !consent} target="_blank" rel="noopener noreferrer" onClick={e => { if (!order.valid || !reference || !consent) { e.preventDefault(); (consent ? identity.current : document.getElementById('hpc-checkout'))?.focus(); } }}><WhatsappIcon />Pagar {order.amount} por WhatsApp</a>
+        <a className="hco-pay" href={reference ? order.href : undefined} aria-disabled={!order.valid || !reference} target="_blank" rel="noopener noreferrer" onClick={e => { if (!order.valid || !reference) { e.preventDefault(); identity.current?.focus(); } }}><WhatsappIcon />Pagar {order.amount} por WhatsApp</a>
         <div className="hco-verification hco-field"><label htmlFor="hco-otp">Código de verificación del pago</label>
           <p>Después de pagar, el asesor te enviará por WhatsApp un código de 6 dígitos. Escríbelo aquí para activar tu suscripción. Caduca en 15 minutos y solo funciona en esta sesión.</p>
           <input id="hco-otp" inputMode="numeric" autoComplete="one-time-code" maxLength={6} placeholder="······" value={otp} onChange={e => { setOtp(e.target.value.replace(/\D/g, '').slice(0, 6)); setOtpMessage(''); }} />
-          <button type="button" className="hco-verify" disabled={otp.length !== 6 || busy || !reference || !consent} onClick={verify}>{busy ? 'Verificando…' : 'Verificar pago'}</button>
+          <button type="button" className="hco-verify" disabled={otp.length !== 6 || busy || !reference} onClick={verify}>{busy ? 'Verificando…' : 'Verificar pago'}</button>
           <span className="hco-otp-status" role="status">{otpMessage || (otp.length > 0 && otp.length < 6 ? `Faltan ${6 - otp.length} dígitos.` : '')}</span>
         </div>
         <div className="hco-field hco-fiscal" role="group" aria-label="Comprobante fiscal"><span>¿Quieres comprobante fiscal?</span><div className="hco-choice">
@@ -101,7 +97,7 @@ export default function EntryCheckout({ onEnter, onVerify, reference = '', busy 
           <button type="button" aria-pressed={!fiscal} onClick={() => setFiscal(false)}>No</button>
         </div><small>{fiscal ? 'Se solicitará con tu pedido. El asesor te pedirá por WhatsApp los datos para emitirlo.' : 'Se emitirá solo el recibo de pago, sin comprobante fiscal.'}</small></div>
         <div className="hco-divider"><span />o<span /></div>
-        <button type="button" className="hco-free" onClick={onEnter} disabled={busy || !consent}>{busy ? 'Entrando…' : 'Entrar Gratis'}</button>
+        <button type="button" className="hco-free" onClick={onEnter} disabled={busy}>{busy ? 'Entrando…' : 'Entrar Gratis'}</button>
         <p className="hco-free-note">El acceso gratuito permite explorar la presentación y los planes. Toolbook, herramientas, nube y certificación requieren un código de pago válido.</p>
         {error && <p className="hco-error" role="alert">{error}</p>}
         <p className="hco-knowledge">¿No tienes dinero para pagar? ¡Paga con tu conocimiento en el área de software!</p>

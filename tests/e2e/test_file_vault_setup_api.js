@@ -11,11 +11,12 @@ const pause = () => new Promise(resolve => setTimeout(resolve, 20));
   const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'hfv-access-'));
   let server;
   try {
-    for (const file of ['platform-period-lib.php', 'hashcod-file-vault-fast-upload.php', 'hashcod-file-vault-access-code.php', 'hashcod-file-vault-value.php']) fs.copyFileSync(path.join(root, file), path.join(fixture, file));
+    for (const file of ['platform-period-lib.php', 'policy-consent-lib.php', 'hashcod-file-vault-fast-upload.php', 'hashcod-file-vault-access-code.php', 'hashcod-file-vault-value.php']) fs.copyFileSync(path.join(root, file), path.join(fixture, file));
     fs.writeFileSync(path.join(fixture, 'mldsa-access.php'), `<?php
 $_COOKIE['hashcod_platform_period_v1']='isolated-test-cookie';
+$_COOKIE['hashcod_policy_consent_v1']='isolated-consent-cookie';
 function mldsaHost(){return $_SERVER['HTTP_HOST']??'fixture';}
-function mldsaOpen($raw){return ['kind'=>'platform-period-v1','host'=>mldsaHost(),'token'=>'fixture-active-token','state'=>'active','days'=>10,'expiresAt'=>time()+864000,'proExpiresAt'=>isset($_GET['free'])?null:time()+86400];}
+function mldsaOpen($raw){if($raw==='isolated-consent-cookie')return ['kind'=>'policy-consent-v1','host'=>mldsaHost(),'version'=>'2026.09.18-2','receipt'=>'0b9c1f3e-1a2b-4c3d-8e4f-5a6b7c8d9e0f','acceptedAt'=>time()];return ['kind'=>'platform-period-v1','host'=>mldsaHost(),'token'=>'fixture-active-token','state'=>'active','days'=>10,'expiresAt'=>time()+864000,'proExpiresAt'=>isset($_GET['free'])?null:time()+86400];}
 `);
     fs.writeFileSync(path.join(fixture, 'auth.php'), '<?php');
     fs.writeFileSync(path.join(fixture, 'hashcod-workspace-access.php'), '<?php');

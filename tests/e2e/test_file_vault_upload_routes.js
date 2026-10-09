@@ -12,10 +12,12 @@ const php = process.env.PHP_BIN || 'php';
 try {
   fs.copyFileSync(path.join(root, 'router.php'), path.join(fixture, 'router.php'));
   fs.copyFileSync(path.join(root, 'platform-period-lib.php'), path.join(fixture, 'platform-period-lib.php'));
+  fs.copyFileSync(path.join(root, 'policy-consent-lib.php'), path.join(fixture, 'policy-consent-lib.php'));
   fs.writeFileSync(path.join(fixture, 'mldsa-access.php'), `<?php
 $_COOKIE['hashcod_platform_period_v1']='isolated-test-cookie';
+$_COOKIE['hashcod_policy_consent_v1']='isolated-consent-cookie';
 function mldsaHost(){return $_SERVER['HTTP_HOST']??'fixture';}
-function mldsaOpen($raw){return ['kind'=>'platform-period-v1','host'=>mldsaHost(),'token'=>'fixture-active-token','state'=>'active','days'=>10,'expiresAt'=>time()+864000,'proExpiresAt'=>time()+864000];}
+function mldsaOpen($raw){if($raw==='isolated-consent-cookie')return ['kind'=>'policy-consent-v1','host'=>mldsaHost(),'version'=>'2026.09.18-2','receipt'=>'0b9c1f3e-1a2b-4c3d-8e4f-5a6b7c8d9e0f','acceptedAt'=>time()];return ['kind'=>'platform-period-v1','host'=>mldsaHost(),'token'=>'fixture-active-token','state'=>'active','days'=>10,'expiresAt'=>time()+864000,'proExpiresAt'=>time()+864000];}
 `);
   fs.writeFileSync(path.join(fixture, 'security.php'), `<?php
 function securityBootstrap($mode) { throw new RuntimeException('Generic bootstrap blocked upload'); }

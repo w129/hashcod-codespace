@@ -2,9 +2,11 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import EntryCheckout from './EntryCheckout';
 import { PlansIcon } from './ProIcons';
 import SubscriptionAdmin from './SubscriptionAdmin';
+import { usePolicyAccepted } from './policy-consent';
 import './platform-period.css';
 
 export default function PlatformPeriod() {
+  const accepted = usePolicyAccepted();
   const initial = document.body.dataset;
   const [period, setPeriod] = useState(() => initial.hashcodPeriodExpiresAt && initial.hashcodPeriodExpired !== '1'
     ? { state: 'active', days: Number(initial.hashcodPeriodDays), expiresAt: Number(initial.hashcodPeriodExpiresAt), serverNow: Number(initial.hashcodPeriodNow) }
@@ -96,6 +98,6 @@ export default function PlatformPeriod() {
       {!open && period.state === 'active' && <SubscriptionAdmin />}
     </div>
     {error && !open && <p className="hpa-error" role="alert">{error}</p>}
-    {open && <EntryCheckout onEnter={enter} onVerify={verify} reference={period.reference || ''} busy={busy} error={error} />}
+    {open && accepted && <EntryCheckout onEnter={enter} onVerify={verify} reference={period.reference || ''} busy={busy} error={error} />}
   </>;
 }

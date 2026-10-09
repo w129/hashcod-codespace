@@ -49,7 +49,7 @@ async function main() {
   try {
     browser = await chromium.launch({ headless: true });
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
-    await context.addInitScript(() => sessionStorage.setItem('hashcod:policy-consent', 'accepted'));
+    await context.addInitScript(() => document.addEventListener('DOMContentLoaded', () => { document.body.dataset.hashcodPolicyConsent = '1'; }));
     const page = await context.newPage(), errors = [];
     page.on('pageerror', error => errors.push(error));
     const base = 'http://127.0.0.1:' + server.address().port;

@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__ . '/mldsa-access.php';
+require_once __DIR__ . '/policy-consent-lib.php';
 
 function platformPeriodData(): ?array {
     $raw = (string)($_COOKIE['hashcod_platform_period_v1'] ?? '');
@@ -27,6 +28,8 @@ function platformProActive(): bool {
     return platformPeriodActive() && is_int($data['proExpiresAt'] ?? null) && $data['proExpiresAt'] > time();
 }
 function platformPeriodGuard(bool $requirePro = false): void {
+    // Nothing in the platform works until the Use and Privacy Policy is accepted.
+    policyConsentGuard();
     if (platformPeriodActive() && (!$requirePro || platformProActive())) return;
     $expired = platformPeriodExpired();
     http_response_code(403);

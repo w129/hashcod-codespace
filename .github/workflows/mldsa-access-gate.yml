@@ -10,6 +10,10 @@ on:
       - mldsa-access.php
       - components/first-screen-mobile.css
       - tests/e2e/test_first_screen_mobile_browser.js
+      - policy-consent-lib.php
+      - policy-consent-api.php
+      - tests/e2e/test_policy_consent_browser.js
+      - tests/security/test-policy-consent.php
       - mldsa-access-api.php
       - pqc-actions.php
       - pqc-actions-lib.php
@@ -205,6 +209,11 @@ jobs:
 
       - name: Verify real server binding, FAQ and coupon on phone and desktop
         run: node tests/e2e/test_entry_binding_coupon_browser.js
+
+      - name: Verify policy consent lock, evidence and fail-closed behavior
+        run: |
+          php tests/security/test-policy-consent.php
+          node tests/e2e/test_policy_consent_browser.js
 
       - name: Verify entry asset freshness through the PHP router
         run: python3 tests/e2e/test_entry_asset_freshness.py http://127.0.0.1:8097

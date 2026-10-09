@@ -344,95 +344,6 @@ function FirstScreenMenuStack() {
 }
 
 
-function PreviewPolicyFooter() {
-  const [open, setOpen] = React.useState(false);
-
-  return (
-    <p
-      className="preview-policy-copy"
-      data-hashcod-preview-policy="true"
-    >
-      Antes de continuar, lee la{' '}
-      <span
-        className="preview-link-card"
-        onMouseEnter={() => setOpen(true)}
-        onMouseLeave={() => setOpen(false)}
-        onKeyDown={(event) => {
-          if (event.key === 'Escape') setOpen(false);
-        }}
-      >
-        <a
-          id="d5PreviewPolicyTrigger"
-          className="preview-link-card__trigger"
-          href="/privacy"
-          target="_self"
-          aria-describedby={open ? 'd5PreviewPolicyContent' : undefined}
-          onFocus={() => setOpen(true)}
-          onBlur={() => setOpen(false)}
-        >
-          Use and Privacy Policy
-        </a>
-        <span
-          id="d5PreviewPolicyContent"
-          className="preview-link-card__content"
-          data-open={open ? 'true' : 'false'}
-          role="tooltip"
-          aria-hidden={open ? 'false' : 'true'}
-        >
-          <span className="preview-link-card__image" aria-hidden="true">
-            <span className="preview-link-card__browser-bar">
-              <i />
-              <i />
-              <i />
-              <b>/privacy</b>
-            </span>
-            <span className="preview-link-card__document">
-              <span className="preview-link-card__document-head">
-                <span>Hashcod Codespace® / Documento contractual</span>
-                <span>República Dominicana</span>
-              </span>
-              <strong>
-                Documento de Aceptación Contractual, Privacidad y Evidencia de Registro
-              </strong>
-              <small>Hashcod Codespace® · DIKTATCART</small>
-              <span className="preview-link-card__meta-grid">
-                <span>
-                  <b>VERSIÓN</b>
-                  <em>2026.09.18-2</em>
-                </span>
-                <span>
-                  <b>VIGENTE DESDE</b>
-                  <em>18 de septiembre de 2026</em>
-                </span>
-              </span>
-              <span className="preview-link-card__notice">
-                Condiciones contractuales y de privacidad aplicables al registro de una plataforma.
-              </span>
-            </span>
-          </span>
-        </span>
-      </span>
-      .
-    </p>
-  );
-}
-
-function mountPreviewPolicyFooter() {
-  const node = document.getElementById('d5PreviewPolicyMount');
-  if (!node || node.dataset.reactMounted === 'true') return Boolean(node);
-
-  const root = createRoot(node);
-  root.render(<PreviewPolicyFooter />);
-  node.dataset.reactMounted = 'true';
-
-  window.HashcodPreviewPolicyLinkCard = Object.freeze({
-    mounted: true,
-    href: '/privacy',
-    version: '20261006-privacy-navigation1'
-  });
-  return true;
-}
-
 function mountBranchedMenu() {
   const node = document.getElementById('d5FirstBranchedMenuMount');
   if (!node || node.dataset.reactMounted === 'true') return Boolean(node);
@@ -450,7 +361,6 @@ function mountBranchedMenu() {
 
 function mountFirstScreenReactIslands() {
   mountBranchedMenu();
-  mountPreviewPolicyFooter();
 }
 
 if (document.readyState === 'loading') {

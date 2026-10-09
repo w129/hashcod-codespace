@@ -1928,7 +1928,7 @@ function mountCenterEmptyState() {
 function mountPolicyConsent() {
   const node = document.getElementById("d5PolicyConsentMount");
   if (!node || node.dataset.reactMounted === "true") return Boolean(node);
-  createRoot(node).render(<PolicyConsent id="hpc-footer" />);
+  createRoot(node).render(<PolicyConsent />);
   node.dataset.reactMounted = "true";
   return true;
 }

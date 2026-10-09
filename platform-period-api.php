@@ -10,6 +10,7 @@ if (($method === 'POST' || isset($_SERVER['HTTP_ORIGIN'])) && !mldsaOriginAllowe
 if (isset($_SERVER['HTTP_SEC_FETCH_SITE']) && $_SERVER['HTTP_SEC_FETCH_SITE'] === 'cross-site') hcsJson(['ok' => false, 'error' => 'Same-origin request required.'], 403);
 if ((int)($_SERVER['CONTENT_LENGTH'] ?? 0) > 2048) hcsJson(['ok' => false, 'error' => 'Request too large.'], 413);
 securityBootstrap('api');
+if ($method === 'POST') policyConsentGuard();
 $stored = platformPeriodData();
 $body = $method === 'POST' ? hcsBody() : [];
 $freeEntry = $method === 'POST' && ($body['entry'] ?? null) === 'free';

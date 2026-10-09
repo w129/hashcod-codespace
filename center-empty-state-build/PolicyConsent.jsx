@@ -4,16 +4,17 @@ import { Checkbox } from './animate-ui/checkbox-radix';
 import { usePolicyConsent } from './policy-consent';
 import './policy-consent.css';
 
-// Required acceptance of the Use and Privacy Policy. `id` keeps the footer and checkout copies distinct.
-export default function PolicyConsent({ id = 'hpc-footer', className = '' }) {
-  const [accepted, setAccepted] = usePolicyConsent();
+// Required, one-way acceptance of the Use and Privacy Policy. Ticking it records the evidence on the
+// server and sets a signed cookie; once accepted it stays checked and cannot be undone from the page.
+export default function PolicyConsent() {
+  const { accepted, busy, error, accept } = usePolicyConsent();
   return (
-    <div className={`hpc ${className}`.trim()} data-accepted={accepted ? 'true' : 'false'}>
-      <Label.Root htmlFor={id} className="flex items-center gap-x-3 hpc-label">
-        <Checkbox id={id} checked={accepted} onCheckedChange={value => setAccepted(value === true)} required aria-required="true" aria-describedby={`${id}-hint`} />
-        <span>Acepto los términos de la <a href="/privacy" target="_self">Use and Privacy Policy</a></span>
+    <div className="hpc" data-accepted={accepted ? 'true' : 'false'}>
+      <Label.Root htmlFor="hpc-consent" className="flex items-center gap-x-3 hpc-label">
+        <Checkbox id="hpc-consent" checked={accepted} disabled={accepted || busy} onCheckedChange={value => { if (value === true) accept(); }} required aria-required="true" aria-describedby={accepted ? undefined : 'hpc-note'} />
+        <span>Acepto los términos de la <a href="/privacy" target="_blank" rel="noopener noreferrer">Use and Privacy Policy</a></span>
       </Label.Root>
-      <p id={`${id}-hint`} className="hpc-hint" role="status">{accepted ? 'Gracias, ya puedes continuar.' : 'Es necesario marcar esta casilla para aceptar los términos y continuar.'}</p>
+      {!accepted && <p id="hpc-note" className="hpc-note" role={error ? 'alert' : 'status'}>{error || (busy ? 'Guardando tu aceptación…' : 'Es obligatorio marcar esta casilla para usar la plataforma.')}</p>}
     </div>
   );
 }

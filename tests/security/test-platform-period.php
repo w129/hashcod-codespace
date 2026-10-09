@@ -37,7 +37,7 @@ periodCookie(['expiresAt'=>time()-1]);
 foreach (['hashcod-file-vault.php','hashcod-file-vault-fast-upload.php','hashcod-workspace-state.php','hashcod-workspace-blob.php','hashcod-workspace-image-vault.php','hashcod-sync.php'] as $controller) {
     foreach ([null, mldsaSeal(['kind'=>'platform-period-v1','host'=>mldsaHost(),'state'=>'choose']), $_COOKIE['hashcod_platform_period_v1']] as $cookie) {
     $expected = $cookie === $_COOKIE['hashcod_platform_period_v1'] ? 'platform_period_expired' : 'platform_period_required';
-    $script = '$_SERVER["HTTP_HOST"]="127.0.0.1:8000";$_COOKIE["hashcod_platform_period_v1"]='.var_export($cookie,true).';require '.var_export(dirname(__DIR__,2).'/'.$controller,true).';';
+    $script = '$_SERVER["HTTP_HOST"]="127.0.0.1:8000";$_COOKIE["hashcod_platform_period_v1"]='.var_export($cookie,true).';require '.var_export(dirname(__DIR__,2).'/policy-consent-lib.php',true).';$_COOKIE["hashcod_policy_consent_v1"]=mldsaSeal(["kind"=>"policy-consent-v1","host"=>mldsaHost(),"version"=>POLICY_CONSENT_VERSION,"receipt"=>"0b9c1f3e-1a2b-4c3d-8e4f-5a6b7c8d9e0f","acceptedAt"=>time()]);require '.var_export(dirname(__DIR__,2).'/'.$controller,true).';';
     $process = proc_open([PHP_BINARY,'-r',$script],[1=>['pipe','w'],2=>['pipe','w']],$pipes);
     periodCheck(is_resource($process), 'Guard process did not start');
     $result = json_decode(stream_get_contents($pipes[1]),true);

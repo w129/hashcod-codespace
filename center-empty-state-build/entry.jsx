@@ -8,6 +8,7 @@ import "./entry.css";
 import FilesExplorer from "./FilesExplorer";
 import FilePreview from "./FilePreview";
 import PlatformPeriod from "./PlatformPeriod";
+import ToolbookPanel from "./ToolbookPanel";
 import TokenizationTool, { TokenizationIcon } from "./TokenizationTool";
 import ReviewChat from './ReviewChat';
 import { ReviewIcon } from './ReviewIcons';
@@ -1894,6 +1895,7 @@ function CenterWorkspaceEmptyState() {
 
       <div className="hashcod-workspace-recommendation">
         <PlatformPeriod />
+        <ToolbookPanel pro={pro} />
       </div>
 
       <HatchCodeEditor

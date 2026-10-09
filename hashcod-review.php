@@ -43,6 +43,8 @@ platformPeriodGuard();
 securityBootstrap('api');
 $token=(string)(platformPeriodData()['token']??'');
 if (($_SERVER['REQUEST_METHOD']??'')==='GET') {
+    if (($_GET['admin']??'')==='1' && tokenizationAdminTicket()!=='') hcsJson(['ok'=>true,'csrf'=>reviewCsrf($token)]);
+    platformPeriodGuard(true);
     $result=reviewBackend(['action'=>'list','token'=>$token]);
     if (!empty($result['data']['ok'])) $result['data']['csrf']=reviewCsrf($token);
     hcsJson($result['data'],$result['status']);
@@ -58,6 +60,7 @@ $action=$body['action']??'';
 $fields=['start'=>['id','api_key','model','consent','budget_micros'],'message'=>['session_id','text'],
     'finalize'=>['session_id'],'history'=>['session_id'],'close'=>['session_id'],'revoke'=>['id','reason']];
 if (!is_string($action)||!isset($fields[$action])) hcsJson(['ok'=>false,'error'=>'Acción incorrecta.'],400);
+if ($action!=='revoke') platformPeriodGuard(true);
 $limit=securityRateAllowSliding('review_'.$action,$action==='start'?6:30,60);
 if (empty($limit['allowed'])) hcsJson(['ok'=>false,'error'=>'Espera un minuto antes de continuar.'],429);
 $forward=['action'=>$action,'token'=>$token];

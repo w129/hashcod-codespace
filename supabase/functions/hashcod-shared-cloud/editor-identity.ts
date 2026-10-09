@@ -1,5 +1,6 @@
 import { sql, json, fail, rate } from './core.ts';
 import { activePeriod } from './tokenization.ts';
+import { requirePro, subscriptionStatus } from './subscription.ts';
 
 export function canonicalEditor(value: unknown): string {
   if (Array.isArray(value)) return '[' + value.map(canonicalEditor).join(',') + ']';
@@ -28,8 +29,10 @@ export async function editorIdentity(request: Request, body: any) {
   if (!used[0]) fail(409, 'Solicitud ya utilizada.');
   await sql`delete from hashcod_shared.review_nonces where created_at < now()-interval '5 minutes'`;
   const owner = await activePeriod(body.data.token);
+  await requirePro(owner);
   await rate('editor-identity|' + owner, 120);
   const rows = await sql`select expires_at from hashcod_shared.access_periods where id=${owner} and expires_at > floor(extract(epoch from now()))`;
   if (!rows[0]) fail(403, 'Tu plazo ha terminado. Renueva el acceso.');
-  return json({ ok: true, owner, expiresAt: Number(rows[0].expires_at) });
+  const paid = await subscriptionStatus(owner);
+  return json({ ok: true, owner, expiresAt: Math.min(Number(rows[0].expires_at), Number(paid.expiresAt)) });
 }

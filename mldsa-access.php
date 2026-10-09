@@ -317,7 +317,7 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
       $period = platformPeriodData();
       if (platformPeriodExpired()) $bodyAttr .= ' data-hashcod-period-expired="1"';
       elseif (platformPeriodActive()) {
-        $bodyAttr .= ' data-hashcod-period-days="'.(int)$period['days'].'" data-hashcod-period-expires-at="'.(int)$period['expiresAt'].'" data-hashcod-period-now="'.time().'"';
+        $bodyAttr .= ' data-hashcod-period-days="'.(int)$period['days'].'" data-hashcod-period-expires-at="'.(int)$period['expiresAt'].'" data-hashcod-period-now="'.time().'" data-hashcod-pro-expires-at="'.(platformProActive() ? (int)$period['proExpiresAt'] : 0).'"';
       } else $bodyAttr .= ' data-hashcod-period-required="1"';
     }
     // Legacy regression marker only; this text is not rendered in the UI:

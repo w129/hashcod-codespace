@@ -81,3 +81,11 @@ body.hco-open { overflow: hidden !important; }
   .hco-pricing strong { font-size: 38px; }
   .hco-pay { font-size: 14px; padding: 12px; }
 }
+.hco-benefits { display:flex; flex-direction:column; gap:12px; border-top:1px solid #e2e8f0; padding-top:24px; }
+.hco-benefits ul { list-style:none; padding:0; margin:0; display:grid; gap:12px; }
+.hco-benefits li::before { content:'✓'; margin-right:12px; color:#141413; }
+.hco-benefits small,.hco-free-note { font-size:12px; color:#64748b; }
+.hco-free-note { margin:0; text-align:center; }
+.hco-admin-form { display:flex; flex-direction:column; gap:12px; max-width:440px; padding:20px; margin:12px auto; border:1px solid #e2e8f0; border-radius:12px; background:#fff; color:#334155; }
+.hco-admin-form input:not([type=checkbox]),.hco-admin-form select,.hco-admin-form button { min-height:44px; padding:8px; border:1px solid #cbd5e1; border-radius:8px; max-width:100%; }
+.hco-admin-form p { overflow-wrap:anywhere; }

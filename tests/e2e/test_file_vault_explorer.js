@@ -36,7 +36,7 @@ async function scenario(origin, shared = false) {
     if (url === '/api/platform-period') {
       if (options.body) { const body = JSON.parse(options.body); periodDays = body.entry === 'free' ? 10 : body.days; }
       const days = periodDays;
-      return new Response(JSON.stringify({ ok: true, state: days ? 'active' : 'choose', days, expiresAt: days ? Math.floor(Date.now()/1000) + days*86400 : null, serverNow: Math.floor(Date.now()/1000) }));
+      return new Response(JSON.stringify({ ok: true, state: days ? 'active' : 'choose', subscription:{tier:'pro',expiresAt:Math.floor(Date.now()/1000)+864000,monthlyRequests:25}, days, expiresAt: days ? Math.floor(Date.now()/1000) + days*86400 : null, serverNow: Math.floor(Date.now()/1000) }));
     }
     requests.push({ url, options });
     assert(String(url).startsWith(expectedEndpoint + '?'), 'visible list and protected actions must use the same workspace');

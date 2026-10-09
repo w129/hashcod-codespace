@@ -15,7 +15,7 @@ try {
   fs.writeFileSync(path.join(fixture, 'mldsa-access.php'), `<?php
 $_COOKIE['hashcod_platform_period_v1']='isolated-test-cookie';
 function mldsaHost(){return $_SERVER['HTTP_HOST']??'fixture';}
-function mldsaOpen($raw){return ['kind'=>'platform-period-v1','host'=>mldsaHost(),'token'=>'fixture-active-token','state'=>'active','days'=>10,'expiresAt'=>time()+864000];}
+function mldsaOpen($raw){return ['kind'=>'platform-period-v1','host'=>mldsaHost(),'token'=>'fixture-active-token','state'=>'active','days'=>10,'expiresAt'=>time()+864000,'proExpiresAt'=>time()+864000];}
 `);
   fs.writeFileSync(path.join(fixture, 'security.php'), `<?php
 function securityBootstrap($mode) { throw new RuntimeException('Generic bootstrap blocked upload'); }

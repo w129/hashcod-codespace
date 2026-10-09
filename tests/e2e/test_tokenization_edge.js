@@ -15,6 +15,8 @@ const core = {
   },
   sql: async (parts, ...values) => {
     const query = parts.join('?');
+    if (query.includes('from hashcod_shared.subscriptions')) return [{plan:'monthly',expires_at:9999999999,period_id:period}];
+    if (query.includes('count(*)')) return [{total:0}];
     if (query.includes('access_periods')) return active ? [{ id: period }] : [];
     if (query.includes('tokenization_config')) return [{ admin_hash: crypto.createHash('sha256').update(key).digest('hex'), revision }];
     if (query.includes('from hashcod_shared.files')) return [{ id: 'fv_testfile123', name: '<script>alert(1)</script>.pdf', mime:'application/pdf',size:4,price_usd_cents:1000,code_hash:await mac('code|fv_testfile123|chosen-code') }];
@@ -29,10 +31,11 @@ const core = {
     return saved ? [saved] : [];
   }
 };
+core.sql.begin=fn=>fn(core.sql);
 function load(name) {
   const module = { exports: {} };
   const source = esbuild.transformSync(fs.readFileSync(path.join(root,name),'utf8'), {loader:'ts',format:'cjs'}).code;
-  vm.runInNewContext(source,{ module, exports: module.exports, require:p=>p==='./core.ts'?core:load('tokenization-validation.ts'), crypto:crypto.webcrypto, TextEncoder, Request, Response, Date, console });
+  vm.runInNewContext(source,{ module, exports: module.exports, require:p=>p==='./core.ts'?core:load(p.replace('./','')), crypto:crypto.webcrypto, TextEncoder, Request, Response, Date, console });
   return module.exports;
 }
 (async()=>{

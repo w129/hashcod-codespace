@@ -14,8 +14,8 @@ function SendIcon() {
 const REQUEST_STATES = { pending: 'Pendiente', in_progress: 'En curso', delayed: 'Retrasada', awaiting_payment: 'Falta de pago', completed: 'Completada', under_review: 'En revisión', certified: 'Certificada', rejected: 'Rechazada' };
 function bytes(size) { return size < 1048576 ? `${(size / 1024).toFixed(1)} KB` : `${(size / 1048576).toFixed(1)} MB`; }
 
-export default function TokenizationTool({ files, loading, onRefresh, onClose }) {
-  const [view, setView] = useState('files'), [selected, setSelected] = useState(null);
+export default function TokenizationTool({ files, loading, onRefresh, onClose, initialView = 'files' }) {
+  const [view, setView] = useState(initialView), [selected, setSelected] = useState(null);
   const [phone, setPhone] = useState(''), [email, setEmail] = useState(''), [code, setCode] = useState(''), [key, setKey] = useState('');
   const [rows, setRows] = useState([]), [offset, setOffset] = useState(0), [more, setMore] = useState(false), [search, setSearch] = useState('');
   const [busy, setBusy] = useState(false), [error, setError] = useState(''), [notice, setNotice] = useState('');
@@ -69,7 +69,7 @@ export default function TokenizationTool({ files, loading, onRefresh, onClose })
   }
   async function revokeCertificate(row) {
     await run(async()=>{
-      const session=await fetch('/api/hashcod-review',{credentials:'same-origin',cache:'no-store'}).then(r=>r.json());
+      const session=await fetch('/api/hashcod-review?admin=1',{credentials:'same-origin',cache:'no-store'}).then(r=>r.json());
       if(!session.ok)throw new Error(session.error||'No se pudo verificar la sesión.');
       const response=await fetch('/api/hashcod-review',{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'Content-Type':'application/json','X-Requested-With':'XMLHttpRequest','X-Hashcod-Review-CSRF':session.csrf},body:JSON.stringify({action:'revoke',id:row.certificateId,reason:revokeReason})});
       const data=await response.json();if(!response.ok||!data.ok)throw new Error(data.error||'No se pudo revocar el certificado.');

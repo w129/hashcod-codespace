@@ -9,7 +9,7 @@ async function scenario(origin) {
  const file={id:'fv_testfile123',name:'<img src=x onerror=alert(1)>.pdf',size:4,type:'application/pdf',totpProtected:true,priceUsdCents:1234};
  let loggedIn=false, failSave=true, saves=0, calls=[], status='pending', failUpdate=false;
  w.fetch=async(url,options={})=>{
-  if(url==='/api/platform-period')return Response.json({ok:true,state:'active',days:10,expiresAt:now+864000,serverNow:now});
+  if(url==='/api/platform-period')return Response.json({ok:true,state:'active',subscription:{tier:'pro',expiresAt:now+864000},days:10,expiresAt:now+864000,serverNow:now});
   if(url.includes('?action=list'))return Response.json({ok:true,files:[file]});
   const body=JSON.parse(options.body);calls.push(body);
   assert.equal(options.credentials,'same-origin');assert.equal(options.headers['X-Requested-With'],'XMLHttpRequest');

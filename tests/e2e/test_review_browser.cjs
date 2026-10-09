@@ -16,7 +16,7 @@ const checks=['sandbox','tests','sast','secrets','deps'].map(kind=>({kind,tool:'
    const errors=[];page.on('pageerror',e=>errors.push(e.message));
    await page.route('**/api/**',async route=>{
     const request=route.request(),url=new URL(request.url());let data;
-    if(url.pathname==='/api/platform-period')data={ok:true,state:'active',days:10,expiresAt:Math.floor(Date.now()/1000)+864000,serverNow:Math.floor(Date.now()/1000)};
+    if(url.pathname==='/api/platform-period')data={ok:true,state:'active',subscription:{tier:'pro',expiresAt:Math.floor(Date.now()/1000)+864000,monthlyRequests:25},days:10,expiresAt:Math.floor(Date.now()/1000)+864000,serverNow:Math.floor(Date.now()/1000)};
     else if(url.pathname.includes('hashcod-shared'))data={ok:true,files:[]};
     else if(url.pathname==='/api/hashcod-review/verify')data={ok:true,valid:!revoked};
     else if(request.method()==='GET')data={ok:true,csrf:'fixture-csrf',requests:[{id:owned,name:'<img onerror=alert(1)>.py',size:48,status:'pending',available:true}],config:{models:[{id:'claude-sonnet-5-5',inputUsdPerMillion:2,outputUsdPerMillion:10}],scope:'Archivo único en WASI.'}};

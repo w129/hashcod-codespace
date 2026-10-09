@@ -16,6 +16,12 @@ async function main() {
     for await (const chunk of req) chunks.push(chunk);
     const body = JSON.parse(Buffer.concat(chunks).toString() || '{}');
     const action = new URL(req.url, 'http://localhost').searchParams.get('action');
+    if (action==='subscription.redeem') {
+      assert.deepEqual(Object.keys(body).sort(),['code','token']); assert.equal(body.token,period.token);
+      res.setHeader('Content-Type','application/json');
+      if (body.code!=='654321') { res.statusCode=403; res.end(JSON.stringify({ok:false,error:'Código incorrecto.'})); return; }
+      period={...period,subscription:{tier:'pro',expiresAt:Math.floor(Date.now()/1000)+2592000}};res.end(JSON.stringify({ok:true,subscription:period.subscription}));return;
+    }
     if (action.startsWith('period.')) {
       if (action === 'period.free') {
         assert.equal(body.token, period.token, 'Free entry must keep cookie identity');
@@ -89,6 +95,9 @@ async function main() {
     const accepted = await periodPost({days:20,token:'forged-body-identity'});
     assert.equal(accepted.status,200);assert.equal((await accepted.json()).days,20);
     cookie=accepted.headers.get('set-cookie').split(';')[0];
+    const freeDenied=await post({id:'json',code:'chosen-code'}); assert.equal(freeDenied.status,403); assert.equal((await freeDenied.json()).code,'subscription_required');
+    assert.equal((await periodPost({entry:'pro',code:'123456',paid:true,token:'forged'})).status,403);
+    const paid=await periodPost({entry:'pro',code:'654321',price:0,plan:'yearly',token:'forged'}); assert.equal(paid.status,200); cookie=paid.headers.get('set-cookie').split(';')[0];
     for (const [id, bytes] of [['json', jsonFile], ['text', textFile]]) {
       const response = await post({ id, code: 'chosen-code' });
       assert.equal(response.status, 200);

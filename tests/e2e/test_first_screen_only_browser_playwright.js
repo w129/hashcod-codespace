@@ -24,10 +24,10 @@ async function waitFor(page,predicate,arg,options){
   const localUrl=new URL(target);
   if(['127.0.0.1','localhost'].includes(localUrl.hostname)){
     const expiry=Math.floor(Date.now()/1000)+86400;
-    const payload={kind:'platform-period-v1',host:localUrl.host,state:'active',days:10,expiresAt:expiry,token:'first-screen-test-period'};
+    const payload={kind:'platform-period-v1',host:localUrl.host,state:'active',subscription:{tier:'pro',expiresAt:Math.floor(Date.now()/1000)+864000},days:10,expiresAt:expiry,proExpiresAt:expiry,token:'first-screen-test-period'};
     const cookie=execFileSync(process.env.PHP_BIN||'php',['-r',"require 'mldsa-access.php'; echo mldsaSeal(json_decode($argv[1],true));",JSON.stringify(payload)],{cwd:path.resolve(__dirname,'../..'),encoding:'utf8'}).trim();
     await page.context().addCookies([{name:'hashcod_platform_period_v1',value:cookie,url:localUrl.origin,httpOnly:true,sameSite:'Strict'}]);
-    await page.route('**/api/platform-period',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,state:'active',days:10,expiresAt:expiry,serverNow:Math.floor(Date.now()/1000)})}));
+    await page.route('**/api/platform-period',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,state:'active',subscription:{tier:'pro',expiresAt:Math.floor(Date.now()/1000)+864000},days:10,expiresAt:expiry,serverNow:Math.floor(Date.now()/1000)})}));
     await page.route('**/api/hashcod-shared-*',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,files:[],state:{},text:'',updatedAt:0})}));
   }
   const componentErrors=[];

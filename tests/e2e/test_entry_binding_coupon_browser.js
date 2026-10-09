@@ -35,7 +35,7 @@ const series = Array(9865).fill('1 2 3 4 5 6 7 8').join('\n');
     L8_COUPON_SIGNING_KEY: crypto.randomBytes(48).toString('hex'),
     L8_ACCESS_GATE_COOKIE_SECRET: crypto.randomBytes(48).toString('hex') };
   const seal = payload => execFileSync(phpBin, ['-r', `$_SERVER['HTTP_HOST']='127.0.0.1:${port}'; require 'mldsa-access.php'; echo mldsaSeal(json_decode($argv[1],true));`, JSON.stringify(payload)], { cwd: runtime, env, encoding: 'utf8' }).trim();
-  const period = seal({ kind: 'platform-period-v1', host: `127.0.0.1:${port}`, state: 'active', days: 10, expiresAt: Math.floor(Date.now()/1000)+86400, token: 'server-test-period' });
+  const period = seal({ kind: 'platform-period-v1', host: `127.0.0.1:${port}`, state: 'active', days: 10, expiresAt: Math.floor(Date.now()/1000)+86400, proExpiresAt:Math.floor(Date.now()/1000)+86400, token: 'server-test-period' });
   // No PHP controller can transmit to a cloud service during this local suite.
   const php = spawn(phpBin, ['-d','allow_url_fopen=0','-d','disable_functions=curl_exec,fsockopen,pfsockopen,stream_socket_client,socket_connect,exec,shell_exec,passthru,system,proc_open',
     '-d','session.save_path='+path.join(runtime,'sessions'),'-S', `127.0.0.1:${port}`, '-t', runtime, path.join(runtime, 'railway-router.php')], { cwd: runtime, env, stdio: 'ignore' });

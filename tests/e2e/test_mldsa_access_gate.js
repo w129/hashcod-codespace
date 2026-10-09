@@ -145,7 +145,7 @@ assert(!centerEmptyStateEntry.includes('title="VC"'),'visible VC title must be r
 assert(!centerEmptyStateEntry.includes('description={'),'subtitle must be removed');
 assert(!centerEmptyStateEntry.includes('titleIcon='),'title-side icon slot must no longer be used');
 assert(centerEmptyStateEntry.includes('id="d5CenterEmptyStateAction"'),'single Open Hatch action button missing');
-assert(centerEmptyStateEntry.includes('onClick={() => setHatchOpen(true)}'),'Open Hatch must open the shared Hatch dialog');
+assert(centerEmptyStateEntry.includes('onClick={() => requirePaid(() => setHatchOpen(true))}'),'Open Hatch must require Pro before opening the shared Hatch dialog');
 assert(centerEmptyStateEntry.includes('function ExpandingButtonGroup'),'ExpandingButtonGroup implementation missing');
 assert(centerEmptyStateEntry.includes('data-hashcod-expanding-group="true"'),'ExpandingButtonGroup runtime marker missing');
 assert(centerEmptyStateEntry.includes('className="hashcod-empty-state-actions-row"'),'Open Hatch and ExpandingButtonGroup row missing');

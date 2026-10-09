@@ -4,7 +4,7 @@ export function formatCedula(value) {
     : d.length > 3 ? `${d.slice(0, 3)}-${d.slice(3)}` : d;
 }
 
-export function checkoutOrder({ yearly = false, rd = true, cedula = '', fiscal = false } = {}) {
+export function checkoutOrder({ yearly = false, rd = true, cedula = '', fiscal = false, reference = '' } = {}) {
   const identity = formatCedula(cedula);
   const total = yearly ? 192 : 20;
   const amount = `US$${total.toFixed(2)}`;
@@ -19,6 +19,7 @@ export function checkoutOrder({ yearly = false, rd = true, cedula = '', fiscal =
     `País de facturación: ${rd ? 'República Dominicana' : 'Otro país'}`,
     ...(rd && identity ? [`Cédula: ${identity}`] : []),
     `Comprobante fiscal: ${fiscal ? 'Sí' : 'No'}`,
+    ...(reference ? [`Referencia de activación: ${reference}`] : []),
   ].join('\n');
   return { amount, total, valid, href: valid ? `https://wa.me/18294721257?text=${encodeURIComponent(message)}` : undefined };
 }

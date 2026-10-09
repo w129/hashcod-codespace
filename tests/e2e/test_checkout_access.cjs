@@ -13,6 +13,7 @@ export function fail(status,message){throw Object.assign(new Error(message),{sta
 export function json(data){return data;}
 export async function mac(value){return 'fixture-'+value;}
 export function equal(a,b){return a===b;}
+export async function subscriptionStatus(){return {tier:'free',expiresAt:null,monthlyRequests:0};}
 export async function rate(key,limit){limits.push([key,limit]);}
 export async function sql(parts,...values){
  const query=parts.join('?');
@@ -29,7 +30,7 @@ export async function sql(parts,...values){
 async function main() {
  try {
   require(path.join(build, 'node_modules/esbuild')).buildSync({
-    stdin: { contents: mock + source.replace(/^import [^\n]*;\r?\n/, ''), loader: 'ts', resolveDir: build },
+    stdin: { contents: mock + source.replace(/^import [^\n]*;\r?\n/gm, ''), loader: 'ts', resolveDir: build },
     bundle: true, platform: 'node', format: 'cjs', outfile: path.join(temp, 'fixture.cjs'),
   });
   const { accessPeriod, rows, limits, clock } = require(path.join(temp, 'fixture.cjs'));

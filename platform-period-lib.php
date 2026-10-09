@@ -22,12 +22,17 @@ function platformPeriodActive(): bool {
         && is_int($data['expiresAt'] ?? null) && $data['expiresAt'] > time()
         && is_string($data['token'] ?? null) && $data['token'] !== '';
 }
-function platformPeriodGuard(): void {
-    if (platformPeriodActive()) return;
+function platformProActive(): bool {
+    $data = platformPeriodData();
+    return platformPeriodActive() && is_int($data['proExpiresAt'] ?? null) && $data['proExpiresAt'] > time();
+}
+function platformPeriodGuard(bool $requirePro = false): void {
+    if (platformPeriodActive() && (!$requirePro || platformProActive())) return;
     $expired = platformPeriodExpired();
     http_response_code(403);
     header('Content-Type: application/json; charset=utf-8');
     header('Cache-Control: no-store');
-    echo json_encode(['ok' => false, 'code' => $expired ? 'platform_period_expired' : 'platform_period_required', 'error' => 'Inicia la sesión desde Entrar Gratis. Si ya entraste, recarga la plataforma.']);
+    $proRequired = platformPeriodActive() && $requirePro;
+    echo json_encode(['ok' => false, 'code' => $proRequired ? 'subscription_required' : ($expired ? 'platform_period_expired' : 'platform_period_required'), 'error' => $proRequired ? 'Esta función requiere Hashcod Pro. Valida el código de tu pago.' : 'Inicia la sesión desde Entrar Gratis. Si ya entraste, recarga la plataforma.']);
     exit;
 }

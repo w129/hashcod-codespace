@@ -29,7 +29,7 @@ let checks=results();
  sql.json=v=>v;sql.begin=fn=>fn(sql);
  const core={sql,json:data=>Response.json(data),fail,rate:async()=>{},storage:async()=>new Response(source),objectPath:p=>p,openTicket:async()=>({})};
  const module={exports:{}};const text=esbuild.transformSync(fs.readFileSync(path.resolve(__dirname,'../../supabase/functions/hashcod-shared-cloud/review.ts'),'utf8'),{loader:'ts',format:'cjs'}).code;
- vm.runInNewContext(text,{module,exports:module.exports,require:p=>p==='./core.ts'?core:{activePeriod:async token=>{if(token==='owned')return owner;if(token==='other')return other;fail(403,'Invalid owner');}},crypto:crypto.webcrypto,TextEncoder,TextDecoder,Uint8Array,Response,Date,atob,btoa,Set,Number});
+ vm.runInNewContext(text,{module,exports:module.exports,require:p=>p==='./core.ts'?core:p==='./subscription.ts'?{requirePro:async()=>{}}:{activePeriod:async token=>{if(token==='owned')return owner;if(token==='other')return other;fail(403,'Invalid owner');}},crypto:crypto.webcrypto,TextEncoder,TextDecoder,Uint8Array,Response,Date,atob,btoa,Set,Number});
  const review=module.exports.review,request=new Request('https://example.test',{method:'POST'});
  const proof=async(data,changes={})=>{const unsigned={data,key_id:'review-backend-v1',nonce:crypto.randomBytes(16).toString('hex'),timestamp:Date.now(),...changes};return {...unsigned,signature:Buffer.from(await crypto.webcrypto.subtle.sign('Ed25519',key.privateKey,new TextEncoder().encode('hashcod.review.bridge.v1\n'+canonical(unsigned)))).toString('base64')};};
  const call=async data=>(await review(request,await proof(data))).json();

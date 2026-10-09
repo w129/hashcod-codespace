@@ -13,6 +13,11 @@ periodCookie(['state'=>'choose','expiresAt'=>null]); periodCheck(!platformPeriod
 periodCookie(['days'=>11]); periodCheck(!platformPeriodActive(), 'Invalid duration allowed');
 periodCookie(['expiresAt'=>(string)(time()+86400)]); periodCheck(!platformPeriodActive(), 'Malformed deadline allowed');
 periodCookie(); periodCheck(platformPeriodActive(), 'Valid period rejected');
+periodCheck(!platformProActive(), 'Free technical session granted Pro');
+periodCookie(['proExpiresAt'=>time()+3600]); periodCheck(platformProActive(), 'Server-signed paid term rejected');
+periodCookie(['proExpiresAt'=>time()-1]); periodCheck(!platformProActive(), 'Expired paid term allowed');
+periodCookie(['proExpiresAt'=>(string)(time()+3600)]); periodCheck(!platformProActive(), 'Malformed paid term allowed');
+periodCookie();
 $html = mldsaGateHtml('/', true);
 periodCheck(str_contains($html, 'data-hashcod-period-days="10"'), 'Reload must restore days');
 periodCheck(!str_contains($html, 'private-test-token'), 'HttpOnly identity leaked into HTML');

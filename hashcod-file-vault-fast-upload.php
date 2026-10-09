@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__ . '/platform-period-lib.php';
-platformPeriodGuard();
+platformPeriodGuard(true);
 
 /**
  * File Vault direct-transfer accelerator.

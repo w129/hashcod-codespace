@@ -10,7 +10,7 @@ const { chromium } = require('playwright');
    await page.route('https://app.test/**',async route=>{
     const url=route.request().url();
     if(url==='https://app.test/')return route.fulfill({contentType:'text/html',body:`<body data-hashcod-period-days="10" data-hashcod-period-expires-at="${now+864000}" data-hashcod-period-now="${now}"><main><div id="d5CenterEmptyStateMount"></div></main><footer></footer></body>`});
-    if(url.includes('platform-period'))return route.fulfill({json:{ok:true,state:'active',days:10,expiresAt:now+864000,serverNow:now}});
+    if(url.includes('platform-period'))return route.fulfill({json:{ok:true,state:'active',subscription:{tier:'pro',expiresAt:Math.floor(Date.now()/1000)+864000},days:10,expiresAt:now+864000,serverNow:now}});
     if(url.includes('action=list'))return route.fulfill({json:{ok:true,files:[file]}});
     if(url.includes('hashcod-tokenization')) {
      const body=route.request().postDataJSON();

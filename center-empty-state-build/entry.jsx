@@ -1848,6 +1848,13 @@ function FileVault({ actions, tokenizationOpen, onCloseTokenization }) {
 }
 
 function CenterWorkspaceEmptyState() {
+  const [pro, setPro] = useState(false);
+  useEffect(() => {
+    const update = event => { const allowed = event.detail?.tier === 'pro' && event.detail.expiresAt > Date.now() / 1000; setPro(allowed); if (!allowed) { setHatchOpen(false); setTokenizationOpen(false); setReviewOpen(false); setSkillChatOpen(false); } };
+    window.addEventListener('hashcod:subscription', update);
+    return () => window.removeEventListener('hashcod:subscription', update);
+  }, []);
+  const requirePaid = action => { if (pro) action(); else window.dispatchEvent(new CustomEvent('hashcod:pro-required')); };
   const [hatchOpen, setHatchOpen] = useState(false);
   const [tokenizationOpen, setTokenizationOpen] = useState(false);
   const [reviewOpen, setReviewOpen] = useState(false);
@@ -1861,14 +1868,14 @@ function CenterWorkspaceEmptyState() {
         icon={<CcCardTitleIcon />}
         action={
           <div className="hashcod-workspace-files-content">
-            <FileVault tokenizationOpen={tokenizationOpen} onCloseTokenization={() => setTokenizationOpen(false)} actions={<>
+            {pro ? <FileVault tokenizationOpen={tokenizationOpen} onCloseTokenization={() => setTokenizationOpen(false)} actions={<>
             <button
               id="d5CenterEmptyStateAction"
               className="hashcod-empty-state-action"
               type="button"
               aria-haspopup="dialog"
               aria-expanded={hatchOpen ? "true" : "false"}
-              onClick={() => setHatchOpen(true)}
+              onClick={() => requirePaid(() => setHatchOpen(true))}
             >
               Open Hatch
             </button>
@@ -1877,10 +1884,10 @@ function CenterWorkspaceEmptyState() {
               items={EXPANDING_BUTTON_ITEMS}
               label="Additional Hatch actions"
               defaultExpanded="slot-1"
-              onAction={id => { if (id === "slot-1") setTokenizationOpen(true); if (id === "slot-2") setReviewOpen(true); if (id === "slot-3") setSkillChatOpen(true); }}
+              onAction={id => requirePaid(() => { if (id === "slot-1") setTokenizationOpen(true); if (id === "slot-2") setReviewOpen(true); if (id === "slot-3") setSkillChatOpen(true); })}
             />
 
-            </>} />
+            </>} /> : <div className="hco-free-note"><p>Toolbook, Files, herramientas y certificación son beneficios de Hashcod Pro.</p><button type="button" className="hco-reopen" onClick={() => requirePaid(() => {})}>Activar beneficios Pro</button></div>}
           </div>
         }
       />
@@ -1909,7 +1916,7 @@ function mountCenterEmptyState() {
 
   window.HashcodCenterEmptyState = Object.freeze({
     mounted: true,
-    version: "20261008-entry-checkout1",
+    version: "20261009-pro-access1",
   });
 
   return true;

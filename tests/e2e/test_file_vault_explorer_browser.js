@@ -32,7 +32,7 @@ async function main() {
       if (request.method === 'POST') {
         let raw=''; for await (const part of request) raw+=part;
         const body=JSON.parse(raw); const days=body.entry==='free'?10:body.days;
-        period={ok:true,state:'active',days,expiresAt:Math.floor(Date.now()/1000)+days*86400,serverNow:Math.floor(Date.now()/1000)};
+        period={ok:true,state:'active',subscription:{tier:'pro',expiresAt:Math.floor(Date.now()/1000)+864000,monthlyRequests:25},days,expiresAt:Math.floor(Date.now()/1000)+days*86400,serverNow:Math.floor(Date.now()/1000)};
       }
       response.setHeader('Content-Type','application/json');response.end(JSON.stringify(period));return;
     }

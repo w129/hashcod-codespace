@@ -15,7 +15,7 @@ const pause = () => new Promise(resolve => setTimeout(resolve, 20));
     fs.writeFileSync(path.join(fixture, 'mldsa-access.php'), `<?php
 $_COOKIE['hashcod_platform_period_v1']='isolated-test-cookie';
 function mldsaHost(){return $_SERVER['HTTP_HOST']??'fixture';}
-function mldsaOpen($raw){return ['kind'=>'platform-period-v1','host'=>mldsaHost(),'token'=>'fixture-active-token','state'=>'active','days'=>10,'expiresAt'=>time()+864000];}
+function mldsaOpen($raw){return ['kind'=>'platform-period-v1','host'=>mldsaHost(),'token'=>'fixture-active-token','state'=>'active','days'=>10,'expiresAt'=>time()+864000,'proExpiresAt'=>isset($_GET['free'])?null:time()+86400];}
 `);
     fs.writeFileSync(path.join(fixture, 'auth.php'), '<?php');
     fs.writeFileSync(path.join(fixture, 'hashcod-workspace-access.php'), '<?php');
@@ -34,10 +34,13 @@ function securityRateAllowSliding($bucket, $limit, $period) { return ['allowed' 
     let ready = false;
     for (let i = 0; i < 150; i++) { try { ready = (await fetch(url)).status === 405; } catch {} if (ready) break; await pause(); }
     assert(ready, 'PHP access-code test server did not start');
-    async function request(code, priceUsdCents = null) {
-      const response = await fetch(url, { method: 'POST', headers: { Origin: `http://127.0.0.1:${port}`, 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' }, body: JSON.stringify({ id: 'fv_access123', name: 'file.pdf', type: 'application/pdf', size: 1, access_code: code, priceUsdCents }) });
+    async function request(code, priceUsdCents = null, free = false) {
+      const response = await fetch(url + (free ? '&free=1' : ''), { method: 'POST', headers: { Origin: `http://127.0.0.1:${port}`, 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' }, body: JSON.stringify({ id: 'fv_access123', name: 'file.pdf', type: 'application/pdf', size: 1, access_code: code, priceUsdCents }) });
       return { status: response.status, body: await response.json() };
     }
+    const free = await request('chosen-code', 1250, true);
+    assert.equal(free.status, 403, 'Free sessions cannot upload files even with a valid file code');
+    assert.equal(free.body.code, 'subscription_required');
     const invalid = await request('');
     assert.equal(invalid.status, 400);
     assert.match(invalid.body.error, /code/i);

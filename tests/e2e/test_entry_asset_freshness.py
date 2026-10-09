@@ -34,7 +34,6 @@ def main():
     critical = {
         "/components/mldsa-access-gate.js", "/components/mldsa-access-gate.css",
         "/components/mldsa-access-gate-loader.js",
-        "/components/code-access.bundle.js", "/components/code-access.bundle.css",
         "/components/center-empty-state.bundle.js", "/components/center-empty-state.bundle.css",
         "/components/first-screen-branched-menu.bundle.js", "/components/first-screen-branched-menu.bundle.css",
         "/components/react-bits-rotating-text.js", "/components/react-bits-rotating-text.css",
@@ -43,7 +42,7 @@ def main():
     checked = set()
     for route in routes:
         document = get(urljoin(base, route)).decode("utf-8")
-        for marker in ["<?php return", "Loading OCG mesh binding", "HC20-LOADING", "Creates likecode"]:
+        for marker in ["<?php return", "Loading OCG mesh binding", "HC20-LOADING", "Creates likecode", "d5CodeAccessMount", "code-access.bundle."]:
             assert marker not in document, f"{route}: retired text {marker}"
         parser = Assets()
         parser.feed(document)

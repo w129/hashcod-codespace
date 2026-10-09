@@ -1,13 +1,16 @@
 # Entry access and coupons
 
-The entry page never renders PHP examples or a first-use Mesh credential editor.
-When `L8_CODE_ACCESS_REQUIRED=0`, entry remains open and no binding is claimed.
-When enabled, the access island uses `HASHCOD-NUMERIC-SERIES/1`: the server
-normalizes the established 9,865-row, 8-column credential, verifies its digest,
-and issues a signed HttpOnly cookie scoped to its host and user agent. Both
-server rendering and GET `/api/code-access` validate that proof. The client
-confirms the cookie with GET after POST; reloads reuse the valid proof.
-There is no separate GitHub Actions authentication path.
+The public entry no longer mounts or loads the numeric credential window,
+including its initial loading shell. This applies even when an existing server
+still has `L8_CODE_ACCESS_REQUIRED=1`. Reloads and new browsers go directly to the
+current checkout/free entry. The six-digit Pro activation code and server-side
+paid entitlement checks remain authoritative; retiring this presentation does
+not grant paid permissions or reveal private administrative data.
+
+The legacy `/api/code-access` verifier remains available to existing clients.
+It validates the configured 9,865-row, 8-column credential and its signed
+HttpOnly cookie. It cannot activate Pro. There is no separate GitHub Actions
+authentication path.
 
 Production keeps `L8_ACCESS_GATE_COOKIE_SECRET` in private environment
 configuration so binding and platform-period signatures survive redeployment.
@@ -35,7 +38,8 @@ redemption/payment processing is not implemented by this component.
 
 Validation: `tests/e2e/test_entry_binding_coupon_browser.js` runs the actual PHP
 controller under production security rules, including CSP, on phone and desktop.
-It covers wrong credentials, persisted authorization, refusal of the retired
+It covers removal of the window with legacy configuration enabled, reloads,
+legacy API wrong credentials/persisted authorization, refusal of the retired
 Mesh request, every FAQ answer, coupon issuance/reuse/expiry/tampering/copy,
 retry, cross-origin denial and forged binding cookies. The mobile layout suite
 also covers 320px, 390px, 430px, landscape, and desktop scrolling.
@@ -46,5 +50,6 @@ must rebuild and refresh `desktop-latest` from the same merged source.
 
 Caddy serves the actual UI at `/components/mldsa-access-gate.js`; it must not
 rewrite that path to the bootstrap. The entry HTML explicitly loads the UI and
-bootstrap as separate scripts for web/desktop parity. An enabled credential
-gate owns authorization; the bootstrap waits for its verified-access event.
+bootstrap as separate scripts for web/desktop parity. Public entry uses the
+open-entry bootstrap without loading the retired credential island. Pro
+authorization remains in the checkout and server controllers.

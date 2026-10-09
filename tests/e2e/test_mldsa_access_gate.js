@@ -85,13 +85,10 @@ assert(!gate.includes('Saved Messages</h3>'),'Saved Messages title must be remov
 
 assert(gate.includes('components/first-screen-branched-menu.bundle.css?v=20261007-entry-fixes1'),'BranchedMenu CSS bundle must load');
 assert(gate.includes('components/first-screen-branched-menu.bundle.js?v=20261007-entry-fixes1'),'BranchedMenu JS bundle must load');
-assert(gate.includes('components/code-access.bundle.css?v=20261007-access-brand2'),'code access CSS bundle must load');
-assert(gate.includes('components/code-access.bundle.js?v=20261007-access-brand2'),'code access JS bundle must load');
-assert(gate.includes('id="d5CodeAccessMount"'),'code access React mount missing');
-assert(gate.includes('data-hashcod-component="CodeAccessGate"'),'code access component marker missing');
-assert(gate.includes('class="code-access-boot-window"'),'styled CodeTabs boot window missing');
-assert(gate.includes('Verificación de acceso'),'safe boot placeholder missing');
-assert(!gate.includes('&lt;?php'),'boot placeholder must not send PHP samples');
+assert(!gate.includes('components/code-access.bundle.'),'retired numeric gate assets must not load');
+assert(!gate.includes('id="d5CodeAccessMount"'),'retired credential mount must not render');
+assert(!gate.includes('class="code-access-boot-window"'),'retired gate must have no boot flash');
+assert(gate.includes('data-hashcod-code-access-required="0"'),'public entry must remain open with legacy configuration');
 assert(css.includes('/* Code access fallback shell'),'code access fallback styling missing from always-loaded gate CSS');
 assert(css.includes('backdrop-filter:blur(20px) saturate(.72)'),'code access fallback must blur the platform behind it');
 assert(css.includes('.code-access-root .code-access-boot-window'),'code access fallback window styling missing');

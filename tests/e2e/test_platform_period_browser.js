@@ -94,7 +94,7 @@ async function run() {
       await page.reload(); await page.locator('#d5ExpandingAction3').waitFor();
       assert.equal(await checkout.count(),0);
       assert.deepEqual(errors, []); await context.close();
-      console.log(`Checkout ${width}px: complete layout, billing/country/fiscal, safe WhatsApp, pending OTP, free entry/reload/Escape and input privacy OK`);
+      console.log(`Checkout ${width}px: complete layout, billing/country/fiscal, safe WhatsApp, invalid-code denial, verified activation, free restrictions/reload/Escape and input privacy OK`);
     }
   } finally { await browser?.close(); await new Promise(r => server.close(r)); }
 }

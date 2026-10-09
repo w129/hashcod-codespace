@@ -198,7 +198,9 @@ async function run() {
       assert.equal(await desktop.locator('.entry-empty-state-stage').evaluate(n => getComputedStyle(n).overflowY), 'visible', 'scrolling must belong to the page, not a clipped workspace panel');
       if (viewport.height === 500) {
         assert(await desktop.evaluate(() => document.documentElement.scrollHeight > innerHeight), 'a short desktop must have a native page scrollbar');
-        await desktop.evaluate(() => scrollTo(0, document.documentElement.scrollHeight));
+        // The paid status and admin controls now follow the card; reveal the
+        // card itself rather than scrolling past it to the end of the page.
+        await card.evaluate(n => { const footer=document.getElementById('d5PreviewPolicyFooter'); scrollTo(0,scrollY+n.getBoundingClientRect().bottom-footer.getBoundingClientRect().top+16); });
         await desktop.waitForFunction(() => scrollY > 0);
         await noHorizontalScroll(desktop);
         const bottom = await card.boundingBox();

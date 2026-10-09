@@ -19,6 +19,6 @@ unset KEY TRIMMED
 cat <<SQL
 -- Ejecuta esto en el editor SQL de Supabase (cierra también las sesiones admin abiertas):
 update hashcod_shared.tokenization_config
-set admin_hash = '$HASH', revision = revision + 1
+set admin_hash = '$HASH', revision = gen_random_uuid()
 where id = 1;
 SQL

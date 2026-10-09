@@ -59,7 +59,8 @@ LibreOffice (MPL-2.0) queda en `data_storage/repos/libreoffice-core`. El mirror 
 
 * **Estado de Licencia**: **PROPRIETARY / NO LICENSE (Sin Licencia de Código Abierto)**.
 * **Titularidad de Marca y Custodia**:
-  - **Hashcod Codespace®**: Marca Registrada #336973 (ONAPI Clase 42).
+  - **Hashcod®**: Marca mixta registrada en ONAPI, Núm. 336973, clase 42 (servicios de software), vigente hasta el 18/08/2036.
+  - **Hashcod Codespace™**: nombre de la plataforma, línea de producto bajo la marca Hashcod. El registro #336973 corresponde a "Hashcod"; "Hashcod Codespace" como nombre completo no está registrado por sí solo.
   - **DIKTATCART**: Emisor oficial (RNC DGII: 40209369293, RM: #3323LV-PF).
 * **Revocación de MIT**: Cualquier licencia abierta previa queda revocada. Queda prohibida la copia, clonación o uso sin autorización formal de DIKTATCART.
 * **Advertencia Crítica**: Desarrollar o modificar esta plataforma sin la custodia matemática y certificación determinista de **Hashcod/DIKTATCART** expone el sistema a fracturas criptográficas post-cuánticas (NIST ML-DSA-87 / Dilithium-5), fugas por canal lateral, desincronización irrecuperable de almacenamiento y total nulidad jurídica bajo la Ley 126-02 de Comercio Electrónico y Firmas Digitales. Consulte [LICENSE.md](LICENSE.md) para el desglose legal completo.

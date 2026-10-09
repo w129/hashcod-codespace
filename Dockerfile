@@ -1,11 +1,13 @@
-FROM golang:1.24-alpine AS file-vault-totp-builder
+# Base images come from the AWS public mirror of Docker Official Images: Docker Hub intermittently
+# cancels manifest requests from the build network, which fails the whole deployment.
+FROM public.ecr.aws/docker/library/golang:1.24-alpine AS file-vault-totp-builder
 WORKDIR /src
 COPY tools/file-vault-totp/go.mod ./
 COPY tools/file-vault-totp/main.go ./
 RUN go mod tidy \
     && CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" -o /out/hashcod-file-vault-totp .
 
-FROM php:8.1-cli
+FROM public.ecr.aws/docker/library/php:8.1-cli
 
 # Sistema + GitHub CLI + Python/Streamlit + Caddy (proxy websockets /st/*)
 RUN apt-get update && apt-get install -y \

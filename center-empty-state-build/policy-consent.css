@@ -1,0 +1,30 @@
+/* Animate UI Checkbox: scoped equivalents of the upstream Tailwind utilities (no global Tailwind reset). */
+.hpc { --hpc-input:#e2e8f0; --hpc-primary:#141413; --hpc-primary-fg:#fff; --hpc-ring:rgba(20,20,19,.35); display:flex; flex-direction:column; align-items:center; gap:4px; width:100%; font:13px/1.5 'IBM Plex Sans', system-ui, sans-serif; color:#334155; pointer-events:auto; }
+.hpc, .hpc * { box-sizing:border-box; }
+.hpc .flex { display:flex; }
+.hpc .items-center { align-items:center; }
+.hpc .gap-x-3 { column-gap:12px; }
+.hpc-label { cursor:pointer; text-align:start; }
+.hpc-label a { color:#0f172a; font-weight:600; text-decoration:underline; text-underline-offset:2px; }
+.hpc [data-slot=checkbox] { border:0; padding:0; margin:0; cursor:pointer; background:var(--hpc-input); color:var(--hpc-primary-fg); }
+.hpc [data-slot=checkbox][data-state=checked], .hpc [data-slot=checkbox][data-state=indeterminate] { background:var(--hpc-primary); }
+.hpc .peer { flex-shrink:0; }
+.hpc .shrink-0 { flex-shrink:0; }
+.hpc .justify-center { justify-content:center; }
+.hpc .transition-colors { transition:background-color .5s, color .5s; }
+.hpc .size-5 { width:20px; height:20px; }
+.hpc .size-4\.5 { width:18px; height:18px; }
+.hpc .size-6 { width:24px; height:24px; }
+.hpc .rounded-sm { border-radius:4px; }
+.hpc .rounded-\[5px\] { border-radius:5px; }
+.hpc .rounded-\[7px\] { border-radius:7px; }
+.hpc .size-5 svg { width:14px; height:14px; }
+.hpc [data-slot=checkbox]:focus-visible { outline:none; box-shadow:0 0 0 3px var(--hpc-ring); }
+.hpc [data-slot=checkbox]:disabled { cursor:not-allowed; opacity:.5; }
+.hpc-hint { margin:0; font-size:12px; color:#b45309; text-align:center; }
+.hpc[data-accepted=true] .hpc-hint { color:#15803d; }
+/* The footer holds the policy line and, below it, the required checkbox. */
+#d5PreviewPolicyFooter { box-sizing:border-box; flex-direction:column; align-items:center; gap:8px; padding:8px 12px; border-radius:12px; background:rgba(245,245,245,.94); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); }
+.policy-consent-mount { width:100%; display:flex; justify-content:center; pointer-events:auto; }
+.hco-consent { padding:14px 16px; border:1px solid #e2e8f0; border-radius:12px; background:#f8fafc; }
+@media (prefers-reduced-motion: reduce) { .hpc .transition-colors { transition:none; } }

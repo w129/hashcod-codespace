@@ -37,6 +37,7 @@ async function run() {
       period = { ok: true, state: 'choose', reference:'11111111-1111-4111-8111-111111111111',subscription:{tier:'free'}, serverNow: Math.floor(Date.now()/1000) }; posts = [];
       const context = await browser.newContext({ viewport: { width, height: 820 }, reducedMotion: 'reduce' });
       await context.route(/^https:\/\/wa\.me\//, route => route.fulfill({ status: 200, contentType: 'text/plain', body: 'WhatsApp link fixture; no message sent.' }));
+      await context.addInitScript(() => sessionStorage.setItem('hashcod:policy-consent', 'accepted'));
       const page = await context.newPage(), errors = []; page.on('pageerror', e => errors.push(e.message));
       await page.goto('http://127.0.0.1:' + server.address().port);
       const checkout = page.locator('#hashcodEntryCheckout'); await checkout.waitFor();
@@ -67,7 +68,7 @@ async function run() {
       await popup.waitForURL('https://wa.me/**');
       assert.match(popup.url(), /^https:\/\/wa\.me\/18294721257\?text=/); await popup.close();
       assert.equal(posts.length, 1, 'Opening WhatsApp must not submit payment');
-      assert.equal(await page.evaluate(() => localStorage.length + sessionStorage.length), 0, 'Checkout must not store cedula or OTP');
+      assert.deepEqual(await page.evaluate(() => [...Object.keys(localStorage), ...Object.keys(sessionStorage)]), ['hashcod:policy-consent'], 'Checkout must store only the policy acceptance, never cedula or OTP');
       assert(await checkout.evaluate(n => n.scrollWidth <= n.clientWidth), 'Checkout must fit phone width');
       const summary = await checkout.locator('.hco-summary').boundingBox(), form = await checkout.locator('.hco-form').boundingBox();
       if (width >= 1000) assert(form.x >= summary.x + summary.width - 1, 'Desktop must have two columns');

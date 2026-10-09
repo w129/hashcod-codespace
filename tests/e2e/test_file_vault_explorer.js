@@ -70,7 +70,9 @@ async function scenario(origin, shared = false) {
     assert(panel, 'subscription panel must be present below Files even before opening the vault');
     assert(w.document.querySelector('#d5FilesExplorer').compareDocumentPosition(panel) & w.Node.DOCUMENT_POSITION_FOLLOWING);
     assert.equal(w.document.querySelector('#d5RecommendationCard'), null, 'The obsolete access-duration card must not render');
+    w.sessionStorage.setItem('hashcod:policy-consent', 'accepted'); w.dispatchEvent(new w.CustomEvent('hashcod:policy-consent', { detail: { accepted: true } }));
     const free = [...w.document.querySelectorAll('button')].find(n => n.textContent === 'Entrar Gratis');
+    await until(() => !free.disabled);
     free.click(); await until(() => !w.document.querySelector('#hashcodEntryCheckout'));
     assert.equal(released.length, 0, 'recommendations must not unlock files');
     if (shared) {

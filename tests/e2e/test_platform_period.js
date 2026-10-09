@@ -30,14 +30,17 @@ async function scenario(origin, offline = false, active = false) {
   try {
     await until(() => w.document.querySelector('.hpa-panel'));
     const free = () => [...w.document.querySelectorAll('button')].find(n => n.textContent === 'Entrar Gratis');
+    const consent = async () => { w.sessionStorage.setItem('hashcod:policy-consent', 'accepted'); w.dispatchEvent(new w.CustomEvent('hashcod:policy-consent', { detail: { accepted: true } })); await until(() => free() && !free().disabled); };
     if (active) {
       await wait(); assert.equal(w.document.querySelector('#hashcodEntryCheckout'), null, 'Active session must resume without the checkout');
-      w.document.querySelector('.hco-reopen').click(); await until(free); free().click();
+      w.document.querySelector('.hco-reopen').click(); await until(free); assert.equal(free().disabled, true, 'Free entry must require accepting the Use and Privacy Policy'); await consent(); free().click();
       await until(() => !w.document.querySelector('#hashcodEntryCheckout'));
       assert.equal(calls.filter(Boolean).length, 0, 'A valid restored session must not be extended');
       console.log(`Checkout ${origin}: active/offline resume and reopen OK`); return;
     }
     await until(free);
+    assert.equal(free().disabled, true, 'Free entry must require accepting the Use and Privacy Policy');
+    await consent();
     assert.equal(w.document.querySelector('#hpa-days'), null);
     assert.equal(w.document.querySelector('#hpa-code'), null);
     assert.equal(w.document.querySelector('main').inert, true);

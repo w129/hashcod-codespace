@@ -302,7 +302,7 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
     $rotatingTextJs=entryAssetUrl($base,'components/react-bits-rotating-text.js?v=20261007-entry-fixes1');
     $branchedMenuCss=entryAssetUrl($base,'components/first-screen-branched-menu.bundle.css?v=20261007-entry-fixes1');
     $branchedMenuJs=entryAssetUrl($base,'components/first-screen-branched-menu.bundle.js?v=20261007-entry-fixes1');
-    $centerEmptyStateCss=entryAssetUrl($base,'components/center-empty-state.bundle.css?v=20261009-checkout-faq1');
+    $centerEmptyStateCss=entryAssetUrl($base,'components/center-empty-state.bundle.css?v=20261009-policy-consent1');
     $centerEmptyStateJs=entryAssetUrl($base,'components/center-empty-state.bundle.js?v=20261007-security1');
     $mobileCss=htmlspecialchars($base.'components/first-screen-mobile.css?v=20261006-no-horizontal-scroll1',ENT_QUOTES,'UTF-8');
     $entryBootstrapJs=entryAssetUrl($base,'components/mldsa-access-gate-loader.js?v=20261007-security1');
@@ -524,6 +524,6 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
       .'</div>'
       .'</div>'
       .'</section>'
-      .($entryIntro?'<footer id="d5PreviewPolicyFooter" class="preview-policy-footer" aria-label="Use and Privacy Policy"><div id="d5PreviewPolicyMount" class="preview-policy-mount" data-hashcod-component="PreviewLinkCard"></div></footer>':'')
+      .($entryIntro?'<footer id="d5PreviewPolicyFooter" class="preview-policy-footer" aria-label="Use and Privacy Policy"><div id="d5PreviewPolicyMount" class="preview-policy-mount" data-hashcod-component="PreviewLinkCard"></div><div id="d5PolicyConsentMount" class="policy-consent-mount" data-hashcod-component="PolicyConsent"></div></footer>':'')
       .'<script src="'.$uiSoundsJs.'" defer data-hashcod-ui-sounds="true"></script><script src="'.$pqcJs.'" defer></script><script src="'.$mascotJs.'" defer></script><script src="'.$js.'" defer></script><script src="'.$promptStudioJs.'" defer></script><script src="'.$rotatingTextJs.'" defer></script>'.($entryIntro?'<script src="'.$branchedMenuJs.'" defer></script><script src="'.$centerEmptyStateJs.'" defer></script><script src="'.$entryBootstrapJs.'" defer data-hashcod-entry-bootstrap="true"></script>':'').'</body></html>';
 }

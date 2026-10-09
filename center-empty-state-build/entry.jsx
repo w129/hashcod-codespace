@@ -9,6 +9,7 @@ import FilesExplorer from "./FilesExplorer";
 import FilePreview from "./FilePreview";
 import PlatformPeriod from "./PlatformPeriod";
 import ToolbookPanel from "./ToolbookPanel";
+import PolicyConsent from "./PolicyConsent";
 import TokenizationTool, { TokenizationIcon } from "./TokenizationTool";
 import ReviewChat from './ReviewChat';
 import { ReviewIcon } from './ReviewIcons';
@@ -1924,10 +1925,23 @@ function mountCenterEmptyState() {
   return true;
 }
 
+function mountPolicyConsent() {
+  const node = document.getElementById("d5PolicyConsentMount");
+  if (!node || node.dataset.reactMounted === "true") return Boolean(node);
+  createRoot(node).render(<PolicyConsent id="hpc-footer" />);
+  node.dataset.reactMounted = "true";
+  return true;
+}
+
+function mountEntry() {
+  mountCenterEmptyState();
+  mountPolicyConsent();
+}
+
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", mountCenterEmptyState, {
+  document.addEventListener("DOMContentLoaded", mountEntry, {
     once: true,
   });
 } else {
-  mountCenterEmptyState();
+  mountEntry();
 }

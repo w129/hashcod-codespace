@@ -33,7 +33,7 @@ if ($bootstrapSyncPath === '/api/platform-subscription') {
 $periodBootstrapRoute = in_array($bootstrapSyncPath, ['/api/code-access', '/api/mldsa-access', '/api/pqc-actions', '/api/admin-device/status', '/api/cloudflare/turnstile/config'], true);
 if (!$periodBootstrapRoute && preg_match('~^/(?:api/|hashcod-(?:workspace|file-vault|sync\.php)|toolbox-secure\.php)~', $bootstrapSyncPath)) {
     require_once __DIR__ . '/platform-period-lib.php';
-    platformPeriodGuard(!in_array($bootstrapSyncPath, ['/api/hashcod-tokenization', '/hashcod-tokenization.php', '/api/hashcod-comments'], true));
+    platformPeriodGuard(!in_array($bootstrapSyncPath, ['/api/hashcod-tokenization', '/hashcod-tokenization.php', '/api/hashcod-review', '/api/hashcod-comments'], true));
 }
 // The policy is a public HTML page, including old .php bookmarks. Normalize
 // only these exact aliases before the generic PHP-file denial. The full web

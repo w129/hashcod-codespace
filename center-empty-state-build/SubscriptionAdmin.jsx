@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import TokenizationTool from './TokenizationTool';
 
 export default function SubscriptionAdmin() {
   const [open, setOpen] = useState(false), [authorized, setAuthorized] = useState(false);
   const [key, setKey] = useState(''), [reference, setReference] = useState(''), [plan, setPlan] = useState('monthly');
   const [confirmed, setConfirmed] = useState(false), [busy, setBusy] = useState(false), [message, setMessage] = useState('');
   const [result, setResult] = useState(null);
+  const [requestsOpen, setRequestsOpen] = useState(false);
   async function submit(event) {
     event.preventDefault(); if (busy) return;
     setBusy(true); setMessage(''); setResult(null);
@@ -21,6 +23,8 @@ export default function SubscriptionAdmin() {
     finally { setKey(''); setBusy(false); }
   }
   return <div className="hco-admin"><button type="button" className="hco-reopen" onClick={() => { setOpen(!open); setKey(''); setResult(null); setMessage(''); }}>Administrar pagos</button>
+    <button type="button" className="hco-reopen" onClick={() => setRequestsOpen(true)}>Área privada de solicitudes</button>
+    {requestsOpen && <TokenizationTool initialView="auth" files={[]} loading={false} onRefresh={() => {}} onClose={() => setRequestsOpen(false)} />}
     {open && <form onSubmit={submit} className="hco-admin-form">
       <strong>Confirmación administrativa del pago</strong>
       {!authorized ? <><label htmlFor="hco-admin-key">Clave del área privada de solicitudes</label><input id="hco-admin-key" type="password" autoComplete="off" maxLength={8192} value={key} onChange={e => setKey(e.target.value)} required /></> : <>

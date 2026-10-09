@@ -86,6 +86,10 @@ async function run() {
       await page.getByRole('button', { name: 'Ver planes de Hashcod Pro' }).click(); await checkout.waitFor();
       assert.equal(await page.locator('#hco-cedula').inputValue(), ''); assert.equal(await page.locator('#hco-otp').inputValue(), '');
       await page.keyboard.press('Escape'); await checkout.waitFor({ state: 'detached' }); assert.equal(posts.length, 2);
+      await page.getByRole('button',{name:'Área privada de solicitudes',exact:true}).click();
+      await page.locator('#htk-admin-key').waitFor();
+      assert.equal(await page.locator('[data-htk-request-id]').count(),0,'Administrative records remain behind their private key');
+      await page.getByRole('button',{name:'Cerrar tokenización'}).click();
       await page.getByRole('button',{name:'Activar beneficios Pro'}).click(); await checkout.waitFor();
       assert.equal(await page.locator('#d5FileVaultUploadInput').count(),0);
       await page.locator('#hco-otp').fill('654321'); await checkout.getByRole('button',{name:'Verificar pago',exact:true}).click();

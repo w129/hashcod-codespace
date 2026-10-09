@@ -91,11 +91,9 @@ export default function PlatformPeriod() {
   const pro = period.subscription?.tier === 'pro';
   return <>
     <div className="hpa-panel" data-state={pro ? 'pro' : 'free'}>
+      <button type="button" className="hco-reopen hco-reopen--primary" onClick={() => { setError(''); setOpen(true); }}><PlansIcon />Ver planes de Hashcod Pro</button>
       <p className="hpa-status" role="status"><span className="hpa-dot" aria-hidden="true" />{pro ? `Hashcod Pro activo · 25 solicitudes al mes · hasta ${new Date(period.subscription.expiresAt * 1000).toLocaleDateString()}` : 'Modo gratuito · Los beneficios Pro están bloqueados hasta validar tu código.'}</p>
-      <div className="hpa-actions">
-        <button type="button" className="hco-reopen hco-reopen--primary" onClick={() => { setError(''); setOpen(true); }}><PlansIcon />Ver planes de Hashcod Pro</button>
-        {!open && period.state === 'active' && <SubscriptionAdmin />}
-      </div>
+      {!open && period.state === 'active' && <SubscriptionAdmin />}
     </div>
     {error && !open && <p className="hpa-error" role="alert">{error}</p>}
     {open && <EntryCheckout onEnter={enter} onVerify={verify} reference={period.reference || ''} busy={busy} error={error} />}

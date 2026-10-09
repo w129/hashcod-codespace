@@ -12,7 +12,7 @@ import './request-flowchart.css';
  * request chip opens a real dropdown. Data comes from the server.
  * ───────────────────────────────────────────────────────── */
 
-const PURPLE = '#9a5cff';
+const BLACK = '#141413';
 const AMBER = '#f09a2f';
 const mix = (hue: string, pct: number, base = 'var(--hfc-surface)') => `color-mix(in srgb, ${hue} ${pct}%, ${base})`;
 
@@ -59,12 +59,12 @@ function formatDate(value: string | null | undefined) {
 /* ── the steps are derived from the request being inspected ── */
 export function buildSteps(request: RequestRow | undefined, notice: string): StepNode[] {
   if (!request) {
-    return [{ id: 'empty', row: 0, x: 0.5, w: 320, kind: { label: 'Solicitud', hue: PURPLE }, hue: PURPLE, title: 'Aún no tienes solicitudes', caption: notice }];
+    return [{ id: 'empty', row: 0, x: 0.5, w: 320, kind: { label: 'Solicitud', hue: BLACK }, hue: BLACK, title: 'Aún no tienes solicitudes', caption: notice }];
   }
   const state = STATUS[request.status] ?? STATUS.pending;
   const certified = request.status === 'completed' && !!request.certificateId;
   return [
-    { id: 'trigger', row: 0, x: 0.5, w: 300, kind: { label: 'Solicitud', hue: PURPLE }, hue: PURPLE, title: 'Solicitud enviada', caption: [request.name, formatDate(request.createdAt)].filter(Boolean).join(' · ') },
+    { id: 'trigger', row: 0, x: 0.5, w: 300, kind: { label: 'Solicitud', hue: BLACK }, hue: BLACK, title: 'Solicitud enviada', caption: [request.name, formatDate(request.createdAt)].filter(Boolean).join(' · ') },
     { id: 'cond', row: 1, x: 0.5, w: 356, kind: { label: 'If / Else', hue: AMBER }, condition: true },
     {
       id: 'outcome', row: 2, x: 0.5, w: 320, kind: { label: 'Resultado', hue: state.hue }, hue: state.hue,

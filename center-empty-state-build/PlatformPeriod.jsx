@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import RecommendationCard from './RecommendationCard';
 import EntryCheckout from './EntryCheckout';
 import { PlansIcon } from './ProIcons';
 import SubscriptionAdmin from './SubscriptionAdmin';
@@ -89,11 +88,15 @@ export default function PlatformPeriod() {
     finally { entering.current = false; if (mounted.current) setBusy(false); }
   }
 
+  const pro = period.subscription?.tier === 'pro';
   return <>
-    <RecommendationCard activeDays={period.state === 'active' ? period.days : null} locked labels={{ accepted: 'Activo' }} />
-    <button type="button" className="hco-reopen" onClick={() => { setError(''); setOpen(true); }}><PlansIcon />Ver planes de Hashcod Pro</button>
-    <p className="hco-free-note">{period.subscription?.tier === 'pro' ? `Hashcod Pro activo · 25 solicitudes al mes · hasta ${new Date(period.subscription.expiresAt * 1000).toLocaleDateString()}` : 'Modo gratuito · Los beneficios Pro están bloqueados hasta validar tu código.'}</p>
-    {!open && period.state === 'active' && <SubscriptionAdmin />}
+    <div className="hpa-panel" data-state={pro ? 'pro' : 'free'}>
+      <p className="hpa-status" role="status"><span className="hpa-dot" aria-hidden="true" />{pro ? `Hashcod Pro activo · 25 solicitudes al mes · hasta ${new Date(period.subscription.expiresAt * 1000).toLocaleDateString()}` : 'Modo gratuito · Los beneficios Pro están bloqueados hasta validar tu código.'}</p>
+      <div className="hpa-actions">
+        <button type="button" className="hco-reopen hco-reopen--primary" onClick={() => { setError(''); setOpen(true); }}><PlansIcon />Ver planes de Hashcod Pro</button>
+        {!open && period.state === 'active' && <SubscriptionAdmin />}
+      </div>
+    </div>
     {error && !open && <p className="hpa-error" role="alert">{error}</p>}
     {open && <EntryCheckout onEnter={enter} onVerify={verify} reference={period.reference || ''} busy={busy} error={error} />}
   </>;

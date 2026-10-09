@@ -30,32 +30,7 @@ const checks=['sandbox','tests','sast','secrets','deps'].map(kind=>({kind,tool:'
     await route.fulfill({json:data});
    });
    await page.goto(base);
-   const access=page.locator('#d5RecommendationCard'),drawer=access.locator('.hrc-drawer');
-   await page.locator('#d5RecommendationCard[data-accepted="true"]').waitFor();
-   await access.evaluate(async n=>{await Promise.all(n.getAnimations({subtree:true}).map(a=>a.finished.catch(()=>{})));});
-   const closed=await access.boundingBox(),footer=await access.locator('.hrc-footer').boundingBox();
-   assert(closed.y+closed.height-footer.y-footer.height<=2,'Collapsed access card must end at its footer without a blank panel');
-   assert((await drawer.boundingBox()).height<=1,'Collapsed alternatives must occupy no space');
-   for(let toggle=0;toggle<2;toggle++){
-    await access.getByRole('button',{name:'Alternatives',exact:true}).click();
-    await access.evaluate(async n=>{await Promise.all(n.getAnimations({subtree:true}).map(a=>a.finished.catch(()=>{})));});
-    assert.equal(await drawer.getAttribute('aria-hidden'),'false');
-    const expanded=await access.boundingBox(),area=await drawer.boundingBox();
-    assert(expanded.height>closed.height+50,'Opening alternatives must expand the access card');
-    assert.equal(await drawer.evaluate(n=>getComputedStyle(n).opacity),'1','Expanded alternatives must display their text');
-    for(const days of [20,30,60]){
-     const option=drawer.locator(`[data-option="${days}"]`),box=await option.boundingBox();
-     assert.match(await option.textContent(),new RegExp(days+' days'));
-     assert(box.height>0&&box.y>=area.y-1&&box.y+box.height<=area.y+area.height+1,'Every alternative must fit inside the expanded drawer');
-     assert.equal(await option.isDisabled(),true,'Inspecting alternatives must not change an active access period');
-    }
-    if(toggle===0&&process.env.REVIEW_SCREENSHOT_DIR){fs.mkdirSync(process.env.REVIEW_SCREENSHOT_DIR,{recursive:true});await access.screenshot({path:path.join(process.env.REVIEW_SCREENSHOT_DIR,`access-open-${viewport.width}.png`)});}
-    await access.getByRole('button',{name:'Alternatives',exact:true}).click();
-    await access.evaluate(async n=>{await Promise.all(n.getAnimations({subtree:true}).map(a=>a.finished.catch(()=>{})));});
-    assert.equal(await drawer.getAttribute('aria-hidden'),'true');assert.equal(await drawer.evaluate(n=>n.inert),true);
-    assert((await drawer.boundingBox()).height<=1);assert(Math.abs((await access.boundingBox()).height-closed.height)<=1,'Closing alternatives must restore the compact card');
-   }
-   if(process.env.REVIEW_SCREENSHOT_DIR)await access.screenshot({path:path.join(process.env.REVIEW_SCREENSHOT_DIR,`access-closed-${viewport.width}.png`)});
+   await page.locator('.hpa-panel').waitFor();
    await page.locator('#d5ExpandingAction2').click();const dialog=page.locator('#d5ReviewChat');await dialog.waitFor();
    await page.getByLabel('API key de Anthropic').fill('sk-ant-synthetic-fixture-key-1234567890');await page.locator('.hrc-consent input').check();
    await page.getByRole('button',{name:'Validar clave y comenzar'}).click();await page.getByRole('alert').waitFor();assert.equal(await page.getByLabel('API key de Anthropic').inputValue(),'');assert.equal(await page.locator('.hrc-whatsapp').count(),0);

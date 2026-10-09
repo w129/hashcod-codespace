@@ -22,7 +22,7 @@ async function layout(page, width) {
   const result = await page.evaluate(width => {
     const box = selector => { const r = document.querySelector(selector).getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top + scrollY, bottom: r.bottom + scrollY }; };
     return {
-      calendar: box('#d5FirstScreenCalendar'), actions: box('.hashcod-empty-state-actions-row'), files: box('#d5FilesExplorer'), recommendation: box('#d5RecommendationCard'), footer: box('#d5PreviewPolicyFooter'),
+      calendar: box('#d5FirstScreenCalendar'), actions: box('.hashcod-empty-state-actions-row'), files: box('#d5FilesExplorer'), recommendation: box('.hpa-panel'), footer: box('#d5PreviewPolicyFooter'),
       stagePosition: getComputedStyle(document.querySelector('.entry-empty-state-stage')).position,
       footerPosition: getComputedStyle(document.querySelector('#d5PreviewPolicyFooter')).position,
       documentWidth: document.documentElement.scrollWidth,
@@ -174,7 +174,7 @@ async function run() {
     assert.equal(await desktop.locator('.branched-menu__item').first().evaluate(n => getComputedStyle(n).height), '36px');
     assert.equal(await desktop.locator('.entry-empty-state-stage').evaluate(n => getComputedStyle(n).position), 'absolute');
     assert.equal(await desktop.locator('#d5PreviewPolicyFooter').evaluate(n => getComputedStyle(n).position), 'fixed');
-    await desktop.locator('#d5RecommendationCard').waitFor({ state: 'visible' });
+    await desktop.locator('.hpa-panel').waitFor({ state: 'visible' });
     // Windows reserves space for its native scrollbar. A stable gutter exercises
     // that narrower layout width even in Chromium's headless/overlay environment.
     await desktop.addStyleTag({ content: 'html { scrollbar-gutter: stable; }' });
@@ -190,10 +190,8 @@ async function run() {
       await desktop.evaluate(() => scrollTo(0, 0));
       await noHorizontalScroll(desktop);
       const before = await workspaceTop();
-      const card = desktop.locator('#d5RecommendationCard');
-      await card.getByRole('button', { name: 'Alternatives', exact: true }).click();
-      await card.evaluate(async n => { await Promise.all(n.getAnimations({ subtree: true }).map(a => a.finished.catch(() => {}))); });
-      assert(Math.abs(await workspaceTop() - before) < 1, 'expanding alternatives must grow downward without moving Files');
+      const card = desktop.locator('.hpa-panel');
+      assert(Math.abs(await workspaceTop() - before) < 1, 'the subscription panel must not move Files');
       await noHorizontalScroll(desktop);
       assert.equal(await desktop.locator('.entry-empty-state-stage').evaluate(n => getComputedStyle(n).overflowY), 'visible', 'scrolling must belong to the page, not a clipped workspace panel');
       if (viewport.height === 500) {
@@ -208,7 +206,6 @@ async function run() {
         assert(bottom.y >= 0 && bottom.y + bottom.height <= footer.y - 8, 'scrolling must reveal the complete card above the fixed footer');
         if (process.env.HASHCOD_MOBILE_SCREENSHOT_DIR) await desktop.screenshot({ path: path.join(process.env.HASHCOD_MOBILE_SCREENSHOT_DIR, 'desktop-workspace-scrolled.png') });
       }
-      await card.getByRole('button', { name: 'Alternatives', exact: true }).click();
     }
     await desktop.setViewportSize({ width: 1440, height: 900 });
     await desktop.evaluate(() => scrollTo(0, 0));

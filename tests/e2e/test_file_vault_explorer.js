@@ -66,26 +66,12 @@ async function scenario(origin, shared = false) {
     assert(!w.document.getElementById('d5FileVault'), 'files must be visible before opening upload vault');
     assert.equal(w.document.querySelector('#d5FilesExplorer').getAttribute('data-animate-ui-files'), 'radix');
     assert(w.document.querySelector('#d5CenterEmptyStateAction').compareDocumentPosition(w.document.querySelector('#d5FilesExplorer')) & w.Node.DOCUMENT_POSITION_FOLLOWING);
-    const card = w.document.querySelector('#d5RecommendationCard');
-    assert(card, 'recommendation must be present below Files even before opening the vault');
-    assert(w.document.querySelector('#d5FilesExplorer').compareDocumentPosition(card) & w.Node.DOCUMENT_POSITION_FOLLOWING);
-    await until(() => !card.querySelector('.hrc-button--secondary').disabled);
-    assert.equal(card.dataset.selected, '10');
-    assert.match(card.querySelector('.hrc-title').textContent, /¿Cuántos días vas a durar en la plataforma\?/);
-    assert.equal(card.querySelector('.hrc-entity-chip').textContent, 'plataforma');
-    assert(card.querySelector('.hrc-drawer').hasAttribute('inert'));
+    const panel = w.document.querySelector('.hpa-panel');
+    assert(panel, 'subscription panel must be present below Files even before opening the vault');
+    assert(w.document.querySelector('#d5FilesExplorer').compareDocumentPosition(panel) & w.Node.DOCUMENT_POSITION_FOLLOWING);
+    assert.equal(w.document.querySelector('#d5RecommendationCard'), null, 'The obsolete access-duration card must not render');
     const free = [...w.document.querySelectorAll('button')].find(n => n.textContent === 'Entrar Gratis');
     free.click(); await until(() => !w.document.querySelector('#hashcodEntryCheckout'));
-    await until(() => card.dataset.accepted === 'true');
-    card.querySelector('.hrc-button--secondary').click();
-    await until(() => !card.querySelector('.hrc-drawer').hasAttribute('inert'));
-    for (const days of [20, 30, 60]) {
-      assert(card.querySelector(`[data-option="${days}"]`).disabled, 'Free technical session cannot be changed through alternatives');
-    }
-    card.querySelector('.hrc-button--secondary').click();
-    await until(() => card.querySelector('.hrc-drawer').hasAttribute('inert'));
-    assert.match(card.querySelector('[role="status"]').textContent, /Activo: 10 days/);
-    assert(card.querySelector('[data-recommendation-accept]').disabled);
     assert.equal(released.length, 0, 'recommendations must not unlock files');
     if (shared) {
       assert.equal(typeof refreshFromPoll, 'function', 'shared tree must poll other-device changes');

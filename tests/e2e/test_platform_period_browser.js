@@ -81,7 +81,7 @@ async function run() {
       await checkout.getByRole('button', { name: 'Entrar Gratis', exact: true }).click();
       await checkout.waitFor({ state: 'detached' });
       assert.equal(posts.length, 2); assert(!(await page.locator('main').evaluate(n => n.inert)));
-      await page.reload(); await page.locator('#d5RecommendationCard[data-accepted="true"]').waitFor();
+      await page.reload(); await page.locator('.hpa-panel').waitFor();
       await checkout.waitFor({ state: 'detached' });
       await page.getByRole('button', { name: 'Ver planes de Hashcod Pro' }).click(); await checkout.waitFor();
       assert.equal(await page.locator('#hco-cedula').inputValue(), ''); assert.equal(await page.locator('#hco-otp').inputValue(), '');

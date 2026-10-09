@@ -106,7 +106,7 @@ assert(css.includes('top:8px'),'desktop BranchedMenu must be lifted toward the t
 assert(gate.includes('id="d5CenterEmptyStateStage"'),'center EmptyState stage missing');
 assert(gate.includes('id="d5CenterEmptyStateMount"'),'center EmptyState mount missing');
 assert(gate.includes('data-hashcod-component="EmptyState"'),'center EmptyState component marker missing');
-assert(gate.includes('components/center-empty-state.bundle.css?v=20261009-pro-icons1'),'center EmptyState CSS bundle must load');
+assert(gate.includes('components/center-empty-state.bundle.css?v=20261009-panel-layout1'),'center EmptyState CSS bundle must load');
 assert(gate.includes('components/center-empty-state.bundle.js?v=20261007-security1'),'shared Files explorer JS bundle must load');
 assert(centerEmptyState.includes('AnimatePresence'),'EmptyState AnimatePresence behavior missing');
 assert(centerEmptyState.includes('ResizeObserver'),'EmptyState dynamic height observer missing');

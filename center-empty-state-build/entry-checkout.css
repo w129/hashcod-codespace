@@ -136,3 +136,16 @@ body.hco-open { overflow: hidden !important; }
 .hco-admin-actions { display:flex; gap:8px; flex-wrap:wrap; }
 .hco-admin-actions button,.hco-admin-actions a { flex:1 1 140px; min-height:44px; display:grid; place-items:center; border:1px solid #cbd5e1; border-radius:8px; background:#fff; color:#0f172a; text-decoration:none; font-weight:600; }
 .hco-admin-actions a[aria-disabled=true] { opacity:.5; pointer-events:none; }
+
+/* Subscription panel: status on top, then one aligned column of actions */
+.hpa-panel { display:flex; flex-direction:column; align-items:center; gap:14px; width:100%; }
+.hpa-status { display:flex; align-items:center; justify-content:center; gap:8px; margin:0; max-width:100%; padding:8px 14px; border:1px solid #e2e8f0; border-radius:12px; background:rgba(255,255,255,.55); color:#64748b; font:12px/1.4 'IBM Plex Sans', system-ui, sans-serif; text-align:center; }
+.hpa-dot { flex:none; width:7px; height:7px; border-radius:50%; background:#94a3b8; }
+.hpa-panel[data-state=pro] .hpa-dot { background:#16a34a; }
+.hpa-actions,.hpa-actions .hco-admin { display:flex; flex-direction:column; align-items:stretch; gap:10px; width:100%; max-width:300px; }
+.hpa-actions .hco-reopen { width:100%; max-width:none; margin:0; justify-content:flex-start; }
+.hpa-actions .hco-reopen--primary { background:#141413; border-color:#141413; color:#fff; }
+.hpa-actions .hco-reopen--primary .hco-ico { color:#fff; }
+.hpa-actions .hco-reopen--primary:hover { background:#27272a; border-color:#27272a; color:#fff; }
+.hpa-actions .hco-reopen--primary:hover .hco-ico { color:#fff; }
+.hpa-actions .hco-admin-form { align-self:center; width:min(440px,calc(100vw - 32px)); margin:2px 0 0; }

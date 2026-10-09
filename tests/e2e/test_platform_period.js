@@ -28,7 +28,7 @@ async function scenario(origin, offline = false, active = false) {
   };
   w.eval(fs.readFileSync(path.resolve(__dirname, '../../components/center-empty-state.bundle.js'), 'utf8'));
   try {
-    await until(() => w.document.querySelector('#d5RecommendationCard'));
+    await until(() => w.document.querySelector('.hpa-panel'));
     const free = () => [...w.document.querySelectorAll('button')].find(n => n.textContent === 'Entrar Gratis');
     if (active) {
       await wait(); assert.equal(w.document.querySelector('#hashcodEntryCheckout'), null, 'Active session must resume without the checkout');
@@ -46,7 +46,8 @@ async function scenario(origin, offline = false, active = false) {
     if (offline) { console.log('Checkout offline first entry: useful error and no fabricated session OK'); return; }
     failFree = false; free().click(); await until(() => !w.document.querySelector('#hashcodEntryCheckout'));
     assert.equal(w.document.querySelector('main').inert, undefined);
-    assert.equal(w.document.querySelector('#d5RecommendationCard').dataset.accepted, 'true');
+    assert.equal(w.document.querySelector('#d5RecommendationCard'), null, 'The obsolete access-duration card must not render');
+    assert(w.document.querySelector('.hpa-panel'), 'The subscription panel must remain after free entry');
     server = { ...server, state: 'expired', expiresAt: 999 };
     refresh(); await until(() => calls.filter(Boolean).length === 3);
     await wait(); assert.equal(w.document.querySelector('#hashcodEntryCheckout'), null, 'Session expiry must refresh free access without the old key gate');

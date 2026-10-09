@@ -9,7 +9,7 @@ body.hco-open { overflow: hidden !important; }
 .hco-summary { flex: 1 1 480px; min-width: 0; padding: 48px 56px; display: flex; flex-direction: column; gap: 40px; background: #f8fafc; border-right: 1px solid #e2e8f0; }
 .hco-header { display: flex; align-items: center; gap: 12px; }
 .hco-back { width: 44px; height: 44px; flex: none; border-radius: 50%; border: 1px solid #e2e8f0; background: transparent; color: #64748b !important; display: grid; place-items: center; }
-.hco-brand { display: flex; flex: 1 1 auto; min-width: 0; align-items: center; color: #000; }
+.hco-brand { display: flex; flex: 1 1 auto; min-width: 0; align-items: center; color: #141413; }
 .hco-brand-logo { display: block; width: min(420px, 100%); height: auto; }
 .hco-pricing { display: flex; flex-direction: column; gap: 8px; }
 .hco-pricing > span { font: 12px/1.5 'IBM Plex Mono', monospace; letter-spacing: .12em; text-transform: uppercase; color: #64748b; }

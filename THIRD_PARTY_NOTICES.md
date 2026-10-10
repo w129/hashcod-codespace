@@ -121,3 +121,10 @@ Hashcod Codespace vendors the Ponytail skills under `.claude/skills/ponytail*` f
 
 - Source: https://github.com/DietrichGebert/ponytail (v5.1.0)
 - License: MIT, Copyright (c) 2026 DietrichGebert
+
+## Detectron2 (Vision tool detector)
+
+`services/detectron2-vision/` installs Detectron2 at image build time as a separate detector service; it is not vendored.
+
+- Source: https://github.com/facebookresearch/detectron2
+- License: Apache-2.0, Copyright (c) Facebook, Inc. and its affiliates

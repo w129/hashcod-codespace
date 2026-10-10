@@ -61,6 +61,7 @@ export default function EntryCheckout({ onEnter, onVerify, reference = '', busy 
           <div><span><strong>Primer pago para tokenizar</strong><small>Pago único. Incluye lo que tu caso requiera: verificación internacional (si aplica), asesoría y gastos legales</small></span><span>{order.firstAmount}</span></div>
           <div className="hco-totals-note"><span><strong>Certificado PSOT</strong><small>Comprobante de registro. Precio por certificado, en pesos dominicanos; no suma al total en dólares</small></span><span>{order.certificateAmount}</span></div>
           <div><strong>Total a pagar hoy</strong><strong>{order.amount}</strong></div></div>
+        <p className="hco-price-note" role="note">Estos precios y tu pago total son variables, dependen de tu caso y de lo que necesites. No es un precio fijo: un asesor te confirma el monto exacto por WhatsApp antes de que pagues.</p>
         <div className="hco-benefits"><strong>Qué incluye</strong><ul><li>Acceso a la Toolbook</li><li>Permiso de IA y Prueba Sellada de Objeto y Tiempo (PSOT)</li><li>Uso de las Herramientas</li><li>+20 solicitudes /mes <small>(25 solicitudes al mes)</small></li></ul></div>
         <CodecPreview />
         <CheckoutFaq />

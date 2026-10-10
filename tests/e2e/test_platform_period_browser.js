@@ -54,6 +54,7 @@ async function run() {
       await checkout.getByRole('button', { name: 'Anual · −20%' }).click();
       await checkout.getByRole('group', { name: 'Comprobante fiscal' }).getByRole('button', { name: 'Sí', exact: true }).click();
       assert.match(await message(), /Plan: Anual\nPeríodo: 1 año/); assert.match(await message(), /Total: US\$2,192.00/); assert.match(await message(), /Comprobante fiscal: Sí/);
+      assert.match(await checkout.locator('.hco-price-note').textContent(), /variables.*no es un precio fijo/is);
       const requestsBeforeOtp = posts.length;
       await page.locator('#hco-otp').fill('a12345'); assert.equal(await page.locator('#hco-otp').inputValue(), '12345');
       await page.locator('#hco-otp').fill('123456');

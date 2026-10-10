@@ -74,6 +74,15 @@ Hashcod Codespace uses a native JavaScript adaptation of **page-mascot** for the
 - Hashcod adaptation: preserves the original 3×3 direction/reaction sprite model, fine-pointer tracking, dead zone and hysteresis, click reactions, four-click dizzy state, and reduced-motion behavior. Hashcod's main UI is native PHP/JavaScript rather than React, so the interaction logic is adapted without adding a React runtime.
 - Panda atlases: verified against upstream Git blob SHAs 6f3f42dcf066c2b1c01e85913d2ea8828215f474 and aaecccbcc7aaeb646aeb2a10145d31701ada5e9e.
 
+## agenttrail
+
+Hashcod Codespace's page mascot walker adapts ideas from **agenttrail**: its dotted, round-capped session trail (dashed polyline at 55% opacity) and its rule that visualizations only illustrate activity that is actually observed. No agenttrail source code is bundled or executed.
+
+- Project: agenttrail
+- Source: https://github.com/sodiumsun/agenttrail
+- Copyright: © 2026 Kelly Sun
+- License: MIT
+
 ## React Bits — RotatingText
 
 Hashcod Codespace uses a native JavaScript adaptation of **React Bits RotatingText** on the first entry screen.

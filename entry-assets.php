@@ -15,6 +15,8 @@ function entryAssetIsMutable(string $path): bool {
         '/components/first-screen-branched-menu.bundle.css',
         '/components/react-bits-rotating-text.js',
         '/components/react-bits-rotating-text.css',
+        '/components/page-mascot-walker.js',
+        '/components/page-mascot-walker.css',
     ], true);
 }
 

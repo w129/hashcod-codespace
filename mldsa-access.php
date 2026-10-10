@@ -294,8 +294,10 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
     $js=entryAssetUrl($base,'components/mldsa-access-gate.js?v=20261007-entry-fixes1');
     $pqcJs=htmlspecialchars($base.'components/pqc-action-runtime.js?v=20260928-pqcactions1',ENT_QUOTES,'UTF-8');
     $uiSoundsJs=htmlspecialchars($base.'components/ui-interaction-sounds.js?v=20261006-ui-sounds1',ENT_QUOTES,'UTF-8');
-    $mascotCss=htmlspecialchars($base.'components/page-mascot-panda.css?v=20260929-panda2',ENT_QUOTES,'UTF-8');
-    $mascotJs=htmlspecialchars($base.'components/page-mascot-panda.js?v=20260929-panda2',ENT_QUOTES,'UTF-8');
+    $mascotCss=htmlspecialchars($base.'components/page-mascot-panda.css?v=20261010-panda3',ENT_QUOTES,'UTF-8');
+    $mascotJs=htmlspecialchars($base.'components/page-mascot-panda.js?v=20261010-panda3',ENT_QUOTES,'UTF-8');
+    $walkerCss=entryAssetUrl($base,'components/page-mascot-walker.css?v=20261010-walker1');
+    $walkerJs=entryAssetUrl($base,'components/page-mascot-walker.js?v=20261010-walker1');
     $promptStudioCss=htmlspecialchars($base.'components/text-editor-prompt-studio.css?v=20260930-promptstudio1',ENT_QUOTES,'UTF-8');
     $promptStudioJs=htmlspecialchars($base.'components/text-editor-prompt-studio.js?v=20260930-promptstudio1',ENT_QUOTES,'UTF-8');
     $rotatingTextCss=entryAssetUrl($base,'components/react-bits-rotating-text.css?v=20261007-entry-fixes1');
@@ -303,7 +305,7 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
     $rotatingTextJs=entryAssetUrl($base,'components/react-bits-rotating-text.js?v=20261007-entry-fixes1');
     $branchedMenuCss=entryAssetUrl($base,'components/first-screen-branched-menu.bundle.css?v=20261007-entry-fixes1');
     $branchedMenuJs=entryAssetUrl($base,'components/first-screen-branched-menu.bundle.js?v=20261007-entry-fixes1');
-    $centerEmptyStateCss=entryAssetUrl($base,'components/center-empty-state.bundle.css?v=20261010-price6');
+    $centerEmptyStateCss=entryAssetUrl($base,'components/center-empty-state.bundle.css?v=20261010-walker1');
     $centerEmptyStateJs=entryAssetUrl($base,'components/center-empty-state.bundle.js?v=20261007-security1');
     $mobileCss=htmlspecialchars($base.'components/first-screen-mobile.css?v=20261006-no-horizontal-scroll1',ENT_QUOTES,'UTF-8');
     $entryBootstrapJs=entryAssetUrl($base,'components/mldsa-access-gate-loader.js?v=20261007-security1');
@@ -337,7 +339,7 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
         .'<p id="d5Status" class="status" role="status" aria-live="polite"></p>'
         .'<p class="fingerprint">ML-DSA-87 · NIST FIPS 204 · fingerprint <span id="d5Fingerprint">—</span></p>'
         .'</section>';
-    return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content"><meta name="robots" content="noindex,nofollow"><title>Hashcod Codespace</title><link rel="stylesheet" href="'.$css.'"><link rel="stylesheet" href="'.$mascotCss.'"><link rel="stylesheet" href="'.$promptStudioCss.'"><link rel="stylesheet" href="'.$rotatingTextCss.'">'.($entryIntro?'<link rel="stylesheet" href="'.$branchedMenuCss.'"><link rel="stylesheet" href="'.$centerEmptyStateCss.'"><link rel="stylesheet" href="'.$mobileCss.'">':'').'</head><body'.$bodyAttr.'>'
+    return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content"><meta name="robots" content="noindex,nofollow"><title>Hashcod Codespace</title><link rel="stylesheet" href="'.$css.'"><link rel="stylesheet" href="'.$mascotCss.'"><link rel="stylesheet" href="'.$walkerCss.'"><link rel="stylesheet" href="'.$promptStudioCss.'"><link rel="stylesheet" href="'.$rotatingTextCss.'">'.($entryIntro?'<link rel="stylesheet" href="'.$branchedMenuCss.'"><link rel="stylesheet" href="'.$centerEmptyStateCss.'"><link rel="stylesheet" href="'.$mobileCss.'">':'').'</head><body'.$bodyAttr.'>'
       .'<main class="access-stage">'
       .($entryIntro?'<div id="d5RotatingTextHero" class="entry-rotating-text-hero" data-texts="código|desarrollo|programación|IA|aprendizaje profundo|estructuras de datos|algoritmos|esquemas|vectores|grafos|árboles|mapas hash" data-stagger-from="last" data-stagger-duration="25" data-rotation-interval="2000" data-transition-damping="30" data-transition-stiffness="400" aria-label="Crea con código"><span class="entry-rotating-text-brand"><img class="entry-rotating-text-brand-icon" src="'.$rotatingTextBrandIcon.'" width="38" height="38" alt="" aria-hidden="true"><span class="entry-rotating-text-prefix">Crea con </span></span><span class="entry-rotating-text-shell"><span id="d5RotatingTextLive" class="entry-rotating-text-sr-only" aria-live="polite">código</span><span id="d5RotatingTextViewport" class="entry-rotating-text-viewport" aria-hidden="true"></span></span></div>':'')
       .($entryIntro?'<section id="d5CenterEmptyStateStage" class="entry-empty-state-stage" aria-label="VC"><div id="d5CenterEmptyStateMount" class="entry-empty-state-mount" data-hashcod-component="EmptyState"></div></section>':'')
@@ -528,5 +530,5 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
       .'</div>'
       .'</section>'
       .($entryIntro?'<footer id="d5PreviewPolicyFooter" class="preview-policy-footer" aria-label="Aceptación de la Use and Privacy Policy"><div id="d5PolicyConsentMount" class="policy-consent-mount" data-hashcod-component="PolicyConsent"></div></footer>':'')
-      .'<script src="'.$uiSoundsJs.'" defer data-hashcod-ui-sounds="true"></script><script src="'.$pqcJs.'" defer></script><script src="'.$mascotJs.'" defer></script><script src="'.$js.'" defer></script><script src="'.$promptStudioJs.'" defer></script><script src="'.$rotatingTextJs.'" defer></script>'.($entryIntro?'<script src="'.$branchedMenuJs.'" defer></script><script src="'.$centerEmptyStateJs.'" defer></script><script src="'.$entryBootstrapJs.'" defer data-hashcod-entry-bootstrap="true"></script>':'').'</body></html>';
+      .'<script src="'.$uiSoundsJs.'" defer data-hashcod-ui-sounds="true"></script><script src="'.$pqcJs.'" defer></script><script src="'.$mascotJs.'" defer></script><script src="'.$walkerJs.'" defer></script><script src="'.$js.'" defer></script><script src="'.$promptStudioJs.'" defer></script><script src="'.$rotatingTextJs.'" defer></script>'.($entryIntro?'<script src="'.$branchedMenuJs.'" defer></script><script src="'.$centerEmptyStateJs.'" defer></script><script src="'.$entryBootstrapJs.'" defer data-hashcod-entry-bootstrap="true"></script>':'').'</body></html>';
 }

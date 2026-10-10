@@ -44,10 +44,10 @@ assert(gitBlobSha(reactions)==='aaecccbcc7aaeb646aeb2a10145d31701ada5e9e','react
 assert(router.includes("'webp' => 'image/webp'"),'router must serve committed WebP sprites with image/webp MIME');
 assert(router.includes("securityIsAllowedStatic($uri)"),'mascot sprites must use the normal static asset pipeline');
 
-assert(html.includes('components/page-mascot-panda.css?v=20260929-panda2'),'main platform mascot stylesheet injection missing');
-assert(html.includes('components/page-mascot-panda.js?v=20260929-panda2'),'main platform mascot runtime injection missing');
-assert(entry.includes('components/page-mascot-panda.css?v=20260929-panda2'),'entry screen mascot stylesheet injection missing');
-assert(entry.includes('components/page-mascot-panda.js?v=20260929-panda2'),'entry screen mascot runtime injection missing');
+assert(html.includes('components/page-mascot-panda.css?v=20261010-panda3'),'main platform mascot stylesheet injection missing');
+assert(html.includes('components/page-mascot-panda.js?v=20261010-panda3'),'main platform mascot runtime injection missing');
+assert(entry.includes('components/page-mascot-panda.css?v=20261010-panda3'),'entry screen mascot stylesheet injection missing');
+assert(entry.includes('components/page-mascot-panda.js?v=20261010-panda3'),'entry screen mascot runtime injection missing');
 assert(notices.includes('## page-mascot')&&notices.includes('License: MIT'),'page-mascot attribution missing');
 
 console.log('PASS: page-mascot panda integration contract verified');

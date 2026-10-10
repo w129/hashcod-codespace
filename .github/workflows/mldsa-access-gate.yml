@@ -25,6 +25,9 @@ on:
       - components/pqc-action-runtime.js
       - components/page-mascot-panda.js
       - components/page-mascot-panda.css
+      - components/page-mascot-walker.js
+      - components/page-mascot-walker.css
+      - tests/e2e/test_page_mascot_walker.js
       - components/mldsa-access-gate.css
       - components/mldsa-access-gate.js
       - components/mldsa-access-gate-loader.js
@@ -90,6 +93,7 @@ jobs:
           node --check components/animate-ui-global-cursor.js
           node --check components/pqc-action-runtime.js
           node --check components/page-mascot-panda.js
+          node --check components/page-mascot-walker.js
           node tests/e2e/test_mldsa_access_gate.js
           node tests/e2e/test_open_platform_entry.js
           node tests/e2e/test_pqc_action_bus.js
@@ -221,6 +225,7 @@ jobs:
           node tests/e2e/test_toolbook_progress_browser.js
           node tests/e2e/test_platform_requests_api.js
           node tests/e2e/test_request_flowchart_browser.js
+          node tests/e2e/test_page_mascot_walker.js
 
       - name: Verify entry asset freshness through the PHP router
         run: python3 tests/e2e/test_entry_asset_freshness.py http://127.0.0.1:8097

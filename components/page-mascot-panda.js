@@ -119,8 +119,15 @@ function mount(){
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
 
+function react(name,ms){
+  if(REACTIONS.indexOf(name)<0)return;
+  clearTimers();setReaction(name);
+  if(ms>0)later(ms,function(){setReaction(null);});
+}
+
 window.HashcodPageMascot=Object.freeze({
   boop:boop,
+  react:react,
   status:function(){return {direction:direction,reaction:reaction,visible:root.classList.contains('is-page-visible')};}
 });
 })();

@@ -45,27 +45,21 @@ async function waitFor(page,predicate,arg,options){
     await page.setViewportSize({ width: vw, height: vh });
     await page.goto(target + '?intro=1', { waitUntil: 'domcontentloaded' });
     await page.waitForSelector('#hashcodPlatformIntro .hpi-img', { state: 'attached' });
-    await page.waitForFunction(() => document.querySelector('.hpi-img').complete && document.querySelector('.hpi-img').naturalWidth === 1672);
+    await page.waitForFunction(() => document.querySelector('.hpi-img').complete && document.querySelector('.hpi-img').naturalWidth === 1672 && document.querySelector('.hpi-img').naturalHeight === 941);
     await page.waitForTimeout(700); // entrance animation
     const m = await page.evaluate(() => {
       const r = el => { const b = document.querySelector(el).getBoundingClientRect(); return { l: b.left, t: b.top, w: b.width, h: b.height, r: b.right, b: b.bottom }; };
       return { vw: innerWidth, vh: innerHeight, root: r('#hashcodPlatformIntro'), img: r('.hpi-img'), btn: r('#hashcodPlatformIntroEnter'),
         z: getComputedStyle(document.querySelector('#hashcodPlatformIntro')).zIndex, over: getComputedStyle(document.documentElement).overflow,
-        focused: document.activeElement && document.activeElement.id };
+        focused: document.activeElement && document.activeElement.id, fit: getComputedStyle(document.querySelector('.hpi-img')).objectFit };
     });
     assert(m.root.w === vw && m.root.h === vh, `${vw}x${vh}: the welcome fills the screen`);
-    assert(m.img.l <= 0.5 && m.img.t <= 0.5 && m.img.r >= vw - 0.5 && m.img.b >= vh - 0.5, `${vw}x${vh}: the picture covers the whole screen`);
-    near(m.img.w / m.img.h, W / H, 0.01, `${vw}x${vh}: the picture keeps its proportions`);
-    const s = m.img.w / W; // exact scale of the picture
-    near(m.btn.l, m.img.l + BOX.x * s, Math.max(1.5, 0.5 * s), `${vw}x${vh}: button left sits on the drawn button`);
-    near(m.btn.t, m.img.t + BOX.y * s, Math.max(1.5, 0.5 * s), `${vw}x${vh}: button top sits on the drawn button`);
-    if (m.btn.w > 44.5) near(m.btn.w, BOX.w * s, Math.max(2, 1 * s), `${vw}x${vh}: button size matches the drawn button`);
+    // The picture box fills the screen and object-fit: contain shows all of it, so nothing can be cropped.
+    assert(m.img.l <= 0.5 && m.img.t <= 0.5 && m.img.r >= vw - 0.5 && m.img.b >= vh - 0.5, `${vw}x${vh}: the picture box fills the screen`);
+    assert.equal(m.fit, 'contain', `${vw}x${vh}: the whole picture is shown, nothing cropped`);
+    assert(m.btn.w >= 44 && Math.abs(m.btn.w - m.btn.h) < 1, `${vw}x${vh}: the button is a touch-sized square`);
     assert(m.btn.r <= vw + 0.5 && m.btn.b <= vh + 0.5 && m.btn.l >= 0 && m.btn.t >= 0, `${vw}x${vh}: the button is always fully visible`);
-    if (m.btn.w > 44.5) { // natural size: the button sits in the bottom-right corner, one margin from both edges
-      const margin = Math.min(20, Math.max(10, 0.012 * vh));
-      near(vh - m.btn.b, margin, 3, `${vw}x${vh}: the button sits at the bottom of the screen`);
-      near(vw - m.btn.r, margin, 3, `${vw}x${vh}: the button sits at the right of the screen`);
-    }
+    assert(vw - m.btn.r < 40 && vh - m.btn.b < 40 && vw - m.btn.r >= 8 && vh - m.btn.b >= 8, `${vw}x${vh}: the button sits in the bottom-right corner`);
     const logo = await page.evaluate(() => { const i = document.querySelector('.hpi-logo'), b = i.getBoundingClientRect(); return { l: b.left, t: b.top, w: b.width, r: b.right, ok: i.complete && i.naturalWidth > 0 }; });
     assert(logo.ok && logo.l >= 0 && logo.t >= 0 && logo.l < 0.06 * vw + 16 && logo.t < 0.06 * vh + 40, `${vw}x${vh}: the logo sits at the top-left`);
     assert(logo.r <= vw, `${vw}x${vh}: the logo is fully visible`);
@@ -73,32 +67,17 @@ async function waitFor(page,predicate,arg,options){
     assert.equal(m.z, '2147483647'); assert.equal(m.over, 'hidden', 'the page behind does not scroll');
     assert.equal(await page.locator('#d5CenterEmptyStateAction').evaluate(el => el.closest('[inert]') !== null), true, 'the platform is inert behind the welcome');
   }
-  // The logo is transparent: corners are clear and its letters are opaque (no white plate).
+  // The logo is white on a transparent background (no plate): corners clear, ink white.
   await page.goto(target + '?intro=1', { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => document.querySelector('.hpi-logo')?.complete);
-  const alpha = await page.evaluate(() => { const i = document.querySelector('.hpi-logo'), c = document.createElement('canvas'); c.width = i.naturalWidth; c.height = i.naturalHeight;
+  const logoPx = await page.evaluate(() => { const i = document.querySelector('.hpi-logo'), c = document.createElement('canvas'); c.width = i.naturalWidth; c.height = i.naturalHeight;
     const x = c.getContext('2d'); x.drawImage(i, 0, 0); const px = (a, b) => x.getImageData(a, b, 1, 1).data[3];
-    let solid = 0; const d = x.getImageData(0, 0, c.width, c.height).data; for (let k = 3; k < d.length; k += 4) if (d[k] > 240) solid += 1;
-    return { corners: [px(0, 0), px(c.width - 1, 0), px(0, c.height - 1), px(c.width - 1, c.height - 1)], solidShare: solid / (d.length / 4) }; });
-  assert.deepEqual(alpha.corners, [0, 0, 0, 0], 'logo corners are transparent');
-  assert(alpha.solidShare > 0.05 && alpha.solidShare < 0.5, 'logo ink is opaque and the rest is clear');
-  // The drawing comes alive: pedestrians stroll and traffic drives, from the very positions of the picture.
-  await page.goto(target + '?intro=1', { waitUntil: 'domcontentloaded' });
-  await page.waitForFunction(() => window.HashcodPlatformIntroLife && window.HashcodPlatformIntroLife.state().ready, null, { timeout: 20000 });
-  assert.equal(await page.locator('.hpi-life').count(), 1, 'the living canvas replaces the still picture');
-  assert.equal(await page.$eval('.hpi-img', i => getComputedStyle(i).visibility), 'hidden', 'the still picture is hidden underneath');
-  const first = await page.evaluate(() => window.HashcodPlatformIntroLife.state());
-  assert(first.walkers >= 30, 'dozens of pedestrians were lifted out of the picture');
-  await page.waitForFunction(() => { const s = window.HashcodPlatformIntroLife.state(); return s.frames > 20 && s.moved >= 8 && s.drivers >= 4; }, null, { timeout: 30000 });
-  const live = await page.evaluate(() => window.HashcodPlatformIntroLife.state());
-  assert(live.frames > 20, 'frames are being drawn');
-  // Reduced motion keeps the still picture.
-  await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.goto(target + '?intro=1', { waitUntil: 'domcontentloaded' });
-  await page.waitForSelector('#hashcodPlatformIntro .hpi-img', { state: 'attached' });
-  await page.waitForTimeout(1500);
-  assert.equal(await page.locator('.hpi-life').count(), 0, 'reduced motion: nothing moves');
-  await page.emulateMedia({ reducedMotion: 'no-preference' });
+    let solid = 0, white = 0; const d = x.getImageData(0, 0, c.width, c.height).data; for (let k = 0; k < d.length; k += 4) if (d[k + 3] > 240) { solid += 1; if (d[k] > 250 && d[k + 1] > 250 && d[k + 2] > 250) white += 1; }
+    return { corners: [px(0, 0), px(c.width - 1, 0), px(0, c.height - 1), px(c.width - 1, c.height - 1)], solid: solid / (d.length / 4), white: solid ? white / solid : 0 }; });
+  assert.deepEqual(logoPx.corners, [0, 0, 0, 0], 'logo corners are transparent');
+  assert(logoPx.solid > 0.05 && logoPx.solid < 0.5 && logoPx.white > 0.99, 'logo ink is opaque and white');
+  // Button icon is white like the logo.
+  assert.equal(await page.$eval('#hashcodPlatformIntroEnter', b => getComputedStyle(b).color), 'rgb(255, 255, 255)', 'button icon is white');
   // Pressing the button lifts the welcome and hands the page to the platform.
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto(target + '?intro=1', { waitUntil: 'domcontentloaded' });

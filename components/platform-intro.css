@@ -1,39 +1,32 @@
-/* Full-screen pixel-art welcome shown before the platform. The picture always covers the viewport and is
-   placed so the button drawn in it (x 1553-1646, y 704-797 of 1672x941) lands in the bottom-right corner of
-   the screen, --hpi-m from the edges. The enter button is positioned in image coordinates, so it stays exactly
-   over that drawn button at any size or aspect ratio. 1 image pixel = var(--hpi-u). */
+/* Full-screen pixel-art welcome shown before the platform. The picture is shown whole (object-fit: contain,
+   nothing cropped) on the same near-black as its own edges, so any spare space is invisible. The logo (white)
+   sits top-left and the enter button, drawn as one of the picture's own tiles, bottom-right. */
 .hpi {
-  --hpi-m: clamp(10px, 1.2vh, 20px);
-  --hpi-w: max(100vw, calc((100vw - var(--hpi-m)) * 1672 / 1646), calc((100vh - var(--hpi-m)) * 1672 / 797));
-  --hpi-u: calc(var(--hpi-w) / 1672);
+  --hpi-m: clamp(14px, 2.4vmin, 32px);
+  --hpi-btn: clamp(52px, 8.5vmin, 96px);
   position: fixed; inset: 0; z-index: 2147483647; overflow: hidden;
-  background: #8c8c8c; opacity: 1; transform: none;
+  background: #080809; opacity: 1; transform: none;
   animation: hpi-in .6s ease both;
 }
-@supports (height: 100dvh) { .hpi { --hpi-m: clamp(10px, 1.2dvh, 20px); --hpi-w: max(100vw, calc((100vw - var(--hpi-m)) * 1672 / 1646), calc((100dvh - var(--hpi-m)) * 1672 / 797)); } }
-.hpi-stage { position: absolute; right: min(0px, calc(var(--hpi-m) - var(--hpi-u) * 26)); bottom: calc(var(--hpi-m) - var(--hpi-u) * 144); width: var(--hpi-w); aspect-ratio: 1672 / 941; }
-.hpi-life { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; pointer-events: none; user-select: none; }
-.hpi-img { display: block; width: 100%; height: 100%; user-select: none; -webkit-user-drag: none; image-rendering: auto; }
-/* Box of the original button in the picture: x 1553-1646, y 704-797 of 1672x941. */
+.hpi-stage { position: absolute; inset: 0; }
+.hpi-img { display: block; width: 100%; height: 100%; object-fit: contain; object-position: center; user-select: none; -webkit-user-drag: none; image-rendering: pixelated; }
 .hpi-enter {
-  position: absolute; left: 92.88%; top: 74.81%; width: 5.56%; aspect-ratio: 1; min-width: 44px; min-height: 44px;
-  display: grid; place-items: center; padding: 0; cursor: pointer; color: #000; background: #fff;
-  border: calc(var(--hpi-u) * 3) solid #000; border-radius: 0;
-  box-shadow: calc(var(--hpi-u) * 5) calc(var(--hpi-u) * 5) 0 rgba(0, 0, 0, .55);
+  position: absolute; right: var(--hpi-m); bottom: var(--hpi-m); z-index: 2; width: var(--hpi-btn); height: var(--hpi-btn);
+  display: grid; place-items: center; padding: 0; cursor: pointer; color: #fff; background: #2b2b30;
+  border: 3px solid #8d8d95; border-radius: 6px;
+  box-shadow: 0 5px 0 #121214, 0 0 0 1px #000;
   animation: hpi-pulse 2.4s ease-in-out 1s infinite;
 }
-.hpi-enter svg { width: 80%; height: 80%; display: block; shape-rendering: crispEdges; }
-.hpi-enter:hover { background: #f0f0f0; transform: translate(calc(var(--hpi-u) * 1), calc(var(--hpi-u) * 1)); }
-.hpi-enter:active { transform: translate(calc(var(--hpi-u) * 3), calc(var(--hpi-u) * 3)); box-shadow: none; }
-.hpi-enter:focus-visible { outline: calc(var(--hpi-u) * 3) solid #fff; outline-offset: calc(var(--hpi-u) * 3); box-shadow: 0 0 0 calc(var(--hpi-u) * 6) #000; }
+.hpi-enter svg { width: 68%; height: 68%; display: block; shape-rendering: crispEdges; }
+.hpi-enter:hover { background: #3a3a41; transform: translateY(2px); box-shadow: 0 3px 0 #121214, 0 0 0 1px #000; }
+.hpi-enter:active { transform: translateY(5px); box-shadow: 0 0 0 #121214, 0 0 0 1px #000; }
+.hpi-enter:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
 .hpi.is-leaving { opacity: 0; transform: scale(1.04); pointer-events: none; transition: opacity .55s ease, transform .55s ease; }
 @keyframes hpi-in { from { opacity: 0; } to { opacity: 1; } }
-@keyframes hpi-pulse { 0%, 100% { box-shadow: calc(var(--hpi-u) * 5) calc(var(--hpi-u) * 5) 0 rgba(0, 0, 0, .55), 0 0 0 0 rgba(255, 255, 255, .0); } 50% { box-shadow: calc(var(--hpi-u) * 5) calc(var(--hpi-u) * 5) 0 rgba(0, 0, 0, .55), 0 0 0 calc(var(--hpi-u) * 7) rgba(255, 255, 255, .55); } }
+@keyframes hpi-pulse { 0%, 100% { box-shadow: 0 5px 0 #121214, 0 0 0 1px #000, 0 0 0 0 rgba(255, 255, 255, 0); } 50% { box-shadow: 0 5px 0 #121214, 0 0 0 1px #000, 0 0 0 7px rgba(255, 255, 255, .28); } }
 .hpi-logo {
-  position: absolute; left: clamp(12px, 2.2vw, 44px); top: clamp(12px, 2.6vh, 40px); z-index: 1;
-  width: clamp(250px, 42vw, 760px); height: auto; pointer-events: none; user-select: none; -webkit-user-drag: none;
-  /* transparent logo over a busy picture: a thin light halo keeps the black letters readable */
-  filter: drop-shadow(0 0 1px #fff) drop-shadow(0 0 3px rgba(255, 255, 255, .95)) drop-shadow(0 0 10px rgba(255, 255, 255, .7));
+  position: absolute; left: var(--hpi-m); top: var(--hpi-m); z-index: 1;
+  width: clamp(220px, 34vw, 640px); height: auto; pointer-events: none; user-select: none; -webkit-user-drag: none;
 }
 .hpi-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 @media (prefers-reduced-motion: reduce) { .hpi, .hpi-enter { animation: none; } .hpi.is-leaving { transition: opacity .01s; transform: none; } }

@@ -60,7 +60,7 @@ The exception must identify:
 ### Parity note: full-screen welcome (platform intro)
 
 - `components/platform-intro.js|css` and `assets/intro/platform-intro.webp` are loaded by `mldsaGateHtml()` for every edition, so the Windows desktop shows the same welcome before the platform.
-- The picture is alive (pedestrians stroll, traffic stops at the crosswalks, the fountain sparkles): `components/platform-intro-life.js` plus the generated `assets/intro/life/*` (rebuild with `python3 scripts/build-intro-life.py`, then bump the `?v=` in `platform-intro.js`). It is skipped for `prefers-reduced-motion` and falls back to the still picture if anything fails to load.
+- The picture is shown whole (`object-fit: contain`, nothing cropped) on its own near-black; the white logo sits top-left and the enter button bottom-right.
 - Automated browsers (`navigator.webdriver`) skip it so end-to-end suites keep exercising the platform; `?intro=1` forces it (see `tests/e2e/test_platform_intro_browser.js`).
 
 ### Parity note: Cuaderno de IA (Toolbook 1-1)

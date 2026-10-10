@@ -22,9 +22,9 @@
   stage.className = 'hpi-stage';
   var img = doc.createElement('img');
   img.className = 'hpi-img';
-  img.src = base + 'assets/intro/platform-intro.webp?v=20261010-1';
+  img.src = base + 'assets/intro/platform-intro.webp?v=20261010-4';
   img.width = 1672; img.height = 941; img.decoding = 'async';
-  img.alt = 'Ciudad corporativa en pixel art en blanco y negro: un parque, una plaza con fuente, oficinas y un centro de datos. Carmen dice que ya automatizaron la facturación con IA; Luis pregunta quién aprobó un cambio en producción; Rafael dice que los servidores aguantan a todos.';
+  img.alt = 'Ilustración en pixel art de una ciudad nocturna en blanco y negro: bloques con iconos de código, terminal, base de datos y un engranaje de IA apilados junto a la silueta de una ciudad.';
   var button = doc.createElement('button');
   button.id = 'hashcodPlatformIntroEnter';
   button.className = 'hpi-enter';
@@ -33,10 +33,10 @@
   button.innerHTML = svg + '<span class="hpi-sr">Entrar a la plataforma</span>';
   var logo = doc.createElement('img');
   logo.className = 'hpi-logo';
-  logo.src = base + 'assets/intro/hashcod-logo.webp?v=20261010-1';
+  logo.src = base + 'assets/intro/hashcod-logo.webp?v=20261010-4';
   logo.width = 1818; logo.height = 321; logo.decoding = 'async';
   logo.alt = 'Hashcod Codespace · PSOT · Registro de comprobación';
-  stage.appendChild(img); stage.appendChild(button); root.appendChild(stage); root.appendChild(logo);
+  stage.appendChild(img); root.appendChild(stage); root.appendChild(logo); root.appendChild(button);
   body.insertBefore(root, body.firstChild);
 
   // Keep the platform behind the welcome out of reach of the keyboard and screen readers until it lifts.
@@ -56,18 +56,6 @@
   focus();
   img.addEventListener('load', focus, { once: true });
 
-  // Bring the picture to life (people strolling, traffic, fountain) unless the visitor asked for less motion.
-  var life = null, still = !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
-  if (still) {
-    var engine = doc.createElement('script');
-    engine.src = base + 'components/platform-intro-life.js?v=20261010-3';
-    engine.async = true;
-    engine.onload = function () {
-      if (root.parentNode && window.HashcodPlatformIntroLife && !leaving) life = window.HashcodPlatformIntroLife.start({ stage: stage, img: img, base: base, version: '20261010-3' });
-    };
-    doc.head.appendChild(engine);
-  }
-
   var leaving = false;
   function enter() {
     if (leaving) return;
@@ -76,7 +64,6 @@
     var finish = function () {
       if (!root.parentNode) return;
       watcher.disconnect();
-      if (life) life.stop();
       root.parentNode.removeChild(root);
       held.forEach(function (node) { node.inert = false; });
       html.style.overflow = saved[0];

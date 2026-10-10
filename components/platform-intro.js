@@ -56,6 +56,18 @@
   focus();
   img.addEventListener('load', focus, { once: true });
 
+  // Bring the picture to life (people strolling, traffic, fountain) unless the visitor asked for less motion.
+  var life = null, still = !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  if (still) {
+    var engine = doc.createElement('script');
+    engine.src = base + 'components/platform-intro-life.js?v=20261010-2';
+    engine.async = true;
+    engine.onload = function () {
+      if (root.parentNode && window.HashcodPlatformIntroLife && !leaving) life = window.HashcodPlatformIntroLife.start({ stage: stage, img: img, base: base, version: '20261010-2' });
+    };
+    doc.head.appendChild(engine);
+  }
+
   var leaving = false;
   function enter() {
     if (leaving) return;
@@ -64,6 +76,7 @@
     var finish = function () {
       if (!root.parentNode) return;
       watcher.disconnect();
+      if (life) life.stop();
       root.parentNode.removeChild(root);
       held.forEach(function (node) { node.inert = false; });
       html.style.overflow = saved[0];

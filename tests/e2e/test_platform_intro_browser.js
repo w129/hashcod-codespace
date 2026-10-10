@@ -82,6 +82,23 @@ async function waitFor(page,predicate,arg,options){
     return { corners: [px(0, 0), px(c.width - 1, 0), px(0, c.height - 1), px(c.width - 1, c.height - 1)], solidShare: solid / (d.length / 4) }; });
   assert.deepEqual(alpha.corners, [0, 0, 0, 0], 'logo corners are transparent');
   assert(alpha.solidShare > 0.05 && alpha.solidShare < 0.5, 'logo ink is opaque and the rest is clear');
+  // The drawing comes alive: pedestrians stroll and traffic drives, from the very positions of the picture.
+  await page.goto(target + '?intro=1', { waitUntil: 'domcontentloaded' });
+  await page.waitForFunction(() => window.HashcodPlatformIntroLife && window.HashcodPlatformIntroLife.state().ready, null, { timeout: 20000 });
+  assert.equal(await page.locator('.hpi-life').count(), 1, 'the living canvas replaces the still picture');
+  assert.equal(await page.$eval('.hpi-img', i => getComputedStyle(i).visibility), 'hidden', 'the still picture is hidden underneath');
+  const first = await page.evaluate(() => window.HashcodPlatformIntroLife.state());
+  assert(first.walkers >= 30, 'dozens of pedestrians were lifted out of the picture');
+  await page.waitForFunction(() => { const s = window.HashcodPlatformIntroLife.state(); return s.frames > 20 && s.moved >= 8 && s.drivers >= 4; }, null, { timeout: 30000 });
+  const live = await page.evaluate(() => window.HashcodPlatformIntroLife.state());
+  assert(live.frames > 20, 'frames are being drawn');
+  // Reduced motion keeps the still picture.
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto(target + '?intro=1', { waitUntil: 'domcontentloaded' });
+  await page.waitForSelector('#hashcodPlatformIntro .hpi-img');
+  await page.waitForTimeout(1500);
+  assert.equal(await page.locator('.hpi-life').count(), 0, 'reduced motion: nothing moves');
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
   // Pressing the button lifts the welcome and hands the page to the platform.
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto(target + '?intro=1', { waitUntil: 'domcontentloaded' });

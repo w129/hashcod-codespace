@@ -12,6 +12,7 @@
 }
 @supports (height: 100dvh) { .hpi { --hpi-m: clamp(10px, 1.2dvh, 20px); --hpi-w: max(100vw, calc((100vw - var(--hpi-m)) * 1672 / 1646), calc((100dvh - var(--hpi-m)) * 1672 / 797)); } }
 .hpi-stage { position: absolute; right: min(0px, calc(var(--hpi-m) - var(--hpi-u) * 26)); bottom: calc(var(--hpi-m) - var(--hpi-u) * 144); width: var(--hpi-w); aspect-ratio: 1672 / 941; }
+.hpi-life { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; pointer-events: none; user-select: none; }
 .hpi-img { display: block; width: 100%; height: 100%; user-select: none; -webkit-user-drag: none; image-rendering: auto; }
 /* Box of the original button in the picture: x 1553-1646, y 704-797 of 1672x941. */
 .hpi-enter {

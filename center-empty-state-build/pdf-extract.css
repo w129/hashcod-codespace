@@ -1,0 +1,49 @@
+/* PDF analyzer. Layout reuses the .htk-* dialog shell; the rules below also provide scoped
+   equivalents of the Animate UI Progress / Checkbox / Accordion Tailwind utilities (no global reset). */
+.hpx { width: min(680px, 100%); }
+.hpx, .hpx * { box-sizing: border-box; }
+.hpx-corner { display: flex; align-items: center; gap: 6px; }
+.hpx-publish { display: grid; place-items: center; width: 32px; height: 32px; padding: 0; border: 1px solid #e5e5e5; border-radius: 50%; background: #fff; color: #242424; }
+.hpx-publish svg { width: 16px; height: 16px; }
+.hpx-publish:not(:disabled):hover { background: #278b56; border-color: #278b56; color: #fff; }
+.hpx-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 16px 20px; display: flex; flex-direction: column; gap: 14px; }
+.hpx-drop { display: flex; align-items: center; justify-content: center; text-align: center; padding: 18px; border: 1.5px dashed #cfcfcf; border-radius: 12px; background: #fafafa; cursor: pointer; overflow-wrap: anywhere; }
+.hpx-drop input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.hpx-drop--over, .hpx-drop:focus-visible { border-color: #278b56; background: #f2faf5; outline: none; }
+.hpx-drop strong { display: block; font-size: 13px; font-weight: 600; }
+.hpx-formats { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 0; padding: 0; border: 0; }
+.hpx-formats legend { padding: 0; margin-bottom: 8px; font-size: 12px; font-weight: 500; }
+.hpx-check { display: inline-flex; align-items: center; gap: 8px; margin: 0; font-size: 13px; cursor: pointer; }
+.hpx-options { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.hpx-pages { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 500; }
+.hpx-pages input { width: 190px; min-height: 34px; border: 1px solid #e5e5e5; border-radius: 8px; background: #fafafa; padding: 6px 10px; }
+.hpx-progress small { display: block; margin-top: 6px; }
+.hpx-meta { margin-left: auto; padding-left: 12px; color: #858585; font-size: 12px; font-weight: 400; }
+.hpx-warn { margin: 0 0 8px; color: #b17c24; font-size: 12px; }
+.hpx-preview { max-height: 260px; overflow: auto; margin: 0 0 10px; padding: 12px; border: 1px solid #ededed; border-radius: 8px; background: #fafafa; font: 12px/1.5 'IBM Plex Mono', ui-monospace, monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
+@media (max-width: 520px) { .hpx-pages input { width: 130px; } }
+
+/* Animate UI Progress */
+.hpx { --hpx-secondary: #e2e8f0; --hpx-primary: #141413; --hpx-input: #e2e8f0; --hpx-primary-fg: #fff; --hpx-ring: rgba(20,20,19,.35); }
+.hpx .relative { position: relative; } .hpx .h-2 { height: 8px; } .hpx .w-full { width: 100%; } .hpx .overflow-hidden { overflow: hidden; }
+.hpx .rounded-full { border-radius: 9999px; } .hpx .bg-secondary { background: var(--hpx-secondary); } .hpx .bg-primary { background: var(--hpx-primary); }
+.hpx .h-full { height: 100%; } .hpx .flex-1 { flex: 1 1 0%; }
+/* Animate UI Checkbox */
+.hpx [data-slot=checkbox] { border: 0; padding: 0; margin: 0; cursor: pointer; background: var(--hpx-input); color: var(--hpx-primary-fg); }
+.hpx [data-slot=checkbox][data-state=checked], .hpx [data-slot=checkbox][data-state=indeterminate] { background: var(--hpx-primary); }
+.hpx .peer, .hpx .shrink-0 { flex-shrink: 0; } .hpx .flex { display: flex; } .hpx .items-center { align-items: center; } .hpx .justify-center { justify-content: center; }
+.hpx .transition-colors { transition: background-color .5s, color .5s; }
+.hpx .size-5 { width: 20px; height: 20px; } .hpx .size-5 svg { width: 14px; height: 14px; } .hpx .rounded-sm { border-radius: 4px; }
+.hpx [data-slot=checkbox]:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--hpx-ring); }
+.hpx [data-slot=checkbox]:disabled { cursor: not-allowed; opacity: .5; }
+/* Animate UI Accordion */
+.hpx .border-b { border-bottom: 1px solid #e2e8f0; } .hpx .text-start { text-align: start; } .hpx .items-start { align-items: flex-start; } .hpx .justify-between { justify-content: space-between; }
+.hpx .gap-4 { gap: 16px; } .hpx .py-4 { padding-block: 16px; } .hpx .pb-4 { padding-bottom: 16px; } .hpx .pt-0 { padding-top: 0; }
+.hpx .text-sm { font-size: 14px; line-height: 20px; } .hpx .font-medium { font-weight: 500; } .hpx .text-muted-foreground { color: #64748b; }
+.hpx .transition-transform { transition: transform .2s cubic-bezier(.4,0,.2,1); }
+.hpx [data-slot=accordion-trigger] { border: 0; background: transparent; padding-inline: 0; color: inherit; font-family: inherit; cursor: pointer; width: 100%; align-items: center; }
+.hpx [data-slot=accordion-trigger]:hover { text-decoration: underline; }
+.hpx [data-slot=accordion-trigger][data-state=open] > svg { transform: rotate(180deg); }
+.hpx [data-slot=accordion-header] { margin: 0; font: inherit; }
+.hpx .size-5.shrink-0 { width: 20px; height: 20px; }
+@media (prefers-reduced-motion: reduce) { .hpx .transition-transform, .hpx .transition-colors { transition: none; } }

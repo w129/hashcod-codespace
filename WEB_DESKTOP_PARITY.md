@@ -57,6 +57,13 @@ The exception must identify:
 - whether a later desktop implementation is planned;
 - any security, privacy, storage, licensing, or provider constraint involved.
 
+### Documented exception: PDF analyzer (OpenDataLoader PDF)
+
+- **Why:** `pdf-extract.php` runs the OpenDataLoader PDF CLI jar, which needs a Java 11+ runtime. The hosted Docker image installs both; the Windows installer does not bundle a JRE.
+- **Desktop user sees:** the same button and panel (same source). Analysis answers "El extractor de PDF no está disponible en este entorno." until a JRE is on `PATH` (or `JAVA_BIN`) and `OPENDATALOADER_JAR` points to `opendataloader-pdf-cli.jar` (see `.env.example`).
+- **Later plan:** bundle a JRE and the jar in the desktop payload.
+- **Privacy:** the PDF is processed in a private temp directory and removed before the response; nothing leaves the machine in the desktop edition.
+
 An undocumented missing desktop feature is considered a parity regression.
 
 ## Release acceptance

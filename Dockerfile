@@ -61,6 +61,16 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && chown -R l8user:l8group /opt/agent-browser \
     && rm -rf /var/lib/apt/lists/* /root/.npm
 
+# PDF data extraction tool: JRE 11+ plus the OpenDataLoader PDF CLI jar (Apache-2.0).
+# pdf-extract.php runs it as `java -jar $OPENDATALOADER_JAR`.
+RUN apt-get update && apt-get install -y --no-install-recommends default-jre-headless \
+    && mkdir -p /tmp/odl-pkg /opt/opendataloader \
+    && cd /tmp/odl-pkg && npm init -y >/dev/null && npm install @opendataloader/pdf@2.5.12 --no-fund --no-audit \
+    && cp node_modules/@opendataloader/pdf/lib/opendataloader-pdf-cli.jar /opt/opendataloader/ \
+    && test -s /opt/opendataloader/opendataloader-pdf-cli.jar \
+    && rm -rf /tmp/odl-pkg /root/.npm /var/lib/apt/lists/*
+ENV OPENDATALOADER_JAR=/opt/opendataloader/opendataloader-pdf-cli.jar
+
 # Configurar SSH con validación estricta y host key de GitHub fijada.
 RUN mkdir -p /root/.ssh /home/l8user/.ssh && \
     chmod 700 /root/.ssh /home/l8user/.ssh && \

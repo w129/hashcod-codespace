@@ -121,3 +121,10 @@ Hashcod Codespace vendors the Ponytail skills under `.claude/skills/ponytail*` f
 
 - Source: https://github.com/DietrichGebert/ponytail (v5.1.0)
 - License: MIT, Copyright (c) 2026 DietrichGebert
+
+## OpenDataLoader PDF (PDF extraction tool)
+
+The Docker image installs the OpenDataLoader PDF CLI from npm (`@opendataloader/pdf`) and runs it on the server; it is not vendored in the repository.
+
+- Source: https://github.com/opendataloader-project/opendataloader-pdf
+- License: Apache-2.0

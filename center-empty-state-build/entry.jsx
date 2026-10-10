@@ -12,6 +12,7 @@ import ToolbookPanel from "./ToolbookPanel";
 import RequestFlowchart from "./RequestFlowchart";
 import PolicyConsent from "./PolicyConsent";
 import TokenizationTool, { TokenizationIcon } from "./TokenizationTool";
+import PdfExtractTool, { PdfExtractIcon } from './PdfExtractTool';
 import ReviewChat from './ReviewChat';
 import { ReviewIcon } from './ReviewIcons';
 import SkillChat from './SkillChat';
@@ -1486,6 +1487,7 @@ function FileVault({ actions, tokenizationOpen, onCloseTokenization }) {
   const [activeName, setActiveName] = useState("");
   const [progress, setProgress] = useState(0);
   const [notice, setNotice] = useState("");
+  const [pdfToolOpen, setPdfToolOpen] = useState(false);
   const inputRef = useRef(null);
   const reduce = useReducedMotion() ?? false;
 
@@ -1559,13 +1561,14 @@ function FileVault({ actions, tokenizationOpen, onCloseTokenization }) {
 
   const saveFiles = async (incoming) => {
     const queue = Array.from(incoming || []).filter(file => file && typeof file.name === "string");
-    if (!queue.length || uploading) return;
+    if (!queue.length || uploading) return false;
     const api = window.HashcodFileVaultTotp;
     const transfer = window.HashcodFileVaultFastUpload;
     if (!api?.requestSetup || !transfer?.upload) {
       setNotice("File-code storage is not ready. Reload the page and try again.");
-      return;
+      return false;
     }
+    let stored = 0;
     setUploading(true);
     setNotice("");
     try {
@@ -1579,6 +1582,7 @@ function FileVault({ actions, tokenizationOpen, onCloseTokenization }) {
         setNotice(result.file?.cloud === false
           ? "Saved with code protection on this device. Cloud sync is unavailable."
           : "File stored in cloud.");
+        stored += 1;
         await refresh();
       }
     } catch (error) {
@@ -1589,6 +1593,7 @@ function FileVault({ actions, tokenizationOpen, onCloseTokenization }) {
       setProgress(0);
       if (inputRef.current) inputRef.current.value = "";
     }
+    return stored > 0;
   };
 
   const previewFile = async (file) => {
@@ -1840,11 +1845,24 @@ function FileVault({ actions, tokenizationOpen, onCloseTokenization }) {
       >
         <FileVaultStoreIcon />
       </button>
+      <button
+        id="d5PdfExtractTrigger"
+        className="hashcod-file-vault-trigger hashcod-pdf-extract-trigger"
+        type="button"
+        aria-label="Analyze PDF"
+        aria-haspopup="dialog"
+        aria-expanded={pdfToolOpen ? "true" : "false"}
+        title="Analizar PDF"
+        onClick={() => setPdfToolOpen(true)}
+      >
+        <PdfExtractIcon />
+      </button>
       </div>
       <FilesExplorer files={files} loading={loadingFiles} uploading={uploading || activeTransfers.length > 0} busy={previewBusy} onPreview={previewFile} />
       {notice && !open && <p className="hfv-explorer-notice" role="status">{notice}</p>}
       {preview && <FilePreview file={preview.file} blob={preview.blob} onClose={() => setPreview(null)} onDownload={downloadFile} onDelete={deleteFile} />}
       {modal}
+      {pdfToolOpen && <PdfExtractTool onPublish={file => saveFiles([file])} onClose={() => setPdfToolOpen(false)} />}
       {tokenizationOpen && <TokenizationTool files={files} loading={loadingFiles} onRefresh={refresh} onClose={onCloseTokenization} />}
     </>
   );

@@ -20,11 +20,10 @@
   root.setAttribute('aria-label', 'Bienvenida a Hashcod');
   var stage = doc.createElement('div');
   stage.className = 'hpi-stage';
-  var img = doc.createElement('img');
-  img.className = 'hpi-img';
-  img.src = base + 'assets/intro/platform-intro.webp?v=20261010-4';
-  img.width = 1672; img.height = 941; img.decoding = 'async';
-  img.alt = 'Ilustración en pixel art de una ciudad nocturna en blanco y negro: bloques con iconos de código, terminal, base de datos y un engranaje de IA apilados junto a la silueta de una ciudad.';
+  var canvas = doc.createElement('canvas');
+  canvas.className = 'hpi-terrain';
+  canvas.setAttribute('role', 'img');
+  canvas.setAttribute('aria-label', 'Animación de vuelo sobre un valle de montañas en líneas blancas sobre fondo negro.');
   var button = doc.createElement('button');
   button.id = 'hashcodPlatformIntroEnter';
   button.className = 'hpi-enter';
@@ -33,10 +32,10 @@
   button.innerHTML = svg + '<span class="hpi-sr">Entrar a la plataforma</span>';
   var logo = doc.createElement('img');
   logo.className = 'hpi-logo';
-  logo.src = base + 'assets/intro/hashcod-logo.webp?v=20261010-4';
+  logo.src = base + 'assets/intro/hashcod-logo.webp?v=20261010-5';
   logo.width = 1818; logo.height = 321; logo.decoding = 'async';
   logo.alt = 'Hashcod Codespace · PSOT · Registro de comprobación';
-  stage.appendChild(img); root.appendChild(stage); root.appendChild(logo); root.appendChild(button);
+  stage.appendChild(canvas); root.appendChild(stage); root.appendChild(logo); root.appendChild(button);
   body.insertBefore(root, body.firstChild);
 
   // Keep the platform behind the welcome out of reach of the keyboard and screen readers until it lifts.
@@ -54,7 +53,16 @@
   body.style.setProperty('overflow', 'hidden', 'important');
   var focus = function () { try { button.focus({ preventScroll: true }); } catch (e) { button.focus(); } };
   focus();
-  img.addEventListener('load', focus, { once: true });
+
+  // Live background: Wire Terrain (WebGL). If WebGL or the script is unavailable the black welcome stays.
+  var terrain = null;
+  var engine = doc.createElement('script');
+  engine.src = base + 'components/platform-intro-terrain.js?v=20261010-5';
+  engine.async = true;
+  engine.onload = function () {
+    if (root.parentNode && window.HashcodPlatformIntroTerrain && !leaving) terrain = window.HashcodPlatformIntroTerrain.start({ root: root, canvas: canvas });
+  };
+  doc.head.appendChild(engine);
 
   var leaving = false;
   function enter() {
@@ -64,6 +72,7 @@
     var finish = function () {
       if (!root.parentNode) return;
       watcher.disconnect();
+      if (terrain) terrain.stop();
       root.parentNode.removeChild(root);
       held.forEach(function (node) { node.inert = false; });
       html.style.overflow = saved[0];

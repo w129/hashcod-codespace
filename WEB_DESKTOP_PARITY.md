@@ -59,8 +59,8 @@ The exception must identify:
 
 ### Parity note: full-screen welcome (platform intro)
 
-- `components/platform-intro.js|css` and `assets/intro/platform-intro.webp` are loaded by `mldsaGateHtml()` for every edition, so the Windows desktop shows the same welcome before the platform.
-- The picture is shown whole (`object-fit: contain`, nothing cropped) on its own near-black; the white logo sits top-left and the enter button bottom-right.
+- `components/platform-intro.js|css`, `components/platform-intro-terrain.js` (Originkit Wire Terrain, WebGL) and `assets/intro/hashcod-logo.webp` are loaded by `mldsaGateHtml()` for every edition, so the Windows desktop shows the same welcome before the platform.
+- The background is the Wire Terrain flight animation (white wireframe on black); the white logo sits top-left and the enter button bottom-right. With `prefers-reduced-motion` a single still frame is drawn; without WebGL the plain black welcome remains.
 - Automated browsers (`navigator.webdriver`) skip it so end-to-end suites keep exercising the platform; `?intro=1` forces it (see `tests/e2e/test_platform_intro_browser.js`).
 
 ### Parity note: Cuaderno de IA (Toolbook 1-1)

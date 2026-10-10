@@ -44,19 +44,16 @@ async function waitFor(page,predicate,arg,options){
   for (const [vw, vh] of [[1440, 900], [1920, 1080], [2560, 1080], [390, 844], [1280, 400]]) {
     await page.setViewportSize({ width: vw, height: vh });
     await page.goto(target + '?intro=1', { waitUntil: 'domcontentloaded' });
-    await page.waitForSelector('#hashcodPlatformIntro .hpi-img', { state: 'attached' });
-    await page.waitForFunction(() => document.querySelector('.hpi-img').complete && document.querySelector('.hpi-img').naturalWidth === 1672 && document.querySelector('.hpi-img').naturalHeight === 941);
+    await page.waitForSelector('#hashcodPlatformIntro .hpi-terrain', { state: 'attached' });
     await page.waitForTimeout(700); // entrance animation
     const m = await page.evaluate(() => {
       const r = el => { const b = document.querySelector(el).getBoundingClientRect(); return { l: b.left, t: b.top, w: b.width, h: b.height, r: b.right, b: b.bottom }; };
-      return { vw: innerWidth, vh: innerHeight, root: r('#hashcodPlatformIntro'), img: r('.hpi-img'), btn: r('#hashcodPlatformIntroEnter'),
+      return { vw: innerWidth, vh: innerHeight, root: r('#hashcodPlatformIntro'), img: r('.hpi-terrain'), btn: r('#hashcodPlatformIntroEnter'),
         z: getComputedStyle(document.querySelector('#hashcodPlatformIntro')).zIndex, over: getComputedStyle(document.documentElement).overflow,
-        focused: document.activeElement && document.activeElement.id, fit: getComputedStyle(document.querySelector('.hpi-img')).objectFit };
+        focused: document.activeElement && document.activeElement.id };
     });
     assert(m.root.w === vw && m.root.h === vh, `${vw}x${vh}: the welcome fills the screen`);
-    // The picture box fills the screen and object-fit: contain shows all of it, so nothing can be cropped.
-    assert(m.img.l <= 0.5 && m.img.t <= 0.5 && m.img.r >= vw - 0.5 && m.img.b >= vh - 0.5, `${vw}x${vh}: the picture box fills the screen`);
-    assert.equal(m.fit, 'contain', `${vw}x${vh}: the whole picture is shown, nothing cropped`);
+    assert(m.img.l <= 0.5 && m.img.t <= 0.5 && m.img.r >= vw - 0.5 && m.img.b >= vh - 0.5, `${vw}x${vh}: the animation fills the whole screen`);
     assert(m.btn.w >= 44 && Math.abs(m.btn.w - m.btn.h) < 1, `${vw}x${vh}: the button is a touch-sized square`);
     assert(m.btn.r <= vw + 0.5 && m.btn.b <= vh + 0.5 && m.btn.l >= 0 && m.btn.t >= 0, `${vw}x${vh}: the button is always fully visible`);
     assert(vw - m.btn.r < 40 && vh - m.btn.b < 40 && vw - m.btn.r >= 8 && vh - m.btn.b >= 8, `${vw}x${vh}: the button sits in the bottom-right corner`);
@@ -78,6 +75,18 @@ async function waitFor(page,predicate,arg,options){
   assert(logoPx.solid > 0.05 && logoPx.solid < 0.5 && logoPx.white > 0.99, 'logo ink is opaque and white');
   // Button icon is white like the logo.
   assert.equal(await page.$eval('#hashcodPlatformIntroEnter', b => getComputedStyle(b).color), 'rgb(255, 255, 255)', 'button icon is white');
+  // Wire Terrain runs: frames advance and white wireframe pixels are drawn on black.
+  await page.goto(target + '?intro=1', { waitUntil: 'domcontentloaded' });
+  await page.waitForFunction(() => window.HashcodPlatformIntroTerrain && window.HashcodPlatformIntroTerrain.frames > 20, null, { timeout: 20000 });
+  const shot = await page.locator('.hpi-terrain').screenshot();
+  assert(shot.length > 5000, 'the terrain draws visible wireframe lines');
+  // Reduced motion draws one still frame and stops.
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto(target + '?intro=1', { waitUntil: 'domcontentloaded' });
+  await page.waitForFunction(() => window.HashcodPlatformIntroTerrain && window.HashcodPlatformIntroTerrain.frames >= 1, null, { timeout: 20000 });
+  await page.waitForTimeout(500);
+  assert(await page.evaluate(() => window.HashcodPlatformIntroTerrain.frames) <= 2, 'reduced motion: the terrain stays still');
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
   // Pressing the button lifts the welcome and hands the page to the platform.
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto(target + '?intro=1', { waitUntil: 'domcontentloaded' });

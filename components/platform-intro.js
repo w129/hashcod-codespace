@@ -60,10 +60,10 @@
   var life = null, still = !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
   if (still) {
     var engine = doc.createElement('script');
-    engine.src = base + 'components/platform-intro-life.js?v=20261010-2';
+    engine.src = base + 'components/platform-intro-life.js?v=20261010-3';
     engine.async = true;
     engine.onload = function () {
-      if (root.parentNode && window.HashcodPlatformIntroLife && !leaving) life = window.HashcodPlatformIntroLife.start({ stage: stage, img: img, base: base, version: '20261010-2' });
+      if (root.parentNode && window.HashcodPlatformIntroLife && !leaving) life = window.HashcodPlatformIntroLife.start({ stage: stage, img: img, base: base, version: '20261010-3' });
     };
     doc.head.appendChild(engine);
   }

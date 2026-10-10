@@ -24,16 +24,21 @@ OUT = os.path.join(ROOT, 'assets/intro/life')
 W, H = 1672, 941
 
 # Where pedestrians may be lifted out of the picture and walk (x0, y0, x1, y1). Everything else stays painted in.
+# The last number is how bright the paving of that zone is at least (the bottom street is darker than the plaza).
 WALK_ZONES = [
-    (440, 336, 1098, 705),   # plaza
-    (440, 700, 690, 830),    # plaza, left of the task list
-    (0, 166, 1672, 252),     # sidewalk in front of the offices
-    (0, 806, 690, 941),      # bottom sidewalk
+    (440, 336, 1098, 705, 150),   # plaza
+    (440, 700, 690, 830, 150),    # plaza, left of the task list
+    (338, 300, 470, 520, 150),    # walkway between the park and the plaza
+    (0, 166, 1672, 252, 150),     # sidewalk in front of the offices
+    (0, 815, 690, 941, 118),      # bottom street, left
+    (1380, 862, 1672, 941, 150),  # bottom sidewalk, right
 ]
 # Places inside the zones that look like people to the detector but are tables, fountains, etc.
 NO_WALK = [
-    (780, 570, 1100, 705),   # fountain, planters and Carmen
+    (780, 500, 1100, 705),   # Carmen, the fountain and its planters
     (815, 392, 1050, 500),   # Carmen's speech bubble
+    (470, 372, 625, 648),    # cafe terrace: umbrellas, tables and seated customers
+    (555, 632, 618, 708),    # planter
 ]
 DARK = 140                  # people are darker than the pale pavement
 PERSON_W = (5, 34)
@@ -48,8 +53,10 @@ def load():
 
 
 def components(gray):
-    """Dark silhouettes. A 3x3 opening cuts the thin lines that tie people to scenery; closing joins heads to bodies."""
-    mask = (gray < DARK).astype(np.uint8)
+    """Dark silhouettes (darker than their surroundings, so dim asphalt works too). A 3x3 opening cuts the thin
+    lines that tie people to scenery; closing joins heads to bodies."""
+    background = cv2.medianBlur(gray, 45)
+    mask = (gray < np.minimum(DARK, background.astype(np.int16) - 48)).astype(np.uint8)
     core = cv2.morphologyEx(mask, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3)))
     core = cv2.morphologyEx(core, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_RECT, (1, 7)))
     count, labels, stats, _ = cv2.connectedComponentsWithStats(core, connectivity=4)
@@ -62,6 +69,13 @@ def in_zone(x, y, w, h):
         not any(z[0] <= cx <= z[2] and z[1] <= foot <= z[3] for z in NO_WALK)
 
 
+def floor_at(cx, foot):
+    for z in WALK_ZONES:
+        if z[0] <= cx <= z[2] and z[1] <= foot <= z[3]:
+            return z[4]
+    return 150
+
+
 def person_like(w, h, area):
     fill = area / float(w * h)
     single = 6 <= w <= 20 and 22 <= h <= 56 and 2.0 <= h / w <= 4.4
@@ -69,14 +83,29 @@ def person_like(w, h, area):
     return (single or pair) and fill >= 0.4
 
 
+def structure_mask(gray):
+    """Trees, planters, trucks, bubbles, lamp posts: big dark things. Nothing inside or touching them is a person."""
+    dark = cv2.morphologyEx((gray < DARK).astype(np.uint8), cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3)))
+    count, labels, stats, _ = cv2.connectedComponentsWithStats(dark, connectivity=4)
+    big = np.zeros(count, bool)
+    for i in range(1, count):
+        w, h = stats[i][2], stats[i][3]
+        big[i] = w > 44 or h > 64
+    return cv2.dilate(big[labels].astype(np.uint8), np.ones((5, 5), np.uint8))
+
+
 def find_people(gray):
     mask, count, labels, stats = components(gray)
+    structures = structure_mask(gray)
     people = []
     for i in range(1, count):
         x, y, w, h, area = (int(v) for v in stats[i])
-        if person_like(w, h, area) and in_zone(x, y, w, h):
-            people.append((i, x, y, w, h))
-    return people, np.zeros((H, W), np.uint8), labels
+        if not (person_like(w, h, area) and in_zone(x, y, w, h)):
+            continue
+        if structures[y:y + h, x:x + w].mean() > 0.12:      # part of scenery, not a person
+            continue
+        people.append((i, x, y, w, h))
+    return people, structures, labels
 
 
 def sprite_mask(labels, i, box, gray):
@@ -85,8 +114,9 @@ def sprite_mask(labels, i, box, gray):
     pad = 6
     x0, y0, x1, y1 = max(x - pad, 0), max(y - pad, 0), min(x + w + pad, W), min(y + h + pad, H)
     win = gray[y0:y1, x0:x1].astype(np.int16)
-    pave = win[win > 165]
-    ref = int(np.median(pave)) if pave.size > 20 else 205
+    floor = floor_at(x + w / 2, y + h)
+    pave = win[win > floor + 10]
+    ref = int(np.median(pave)) if pave.size > 20 else floor + 50
     core = (labels[y0:y1, x0:x1] == i).astype(np.uint8)
     core = cv2.dilate(core, np.ones((3, 3), np.uint8))
     ext = (np.abs(win - ref) > 28).astype(np.uint8)
@@ -121,7 +151,8 @@ def patch_fill(plate, gray_plate, full_mask, box):
     mask3 = np.repeat(valid[..., None], 3, axis=2).astype(np.float32)
     score = cv2.matchTemplate(search, template, cv2.TM_SQDIFF, mask=mask3)
     # candidates must be clean pavement: no dark pixels, no pixels already marked for removal
-    dirty = ((gray_plate[sy0:sy1, sx0:sx1] < 140) | (ERASED[sy0:sy1, sx0:sx1] > 0)).astype(np.float32)
+    floor = floor_at((bx0 + bx1) / 2, by1)
+    dirty = ((gray_plate[sy0:sy1, sx0:sx1] < floor - 10) | (ERASED[sy0:sy1, sx0:sx1] > 0)).astype(np.float32)
     th, tw = template.shape[:2]
     # only the part that will be pasted (the hole) has to be clean; the surrounding ring is just for matching
     bad = cv2.filter2D(dirty, -1, hole.astype(np.float32), anchor=(0, 0), borderType=cv2.BORDER_CONSTANT)[:score.shape[0], :score.shape[1]]
@@ -131,8 +162,8 @@ def patch_fill(plate, gray_plate, full_mask, box):
     count = max(float(hole.sum()), 1.0)
     mean = cv2.filter2D(gsearch, -1, hole.astype(np.float32), anchor=(0, 0), borderType=cv2.BORDER_CONSTANT)[:score.shape[0], :score.shape[1]] / count
     gt = gray_plate[ty0:ty1, tx0:tx1].astype(np.float32)
-    ring_px = gt[(valid > 0) & (gt > 150)]
-    target = float(np.median(ring_px)) if ring_px.size > 10 else 205.0
+    ring_px = gt[(valid > 0) & (gt > floor)]
+    target = float(np.median(ring_px)) if ring_px.size > 10 else float(floor + 50)
     score[np.abs(mean - target) > 14] = np.inf
     cx, cy = np.unravel_index(np.argmin(score), score.shape)[::-1]
     if not np.isfinite(score[cy, cx]):
@@ -360,17 +391,18 @@ CELL = 4
 
 
 def walkable_grid(plate):
-    """1 where a walker's feet may stand: inside a walk zone, on pale pavement, away from every object."""
+    """1 where a walker's feet may stand: inside a walk zone, on paving as bright as the zone's, away from every object."""
     gray = cv2.cvtColor(plate, cv2.COLOR_BGR2GRAY)
-    blocked = (gray < 150).astype(np.uint8)
+    blocked = np.zeros((H, W), np.uint8)
+    zone = np.zeros((H, W), np.uint8)
+    for x0, y0, x1, y1, floor in WALK_ZONES:
+        zone[y0:y1, x0:x1] = 1
+        blocked[y0:y1, x0:x1] = np.maximum(blocked[y0:y1, x0:x1], (gray[y0:y1, x0:x1] < floor - 10).astype(np.uint8))
     for x0, y0, x1, y1 in NO_WALK:
         blocked[y0:y1, x0:x1] = 1
     for x0, y0, x1, y1 in OCCLUDERS:
         blocked[y0:y1, x0:x1] = 1
     blocked = cv2.dilate(blocked, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (9, 9)))
-    zone = np.zeros((H, W), np.uint8)
-    for x0, y0, x1, y1 in WALK_ZONES:
-        zone[y0:y1, x0:x1] = 1
     ok = (zone > 0) & (blocked == 0)
     gw, gh = W // CELL, H // CELL
     grid = ok[:gh * CELL, :gw * CELL].reshape(gh, CELL, gw, CELL).all(axis=(1, 3))

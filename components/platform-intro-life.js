@@ -66,7 +66,7 @@
 
       // ---- pedestrians
       var walkers = manifest.people.map(function (sp) {
-        var w = { sp: sp, x: sp.x + sp.w / 2, y: sp.y + sp.h, dx: 0, dy: 0, speed: 0, mode: 'idle', timer: rand(0, 4), phase: rand(0, 1) };
+        var w = { sp: sp, x: sp.x + sp.w / 2, y: sp.y + sp.h, dx: 0, dy: 0, speed: 0, mode: 'idle', timer: rand(0, 1.2), phase: rand(0, 1) };
         if (!open(w.x, w.y)) { // spawn on the nearest open ground
           for (var r = 4; r < 40 && !open(w.x, w.y); r += 4) {
             for (var a = 0; a < 8; a++) {
@@ -89,12 +89,12 @@
           var ahead = 14 + w.sp.h * 0.3;
           if (canStand(w, w.x + d[0] * ahead, w.y + d[1] * ahead)) {
             w.dx = d[0]; w.dy = d[1];
-            w.speed = w.sp.h * rand(0.42, 0.68); // taller (closer) figures cover more picture per second
-            w.mode = 'walk'; w.timer = rand(2.5, 7);
+            w.speed = w.sp.h * rand(0.6, 0.95); // taller (closer) figures cover more picture per second
+            w.mode = 'walk'; w.timer = rand(4, 10);
             return;
           }
         }
-        w.mode = 'idle'; w.timer = rand(0.8, 2);
+        w.mode = 'idle'; w.timer = rand(0.3, 0.9);
       }
       function stepWalker(w, dt) {
         w.timer -= dt;
@@ -103,11 +103,13 @@
         if (!canStand(w, nx, ny) || !canStand(w, nx + w.dx * 6, ny + w.dy * 6)) { w.mode = 'idle'; w.timer = rand(0.4, 1.8); return; }
         w.x = nx; w.y = ny;
         w.phase += (w.speed * dt) / Math.max(8, w.sp.h * 0.55); // one full step cycle per stride
-        if (w.timer <= 0) { w.mode = 'idle'; w.timer = rand(0.5, 3); }
+        if (w.timer <= 0) { w.mode = 'idle'; w.timer = rand(0.3, 1.2); }
       }
       function drawWalker(w) {
         var sp = w.sp, left = Math.round(w.x - sp.w / 2), top = Math.round(w.y - sp.h);
-        if (w.mode !== 'walk') { ctx.drawImage(atlas, sp.sx, sp.sy, sp.w, sp.h, left, top, sp.w, sp.h); return; }
+        if (w.mode !== 'walk') { // standing figures breathe: a one-pixel dip twice a second
+          ctx.drawImage(atlas, sp.sx, sp.sy, sp.w, sp.h - 1, left, top + (Math.sin(performance.now() / 190 + w.x0) > 0 ? 1 : 0), sp.w, sp.h - 1); return;
+        }
         var cycle = w.phase % 1, bob = (cycle % 0.5) < 0.25 ? 0 : 1;      // the body dips on every step
         var legY = Math.round(sp.h * 0.6), half = Math.floor(sp.w / 2);
         var liftLeft = cycle < 0.5 ? 1 : 0, liftRight = cycle < 0.5 ? 0 : 1; // legs alternate

@@ -44,7 +44,7 @@ async function waitFor(page,predicate,arg,options){
   for (const [vw, vh] of [[1440, 900], [1920, 1080], [2560, 1080], [390, 844], [1280, 400]]) {
     await page.setViewportSize({ width: vw, height: vh });
     await page.goto(target + '?intro=1', { waitUntil: 'domcontentloaded' });
-    await page.waitForSelector('#hashcodPlatformIntro .hpi-img');
+    await page.waitForSelector('#hashcodPlatformIntro .hpi-img', { state: 'attached' });
     await page.waitForFunction(() => document.querySelector('.hpi-img').complete && document.querySelector('.hpi-img').naturalWidth === 1672);
     await page.waitForTimeout(700); // entrance animation
     const m = await page.evaluate(() => {
@@ -95,7 +95,7 @@ async function waitFor(page,predicate,arg,options){
   // Reduced motion keeps the still picture.
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto(target + '?intro=1', { waitUntil: 'domcontentloaded' });
-  await page.waitForSelector('#hashcodPlatformIntro .hpi-img');
+  await page.waitForSelector('#hashcodPlatformIntro .hpi-img', { state: 'attached' });
   await page.waitForTimeout(1500);
   assert.equal(await page.locator('.hpi-life').count(), 0, 'reduced motion: nothing moves');
   await page.emulateMedia({ reducedMotion: 'no-preference' });

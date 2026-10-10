@@ -19,6 +19,13 @@ Detector behind the **Visión** tool (button `#d5VisionTrigger`, right of the fi
 
 Without `DETECTRON2_URL` the camera and recording still work and the panel reports the detector as not configured.
 
+### Railway (where the main app runs)
+
+1. In the same Railway project: **New → GitHub Repo** → this repo, then set the new service's **Root Directory** to `services/detectron2-vision` (it builds the `Dockerfile` there).
+2. Service variables: `DETECTRON2_TOKEN` (long random value) and `PORT=8089`. Give it at least 2 GB RAM.
+3. Main app service variables: `DETECTRON2_TOKEN` (same value) and
+   `DETECTRON2_URL=http://<detector-service-name>.railway.internal:8089` (private network; the server listens on IPv6 and IPv4). Redeploy the main app.
+
 ### Free option: Hugging Face Space (16 GB RAM, CPU)
 
 Render's free plan (512 MB) cannot hold PyTorch + Detectron2. A Docker Space can:

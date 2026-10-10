@@ -10,6 +10,7 @@ import hmac
 import io
 import json
 import os
+import socket
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 import numpy as np
@@ -45,6 +46,15 @@ def detect(predictor, classes, jpeg):
     ):
         out.append({"label": classes[cls], "score": round(score, 3), "box": [x1, y1, x2 - x1, y2 - y1]})
     return {"width": image.width, "height": image.height, "detections": out}
+
+
+class DualStackServer(ThreadingHTTPServer):
+    # Railway's private network (*.railway.internal) is IPv6; keep IPv4 working too.
+    address_family = socket.AF_INET6
+
+    def server_bind(self):
+        self.socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_V6ONLY, 0)
+        super().server_bind()
 
 
 def make_handler(predictor, classes):
@@ -85,4 +95,9 @@ if __name__ == "__main__":
         raise SystemExit("DETECTRON2_TOKEN is required")
     predictor, classes = build_predictor()
     port = int(os.environ.get("PORT", "8089"))
-    ThreadingHTTPServer(("0.0.0.0", port), make_handler(predictor, classes)).serve_forever()
+    handler = make_handler(predictor, classes)
+    try:
+        server = DualStackServer(("::", port), handler)
+    except OSError:  # host without IPv6
+        server = ThreadingHTTPServer(("0.0.0.0", port), handler)
+    server.serve_forever()

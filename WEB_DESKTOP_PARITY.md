@@ -87,3 +87,7 @@ A change that affects product behavior is considered complete only when one of t
 - a documented cloud-only exception has been approved by the repository owner.
 
 The objective is simple: **a user downloading the latest Hashcod Codespace desktop installer should receive the current product behavior from `main`, not an older local edition.**
+
+### Parity note: PSOT forms library
+- `center-empty-state-build/{FormsTool,FormsIcon}.jsx`, `forms-data.js` (catalog), `forms-tool.css`, `forms-library.php` (`GET /api/forms-library/{ID}[?download=1]`, whitelisted by code, Pro period enforced by the `/api/` guard) and the 100 PDFs in `assets/forms/` are ordinary tracked runtime files, so the desktop edition gets them from the same source; no cloud-only dependency (the PDFs are static and need no external service).
+- Tests: `php tests/test_forms_library.php`, `node tests/e2e/test_forms_tool_browser.js`. Adding a form = drop `<CODE>_<Name>.pdf` in `assets/forms/`, add its row in `forms-data.js`, bump the bundle `?v=`.

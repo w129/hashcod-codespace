@@ -1,0 +1,27 @@
+/* PSOT forms library. Shell comes from .htk-*; accordion utilities from the scoped .hpx block in pdf-extract.css. */
+.hfm { width: min(1080px, 100%); height: min(760px, calc(100dvh - 40px)); }
+.hfm-body { flex: 1 1 auto; min-height: 0; display: grid; grid-template-columns: 330px minmax(0, 1fr); }
+.hfm-list { min-height: 0; overflow-y: auto; padding: 14px 16px; border-right: 1px solid #ededed; display: flex; flex-direction: column; gap: 10px; }
+.hfm-search { width: 100%; min-height: 36px; border: 1px solid #e5e5e5; border-radius: 8px; background: #fafafa; padding: 6px 10px; }
+.hfm-search:focus-visible { outline: none; border-color: #141413; box-shadow: 0 0 0 3px rgba(20, 20, 19, .12); }
+.hfm-accordion [data-slot=accordion-trigger] { padding-block: 11px; font-weight: 600; font-size: 13px; }
+.hfm-forms { list-style: none; margin: 0; padding: 0 0 8px; display: flex; flex-direction: column; gap: 2px; }
+.hfm-form { width: 100%; display: flex; gap: 8px; align-items: baseline; text-align: left; padding: 7px 8px; border: 0; border-radius: 8px; background: transparent; color: inherit; cursor: pointer; }
+.hfm-form b { flex: none; min-width: 34px; font: 600 11px/1.4 'IBM Plex Mono', ui-monospace, monospace; color: #858585; }
+.hfm-form span { overflow-wrap: anywhere; }
+.hfm-form:hover { background: #f4f4f5; }
+.hfm-form[aria-current=true] { background: #141413; color: #fff; }
+.hfm-form[aria-current=true] b { color: #cfcfcf; }
+.hfm-form:focus-visible { outline: 2px solid #141413; outline-offset: 1px; }
+.hfm-view { min-width: 0; min-height: 0; display: flex; flex-direction: column; background: #f4f4f5; }
+.hfm-view-head { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 20px; background: #fff; border-bottom: 1px solid #ededed; }
+.hfm-view-head h3 { margin: 2px 0 0; font-size: 14px; font-weight: 600; overflow-wrap: anywhere; }
+.hfm-sheet { flex: 1 1 auto; min-height: 0; overflow: auto; padding: 16px; }
+.hfm-sheet .hfv-pdf-viewer { margin: 0 auto; max-width: 900px; }
+.hfm-sheet canvas { max-width: 100%; height: auto; background: #fff; box-shadow: 0 2px 12px #0000001f; }
+@media (max-width: 760px) {
+  .hfm { height: calc(100dvh - 40px); }
+  .hfm-body { grid-template-columns: 1fr; grid-template-rows: minmax(0, 40%) minmax(0, 1fr); }
+  .hfm-list { border-right: 0; border-bottom: 1px solid #ededed; }
+  .hfm-view-head { flex-wrap: wrap; padding: 10px 14px; }
+}

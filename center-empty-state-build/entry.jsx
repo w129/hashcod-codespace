@@ -14,6 +14,8 @@ import PolicyConsent from "./PolicyConsent";
 import TokenizationTool, { TokenizationIcon } from "./TokenizationTool";
 import PdfExtractTool, { PdfExtractIcon } from './PdfExtractTool';
 import NotebookTool from './NotebookTool';
+import FormsTool from './FormsTool';
+import FormsIcon from './FormsIcon';
 import ReviewChat from './ReviewChat';
 import { ReviewIcon } from './ReviewIcons';
 import SkillChat from './SkillChat';
@@ -1489,6 +1491,7 @@ function FileVault({ actions, tokenizationOpen, onCloseTokenization }) {
   const [progress, setProgress] = useState(0);
   const [notice, setNotice] = useState("");
   const [pdfToolOpen, setPdfToolOpen] = useState(false);
+  const [formsOpen, setFormsOpen] = useState(false);
   const [notebookOpen, setNotebookOpen] = useState(false);
   const inputRef = useRef(null);
   const reduce = useReducedMotion() ?? false;
@@ -1867,11 +1870,26 @@ function FileVault({ actions, tokenizationOpen, onCloseTokenization }) {
         <PdfExtractIcon />
       </button>
       </div>
+      <div className="hashcod-empty-state-actions-row hashcod-forms-row">
+      <button
+        id="d5FormsTrigger"
+        className="hashcod-file-vault-trigger hashcod-pdf-extract-trigger"
+        type="button"
+        aria-label="Formularios PSOT"
+        aria-haspopup="dialog"
+        aria-expanded={formsOpen ? "true" : "false"}
+        title="Formularios PSOT"
+        onClick={() => setFormsOpen(true)}
+      >
+        <FormsIcon />
+      </button>
+      </div>
       <FilesExplorer files={files} loading={loadingFiles} uploading={uploading || activeTransfers.length > 0} busy={previewBusy} onPreview={previewFile} />
       {notice && !open && <p className="hfv-explorer-notice" role="status">{notice}</p>}
       {preview && <FilePreview file={preview.file} blob={preview.blob} onClose={() => setPreview(null)} onDownload={downloadFile} onDelete={deleteFile} />}
       {modal}
       {notebookOpen && <NotebookTool files={files} loading={loadingFiles} onRefresh={refresh} onPublish={file => saveFiles([file])} onClose={() => setNotebookOpen(false)} />}
+      {formsOpen && <FormsTool onClose={() => setFormsOpen(false)} />}
       {pdfToolOpen && <PdfExtractTool onPublish={file => saveFiles([file])} onClose={() => setPdfToolOpen(false)} />}
       {tokenizationOpen && <TokenizationTool files={files} loading={loadingFiles} onRefresh={refresh} onClose={onCloseTokenization} />}
     </>

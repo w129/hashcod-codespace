@@ -11,7 +11,7 @@ import './checkout-faq.css';
 const ITEMS = [
   {
     title: '¿Qué recibo al pagar Hashcod Pro?',
-    content: 'Acceso a la Toolbook, permiso de IA, la Prueba Sellada de Objeto y Tiempo (PSOT), uso de las herramientas y 25 solicitudes al mes. El plan cuesta US$20 al mes, o US$192 al año con 20 % de descuento.',
+    content: 'Acceso a la Toolbook, permiso de IA, la Prueba Sellada de Objeto y Tiempo (PSOT), uso de las herramientas y 25 solicitudes al mes. El plan cuesta US$2,000 al mes, o US$19,200 al año con 20 % de descuento.',
   },
   {
     title: '¿Cómo funciona el pago?',

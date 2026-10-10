@@ -1,6 +1,6 @@
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { checkoutOrder, formatCedula } from './checkout-data';
+import { checkoutOrder, formatCedula, formatUsd, PLAN_PRICES } from './checkout-data';
 import CodecPreview from './CodecPreview';
 import CheckoutFaq from './CheckoutFaq';
 import HashcodLogo from './HashcodLogo';
@@ -52,7 +52,7 @@ export default function EntryCheckout({ onEnter, onVerify, reference = '', busy 
         <div className="hco-header"><button ref={back} type="button" aria-label="Volver" className="hco-back" onClick={onEnter} disabled={busy}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
         </button><Brand /></div>
-        <div className="hco-pricing"><span>Suscribirse a Hashcod Pro</span><div><strong>{yearly ? 'US$192' : 'US$20'}</strong><span>{yearly ? 'por año' : 'por mes'}</span></div></div>
+        <div className="hco-pricing"><span>Suscribirse a Hashcod Pro</span><div><strong>{formatUsd(yearly ? PLAN_PRICES.yearly : PLAN_PRICES.monthly)}</strong><span>{yearly ? 'por año' : 'por mes'}</span></div></div>
         <div className="hco-billing" role="group" aria-label="Facturación">
           <button type="button" aria-pressed={!yearly} onClick={() => setYearly(false)}>Mensual</button>
           <button type="button" aria-pressed={yearly} onClick={() => setYearly(true)}>Anual · −20%</button>

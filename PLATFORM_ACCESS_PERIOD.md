@@ -1,6 +1,6 @@
 # Checkout, free session and Hashcod Pro
 
-The checkout follows `Checkout-html (1).zip`. Prices are US$20 monthly / US$192 yearly (20% annual discount). Benefits: Toolbook, AI permission/certification, tools and +20 requests/month, implemented as **25 requests per UTC calendar month**. Existing BYOK requirements, consent, model budgets, signatures, file access codes and isolation still apply. The free tier exposes presentation, FAQ, plans and administrative sign-in; it grants **zero** Pro requests or tool/cloud/certification permissions.
+The checkout follows `Checkout-html (1).zip`. Prices are US$2,000 monthly / US$19,200 yearly (20% annual discount); they live in `PLAN_PRICES` in `center-empty-state-build/checkout-data.js`. Benefits: Toolbook, AI permission/certification, tools and +20 requests/month, implemented as **25 requests per UTC calendar month**. Existing BYOK requirements, consent, model budgets, signatures, file access codes and isolation still apply. The free tier exposes presentation, FAQ, plans and administrative sign-in; it grants **zero** Pro requests or tool/cloud/certification permissions.
 
 ## Activation and advisor workflow
 

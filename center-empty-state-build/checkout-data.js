@@ -4,10 +4,17 @@ export function formatCedula(value) {
     : d.length > 3 ? `${d.slice(0, 3)}-${d.slice(3)}` : d;
 }
 
+// Hashcod Pro list prices in USD. Yearly is twelve months with the 20% annual discount.
+export const PLAN_PRICES = Object.freeze({ monthly: 2000, yearly: 19200 });
+
+export function formatUsd(value, decimals = 0) {
+  return 'US$' + Number(value).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+}
+
 export function checkoutOrder({ yearly = false, rd = true, cedula = '', fiscal = false, reference = '' } = {}) {
   const identity = formatCedula(cedula);
-  const total = yearly ? 192 : 20;
-  const amount = `US$${total.toFixed(2)}`;
+  const total = yearly ? PLAN_PRICES.yearly : PLAN_PRICES.monthly;
+  const amount = formatUsd(total, 2);
   const valid = !rd || identity.replace(/\D/g, '').length === 11;
   const message = [
     'Hola, quiero suscribirme a Hashcod Pro.',

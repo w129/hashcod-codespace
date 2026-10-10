@@ -9,7 +9,7 @@
   var doc = document, body = doc.body;
   if (!body || doc.getElementById('hashcodPlatformIntro')) return;
 
-  var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path fill="currentColor" d="M 13 2 L 13 8 L 15 8 L 15 6 L 18 6 L 18 4 L 15 4 L 15 2 L 13 2 z M 18 6 L 18 8 L 21 8 L 21 6 L 18 6 z M 21 8 L 21 10 L 24 10 L 24 8 L 21 8 z M 24 10 L 24 13 L 17 13 L 17 17 L 19 17 L 19 15 L 26 15 L 26 10 L 24 10 z M 19 17 L 19 20 L 21 20 L 21 17 L 19 17 z M 21 20 L 21 22 L 11 22 L 11 10 L 9 10 L 9 22 L 7 22 L 7 24 L 25 24 L 25 22 L 23 22 L 23 20 L 21 20 z M 25 24 L 25 26 L 7 26 L 7 24 L 5 24 L 5 28 L 27 28 L 27 24 L 25 24 z M 11 10 L 13 10 L 13 8 L 11 8 L 11 10 z"/></svg>';
+  var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true" focusable="false"><g transform="scale(10.66667)"><path fill="currentColor" d="M12,2c-5.185,0 -9.448,3.947 -9.95,9h6.95v-3l4,4l-4,4v-3h-6.95c0.502,5.053 4.764,9 9.95,9c5.523,0 10,-4.477 10,-10c0,-5.523 -4.477,-10 -10,-10z"/></g></svg>';
   var current = doc.currentScript, base = current && current.src ? current.src.replace(/components\/platform-intro\.js.*$/, '') : '/';
 
   var root = doc.createElement('div');
@@ -32,8 +32,8 @@
   button.innerHTML = svg + '<span class="hpi-sr">Entrar a la plataforma</span>';
   var logo = doc.createElement('img');
   logo.className = 'hpi-logo';
-  logo.src = base + 'assets/intro/hashcod-logo.webp?v=20261010-6';
-  logo.width = 1818; logo.height = 321; logo.decoding = 'async';
+  logo.src = base + 'assets/intro/hashcod-logo.webp?v=20261010-7';
+  logo.width = 778; logo.height = 154; logo.decoding = 'async';
   logo.alt = 'Hashcod Codespace · PSOT · Registro de comprobación';
   stage.appendChild(canvas); root.appendChild(stage); root.appendChild(logo); root.appendChild(button);
   body.insertBefore(root, body.firstChild);
@@ -57,7 +57,7 @@
   // Live background: Wire Terrain (WebGL). If WebGL or the script is unavailable the black welcome stays.
   var terrain = null;
   var engine = doc.createElement('script');
-  engine.src = base + 'components/platform-intro-terrain.js?v=20261010-6';
+  engine.src = base + 'components/platform-intro-terrain.js?v=20261010-7';
   engine.async = true;
   engine.onload = function () {
     if (root.parentNode && window.HashcodPlatformIntroTerrain && !leaving) terrain = window.HashcodPlatformIntroTerrain.start({ root: root, canvas: canvas });

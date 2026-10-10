@@ -16,7 +16,7 @@
   box-shadow: 0 5px 0 #121214, 0 0 0 1px #000;
   animation: hpi-pulse 2.4s ease-in-out 1s infinite;
 }
-.hpi-enter svg { width: 68%; height: 68%; display: block; shape-rendering: crispEdges; }
+.hpi-enter svg { width: 68%; height: 68%; display: block; }
 .hpi-enter:hover { background: #3a3a41; transform: translateY(2px); box-shadow: 0 3px 0 #121214, 0 0 0 1px #000; }
 .hpi-enter:active { transform: translateY(5px); box-shadow: 0 0 0 #121214, 0 0 0 1px #000; }
 .hpi-enter:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }

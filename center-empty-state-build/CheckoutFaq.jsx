@@ -14,6 +14,10 @@ const ITEMS = [
     content: 'Acceso a la Toolbook, permiso de IA, la Prueba Sellada de Objeto y Tiempo (PSOT), uso de las herramientas y 25 solicitudes al mes. La suscripción cuesta US$20 al mes, o US$192 al año con 20 % de descuento. El primer pago para tokenizar es de US$2,000 (pago único).',
   },
   {
+    title: '¿Por qué el primer pago para tokenizar es de US$2,000?',
+    content: 'Es un pago único que cubre el proceso completo de tu primer objeto, no solo el registro en la plataforma: la verificación con una entidad de otro país, que cobra por cada trámite; el tiempo de un asesor o abogado dedicado a tu caso; y los gastos legales o de notarización y, cuando aplica, un seguro. No hay cargos ocultos: después de este primer pago solo pagas la suscripción mensual.',
+  },
+  {
     title: '¿Cómo funciona el pago?',
     content: 'Pulsas el botón y se abre WhatsApp con tu pedido ya escrito. Un asesor de Hashcod te responde con las instrucciones de pago. Al confirmar tu pago, te envía un código de 6 dígitos que escribes aquí para activar tu suscripción.',
   },

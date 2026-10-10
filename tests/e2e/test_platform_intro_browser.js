@@ -80,12 +80,10 @@ async function waitFor(page,predicate,arg,options){
   await page.waitForFunction(() => window.HashcodPlatformIntroTerrain && window.HashcodPlatformIntroTerrain.frames > 20, null, { timeout: 20000 });
   const shot = await page.locator('.hpi-terrain').screenshot();
   assert(shot.length > 5000, 'the terrain draws visible wireframe lines');
-  // Reduced motion draws one still frame and stops.
+  // It keeps flying even when the system asks for reduced motion (the welcome is meant to be animated).
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto(target + '?intro=1', { waitUntil: 'domcontentloaded' });
-  await page.waitForFunction(() => window.HashcodPlatformIntroTerrain && window.HashcodPlatformIntroTerrain.frames >= 1, null, { timeout: 20000 });
-  await page.waitForTimeout(500);
-  assert(await page.evaluate(() => window.HashcodPlatformIntroTerrain.frames) <= 2, 'reduced motion: the terrain stays still');
+  await page.waitForFunction(() => window.HashcodPlatformIntroTerrain && window.HashcodPlatformIntroTerrain.frames > 20, null, { timeout: 20000 });
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   // Pressing the button lifts the welcome and hands the page to the platform.
   await page.setViewportSize({ width: 1440, height: 900 });

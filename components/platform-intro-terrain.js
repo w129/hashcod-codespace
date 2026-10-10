@@ -2,7 +2,7 @@
    to plain JS (shaders, constants, camera and pointer steering are unchanged; props = the preset below).
    Used as the live background of the welcome (platform-intro.js). Only differences from the original: the canvas
    fills the overlay instead of having a 1200x800 minimum size, pointer position uses client coordinates so it also
-   works over the logo/button, and with prefers-reduced-motion a single still frame is drawn. */
+   works over the logo/button. The animation always runs (no reduced-motion freeze: many Windows setups report it and the user asked for it to always move). */
 (function () {
   'use strict';
   var DEPTH = 60, HALF_X = 64, BACK = 10, FOG_NEAR = 14, FOG_FAR = 46, FLIGHT_RATE = 4, EYE_HEIGHT = 1.7, RIDGE = 4.2, VALLEY = 3;
@@ -95,7 +95,7 @@
   /* start({ root, canvas }) → { stop() } ; returns null when WebGL is unavailable (the black overlay stays). */
   function start(options) {
     var root = options.root, canvas = options.canvas;
-    var gl = canvas.getContext('webgl', { antialias: true, alpha: false, depth: true });
+    var opts = { antialias: true, alpha: false, depth: true }, gl = canvas.getContext('webgl', opts) || canvas.getContext('experimental-webgl', opts);
     if (!gl) return null;
     var terrain = link(gl, TERRAIN_VERT, TERRAIN_FRAG), sky = link(gl, SKY_VERT, SKY_FRAG);
     if (!terrain || !sky) return null;
@@ -125,7 +125,6 @@
     var pointer = { nx: 0, ny: 0, active: false, presence: 0 };
     var cam = { yaw: 0, roll: 0, lift: 0, init: false };
     var camZ = 0, tIdle = 0, raf = 0, last = -1, stopped = false;
-    var still = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
     var bg = hex(P.background), line = hex(P.lineColor), acc = hex(P.accent);
     var rows = Math.max(10, Math.min(120, Math.round(P.density)));
     var relief = P.relief / 100, sunSize = P.sunSize / 100, eye = Math.max(0.1, P.cameraHeight / 100) * EYE_HEIGHT, hover = Math.max(0, P.hover) / 100, rate = Math.max(0, P.speed) / 50;
@@ -140,7 +139,7 @@
       }
       var dt = last < 0 ? 0 : Math.min(0.05, Math.max(0, (now - last) / 1000));
       last = now;
-      if (!still) { camZ = (camZ + dt * rate * FLIGHT_RATE) % DEPTH; tIdle += dt * rate; }
+      camZ = (camZ + dt * rate * FLIGHT_RATE) % DEPTH; tIdle += dt * rate;
 
       var pe = 1 - Math.exp(-dt * 3);
       pointer.presence += ((pointer.active ? 1 : 0) - pointer.presence) * pe;
@@ -219,7 +218,7 @@
       gl.depthMask(true);
 
       window.HashcodPlatformIntroTerrain.frames += 1;
-      if (!still) raf = requestAnimationFrame(frame);
+      raf = requestAnimationFrame(frame);
     }
     raf = requestAnimationFrame(frame);
 

@@ -32,7 +32,7 @@
   button.innerHTML = svg + '<span class="hpi-sr">Entrar a la plataforma</span>';
   var logo = doc.createElement('img');
   logo.className = 'hpi-logo';
-  logo.src = base + 'assets/intro/hashcod-logo.webp?v=20261010-5';
+  logo.src = base + 'assets/intro/hashcod-logo.webp?v=20261010-6';
   logo.width = 1818; logo.height = 321; logo.decoding = 'async';
   logo.alt = 'Hashcod Codespace · PSOT · Registro de comprobación';
   stage.appendChild(canvas); root.appendChild(stage); root.appendChild(logo); root.appendChild(button);
@@ -57,7 +57,7 @@
   // Live background: Wire Terrain (WebGL). If WebGL or the script is unavailable the black welcome stays.
   var terrain = null;
   var engine = doc.createElement('script');
-  engine.src = base + 'components/platform-intro-terrain.js?v=20261010-5';
+  engine.src = base + 'components/platform-intro-terrain.js?v=20261010-6';
   engine.async = true;
   engine.onload = function () {
     if (root.parentNode && window.HashcodPlatformIntroTerrain && !leaving) terrain = window.HashcodPlatformIntroTerrain.start({ root: root, canvas: canvas });

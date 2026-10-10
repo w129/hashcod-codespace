@@ -298,8 +298,8 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
     $mascotJs=htmlspecialchars($base.'components/page-mascot-panda.js?v=20261010-panda3',ENT_QUOTES,'UTF-8');
     $walkerCss=entryAssetUrl($base,'components/page-mascot-walker.css?v=20261010-walker1');
     $walkerJs=entryAssetUrl($base,'components/page-mascot-walker.js?v=20261010-walker1');
-    $introCss=entryAssetUrl($base,'components/platform-intro.css?v=20261010-5');
-    $introJs=entryAssetUrl($base,'components/platform-intro.js?v=20261010-5');
+    $introCss=entryAssetUrl($base,'components/platform-intro.css?v=20261010-6');
+    $introJs=entryAssetUrl($base,'components/platform-intro.js?v=20261010-6');
     $promptStudioCss=htmlspecialchars($base.'components/text-editor-prompt-studio.css?v=20260930-promptstudio1',ENT_QUOTES,'UTF-8');
     $promptStudioJs=htmlspecialchars($base.'components/text-editor-prompt-studio.js?v=20260930-promptstudio1',ENT_QUOTES,'UTF-8');
     $rotatingTextCss=entryAssetUrl($base,'components/react-bits-rotating-text.css?v=20261007-entry-fixes1');

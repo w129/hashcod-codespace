@@ -37,6 +37,7 @@ def main():
         "/components/center-empty-state.bundle.js", "/components/center-empty-state.bundle.css",
         "/components/first-screen-branched-menu.bundle.js", "/components/first-screen-branched-menu.bundle.css",
         "/components/react-bits-rotating-text.js", "/components/react-bits-rotating-text.css",
+        "/components/platform-intro.js", "/components/platform-intro.css",
     }
     routes = ["", "index.php", "index.html", "l8/", "l8-codespace/"]
     checked = set()

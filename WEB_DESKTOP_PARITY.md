@@ -57,6 +57,11 @@ The exception must identify:
 - whether a later desktop implementation is planned;
 - any security, privacy, storage, licensing, or provider constraint involved.
 
+### Parity note: full-screen welcome (platform intro)
+
+- `components/platform-intro.js|css` and `assets/intro/platform-intro.webp` are loaded by `mldsaGateHtml()` for every edition, so the Windows desktop shows the same welcome before the platform.
+- Automated browsers (`navigator.webdriver`) skip it so end-to-end suites keep exercising the platform; `?intro=1` forces it (see `tests/e2e/test_platform_intro_browser.js`).
+
 ### Parity note: Cuaderno de IA (Toolbook 1-1)
 
 - Same source on both editions: `notebook-ai.php` calls the chosen provider (Anthropic, OpenAI or OpenRouter) over HTTPS with the user's own API key, so the desktop edition needs internet access but no extra runtime.

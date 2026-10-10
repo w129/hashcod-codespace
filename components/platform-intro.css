@@ -1,0 +1,30 @@
+/* Full-screen pixel-art welcome shown before the platform. The stage always covers the viewport (like
+   object-fit: cover, anchored bottom-right) and the enter button is positioned in image coordinates,
+   so it stays exactly over the drawn button at any size or aspect ratio. 1 image pixel = var(--hpi-u). */
+.hpi {
+  --hpi-w: max(100vw, calc(100vh * 1672 / 941));
+  --hpi-u: calc(var(--hpi-w) / 1672);
+  position: fixed; inset: 0; z-index: 2147483647; overflow: hidden;
+  background: #8c8c8c; opacity: 1; transform: none;
+  animation: hpi-in .6s ease both;
+}
+@supports (height: 100dvh) { .hpi { --hpi-w: max(100vw, calc(100dvh * 1672 / 941)); } }
+.hpi-stage { position: absolute; right: 0; bottom: 0; width: var(--hpi-w); aspect-ratio: 1672 / 941; }
+.hpi-img { display: block; width: 100%; height: 100%; user-select: none; -webkit-user-drag: none; image-rendering: auto; }
+/* Box of the original button in the picture: x 1553-1646, y 704-797 of 1672x941. */
+.hpi-enter {
+  position: absolute; left: 92.88%; top: 74.81%; width: 5.56%; aspect-ratio: 1; min-width: 44px; min-height: 44px;
+  display: grid; place-items: center; padding: 0; cursor: pointer; color: #000; background: #fff;
+  border: calc(var(--hpi-u) * 3) solid #000; border-radius: 0;
+  box-shadow: calc(var(--hpi-u) * 5) calc(var(--hpi-u) * 5) 0 rgba(0, 0, 0, .55);
+  animation: hpi-pulse 2.4s ease-in-out 1s infinite;
+}
+.hpi-enter svg { width: 80%; height: 80%; display: block; shape-rendering: crispEdges; }
+.hpi-enter:hover { background: #f0f0f0; transform: translate(calc(var(--hpi-u) * 1), calc(var(--hpi-u) * 1)); }
+.hpi-enter:active { transform: translate(calc(var(--hpi-u) * 3), calc(var(--hpi-u) * 3)); box-shadow: none; }
+.hpi-enter:focus-visible { outline: calc(var(--hpi-u) * 3) solid #fff; outline-offset: calc(var(--hpi-u) * 3); box-shadow: 0 0 0 calc(var(--hpi-u) * 6) #000; }
+.hpi.is-leaving { opacity: 0; transform: scale(1.04); pointer-events: none; transition: opacity .55s ease, transform .55s ease; }
+@keyframes hpi-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes hpi-pulse { 0%, 100% { box-shadow: calc(var(--hpi-u) * 5) calc(var(--hpi-u) * 5) 0 rgba(0, 0, 0, .55), 0 0 0 0 rgba(255, 255, 255, .0); } 50% { box-shadow: calc(var(--hpi-u) * 5) calc(var(--hpi-u) * 5) 0 rgba(0, 0, 0, .55), 0 0 0 calc(var(--hpi-u) * 7) rgba(255, 255, 255, .55); } }
+.hpi-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) { .hpi, .hpi-enter { animation: none; } .hpi.is-leaving { transition: opacity .01s; transform: none; } }

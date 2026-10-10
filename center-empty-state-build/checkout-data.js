@@ -4,8 +4,10 @@ export function formatCedula(value) {
     : d.length > 3 ? `${d.slice(0, 3)}-${d.slice(3)}` : d;
 }
 
-// Hashcod Pro list prices in USD. Yearly is twelve months with the 20% annual discount.
-export const PLAN_PRICES = Object.freeze({ monthly: 2000, yearly: 19200 });
+// Hashcod Pro prices in USD. Yearly is twelve months with the 20% annual discount. The first payment to
+// tokenize is a one-time charge on top of the subscription.
+export const PLAN_PRICES = Object.freeze({ monthly: 20, yearly: 192 });
+export const FIRST_TOKENIZATION_PAYMENT = 2000;
 
 export function formatUsd(value, decimals = 0) {
   return 'US$' + Number(value).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
@@ -13,22 +15,24 @@ export function formatUsd(value, decimals = 0) {
 
 export function checkoutOrder({ yearly = false, rd = true, cedula = '', fiscal = false, reference = '' } = {}) {
   const identity = formatCedula(cedula);
-  const total = yearly ? PLAN_PRICES.yearly : PLAN_PRICES.monthly;
-  const amount = formatUsd(total, 2);
+  const plan = yearly ? PLAN_PRICES.yearly : PLAN_PRICES.monthly;
+  const total = plan + FIRST_TOKENIZATION_PAYMENT;
+  const planAmount = formatUsd(plan, 2), firstAmount = formatUsd(FIRST_TOKENIZATION_PAYMENT, 2), amount = formatUsd(total, 2);
   const valid = !rd || identity.replace(/\D/g, '').length === 11;
   const message = [
     'Hola, quiero suscribirme a Hashcod Pro.',
     `Plan: ${yearly ? 'Anual' : 'Mensual'}`,
     `Período: ${yearly ? '1 año' : '1 mes'}`,
     ...(yearly ? ['Descuento anual: 20%'] : []),
-    `Subtotal: ${amount}`,
+    `Suscripción: ${planAmount}`,
+    `Primer pago para tokenizar: ${firstAmount}`,
     `Total: ${amount}`,
     `País de facturación: ${rd ? 'República Dominicana' : 'Otro país'}`,
     ...(rd && identity ? [`Cédula: ${identity}`] : []),
     `Comprobante fiscal: ${fiscal ? 'Sí' : 'No'}`,
     ...(reference ? [`Referencia de activación: ${reference}`] : []),
   ].join('\n');
-  return { amount, total, valid, href: valid ? `https://wa.me/18294721257?text=${encodeURIComponent(message)}` : undefined };
+  return { amount, planAmount, firstAmount, total, valid, href: valid ? `https://wa.me/18294721257?text=${encodeURIComponent(message)}` : undefined };
 }
 
 const REFERENCE = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;

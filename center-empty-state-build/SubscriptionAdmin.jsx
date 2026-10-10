@@ -50,7 +50,7 @@ export default function SubscriptionAdmin() {
         <label htmlFor="hco-admin-paste">Pega aquí el pedido del cliente (WhatsApp)</label><textarea id="hco-admin-paste" rows={4} maxLength={4000} autoComplete="off" value={pasted} onChange={e => readOrder(e.target.value)} placeholder="Hola, quiero suscribirme a Hashcod Pro…" />
         {pasted && <p role="status" className="hco-admin-detected">{detected.reference ? `Referencia detectada: ${detected.reference.slice(0, 8)}…${detected.reference.slice(-4)}${detected.plan ? ` · Plan ${detected.plan === 'yearly' ? 'anual' : 'mensual'}` : ''}` : 'No se encontró la referencia en el mensaje; escríbela abajo.'}</p>}
         <label htmlFor="hco-admin-ref">Referencia recibida por WhatsApp</label><input id="hco-admin-ref" autoComplete="off" maxLength={36} value={reference} onChange={e => setReference(e.target.value)} required />
-        <label htmlFor="hco-admin-plan">Plan pagado</label><select id="hco-admin-plan" value={plan} onChange={e => setPlan(e.target.value)}><option value="monthly">Mensual · US$2,000</option><option value="yearly">Anual · US$19,200</option></select>
+        <label htmlFor="hco-admin-plan">Plan pagado</label><select id="hco-admin-plan" value={plan} onChange={e => setPlan(e.target.value)}><option value="monthly">Mensual · US$20</option><option value="yearly">Anual · US$192</option></select>
         <label><input type="checkbox" checked={confirmed} onChange={e => setConfirmed(e.target.checked)} />He comprobado que este pago fue recibido.</label>
       </>}
       <button type="submit" disabled={busy || (authorized && !confirmed)}>{busy ? 'Verificando…' : authorized ? 'Emitir código de activación' : 'Validar acceso administrativo'}</button>

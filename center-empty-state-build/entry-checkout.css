@@ -16,12 +16,15 @@ body.hco-open { overflow: hidden !important; }
 .hco-pricing > div { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
 .hco-pricing strong { font: 600 44px/1.2 'IBM Plex Mono', monospace; letter-spacing: -.03em; }
 .hco-pricing div span { font-size: 15px; color: #64748b; }
+.hco-first-payment { margin: 0; font-size: 15px; color: #334155; }
+.hco-first-payment b { font-weight: 700; color: #0f172a; font-family: 'IBM Plex Mono', monospace; }
+.hco-first-payment small { color: #64748b; font-size: 13px; }
 .hco-billing { display: flex; align-self: flex-start; padding: 4px; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 12px; gap: 4px; }
 .hco-billing button { min-height: 44px; padding: 0 18px; border: 0; border-radius: 9px; background: transparent; color: #64748b; font-weight: 500; }
 .hco-billing button[aria-pressed="true"] { background: #fff; color: #0f172a; box-shadow: 0 1px 2px #0f172a14; }
 .hco-totals { border-top: 1px solid #e2e8f0; }
 .hco-totals > div { display: flex; justify-content: space-between; gap: 16px; padding: 18px 0; }
-.hco-totals > div:first-child { border-bottom: 1px solid #e2e8f0; }
+.hco-totals > div:not(:last-child) { border-bottom: 1px solid #e2e8f0; }
 .hco-totals > div > span:first-child { display: flex; flex-direction: column; gap: 4px; }
 .hco-totals strong { font-weight: 600; }
 .hco-totals small { color: #64748b; font-size: 13px; }

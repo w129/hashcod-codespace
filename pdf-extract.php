@@ -3,7 +3,7 @@
  * PDF data extraction (OpenDataLoader PDF, Apache-2.0).
  *
  *   GET  /api/pdf-extract/status   extractor available?
- *   POST /api/pdf-extract          multipart: file (PDF), formats (csv of json,markdown,html,text),
+ *   POST /api/pdf-extract          multipart: file (PDF), formats (csv of pdf,json,markdown,html,text),
  *                                  sanitize (0|1), pages ("1,3,5-7", optional)
  *
  * The OpenDataLoader CLI jar runs on the server with a fixed argument list (no shell),
@@ -17,7 +17,9 @@
 const PDF_EXTRACT_MAX_BYTES = 26214400;      // 25 MiB upload
 const PDF_EXTRACT_MAX_OUTPUT_BYTES = 3145728; // 3 MiB per returned format
 const PDF_EXTRACT_TIMEOUT_SECONDS = 60;
-const PDF_EXTRACT_FORMATS = ['json' => 'json', 'markdown' => 'md', 'html' => 'html', 'text' => 'txt'];
+const PDF_EXTRACT_MAX_PDF_BYTES = 15728640;   // 15 MiB annotated PDF (returned base64)
+// format => file the CLI writes next to input.pdf
+const PDF_EXTRACT_FORMATS = ['pdf' => 'input_annotated.pdf', 'json' => 'input.json', 'markdown' => 'input.md', 'html' => 'input.html', 'text' => 'input.txt'];
 
 function pdfExtractJson(array $payload, int $code = 200): void {
     http_response_code($code);
@@ -117,11 +119,18 @@ function pdfExtractRun(string $dir, array $formats, bool $sanitize, ?string $pag
 function pdfExtractCollect(string $outDir, array $formats): array {
     $files = [];
     foreach ($formats as $format) {
-        $path = $outDir . '/input.' . PDF_EXTRACT_FORMATS[$format];
+        $path = $outDir . '/' . PDF_EXTRACT_FORMATS[$format];
         if (!is_file($path)) {
             continue;
         }
         $size = (int)filesize($path);
+        if ($format === 'pdf') {
+            // Annotated PDF (colored boxes per element type) is binary: ship it base64, skip when huge.
+            if ($size <= PDF_EXTRACT_MAX_PDF_BYTES) {
+                $files[$format] = ['content' => base64_encode((string)file_get_contents($path)), 'bytes' => $size, 'truncated' => false, 'binary' => true];
+            }
+            continue;
+        }
         $content = (string)file_get_contents($path, false, null, 0, PDF_EXTRACT_MAX_OUTPUT_BYTES);
         $files[$format] = ['content' => $content, 'bytes' => $size, 'truncated' => $size > PDF_EXTRACT_MAX_OUTPUT_BYTES];
     }

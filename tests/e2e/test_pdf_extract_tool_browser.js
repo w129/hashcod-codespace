@@ -48,7 +48,11 @@ async function waitFor(page,predicate,arg,options){
   await page.waitForSelector('.hpx-results',{timeout:60000});
   const items=await page.$$eval('.hpx-results [data-slot=accordion-trigger]',b=>b.map(x=>x.textContent));
   assert(items.some(t=>t.startsWith('Markdown'))&&items.some(t=>t.startsWith('JSON')),'markdown and json results listed');
-  assert((await page.textContent('.hpx-preview')).length>50,'preview shows extracted text');
+  await page.waitForSelector('.hpx-visual canvas',{timeout:20000});
+  assert(await page.$eval('.hpx-visual canvas',c=>c.width>100&&c.height>100),'annotated PDF page renders as the visual view');
+  await page.click('.hpx-results [data-slot=accordion-trigger]:has-text("Markdown")');
+  await page.waitForSelector('.hpx-preview');
+  assert((await page.textContent('.hpx-preview')).length>50,'markdown preview shows extracted text');
   assert.equal(await page.$eval('.hpx-publish',b=>b.disabled),false,'publish enables once a format is open');
   await page.click('.hpx-publish');
   await page.waitForSelector('.hfv-totp-backdrop',{timeout:5000});

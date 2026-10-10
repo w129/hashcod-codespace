@@ -12,7 +12,8 @@ check(pdfExtractParsePages('1;rm -rf') === false, 'rejects shell metacharacters'
 check(pdfExtractParsePages('1-2-3') === false, 'rejects malformed ranges');
 check(pdfExtractParsePages(str_repeat('1,', 30) . '1') === false, 'rejects overlong lists');
 check(pdfExtractParseFormats('markdown,evil,json') === ['json', 'markdown'], 'format whitelist drops unknown values');
-check(pdfExtractParseFormats('') === ['json', 'markdown', 'html', 'text'], 'no formats = all');
+check(pdfExtractParseFormats('pdf,text') === ['pdf', 'text'], 'annotated pdf is an allowed format');
+check(pdfExtractParseFormats('') === ['pdf', 'json', 'markdown', 'html', 'text'], 'no formats = all');
 check(pdfExtractPageCount(['json' => ['content' => '{"number of pages": 7}', 'truncated' => false]]) === 7, 'reads page count from json');
 check(pdfExtractPageCount(['json' => ['content' => '{', 'truncated' => true]]) === null, 'no page count from truncated json');
 
@@ -21,10 +22,11 @@ if (pdfExtractAvailable() && $pdf && is_file($pdf)) {
     $dir = sys_get_temp_dir() . '/pdfx_test_' . getmypid();
     mkdir($dir . '/out', 0700, true);
     copy($pdf, $dir . '/input.pdf');
-    [$ok, $out] = pdfExtractRun($dir, ['json', 'markdown'], false, '1');
-    $files = $ok ? pdfExtractCollect($out, ['json', 'markdown']) : [];
+    [$ok, $out] = pdfExtractRun($dir, ['json', 'markdown', 'pdf'], false, '1');
+    $files = $ok ? pdfExtractCollect($out, ['json', 'markdown', 'pdf']) : [];
     check($ok && isset($files['json'], $files['markdown']) && strlen($files['markdown']['content']) > 100, 'jar extracts json + markdown');
     check(pdfExtractPageCount($files) !== null, 'extracted json has a page count');
+    check(!empty($files['pdf']['binary']) && strncmp(base64_decode($files['pdf']['content']), '%PDF-', 5) === 0, 'annotated pdf returned as base64 PDF');
     pdfExtractRemoveDir($dir);
     check(!is_dir($dir), 'temp directory removed');
 } else {

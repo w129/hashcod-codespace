@@ -1,9 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, useReducedMotion } from 'motion/react';
 import { Checkbox } from './animate-ui/checkbox-radix';
 import { Progress } from './animate-ui/progress-radix';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from './animate-ui/accordion-radix';
+import { PdfPreview } from './FilePreview';
 import './tokenization.css';
 import './pdf-extract.css';
 
@@ -11,6 +12,7 @@ import './pdf-extract.css';
 const MAX_BYTES = 25 * 1024 * 1024;
 const PREVIEW_CHARS = 20000;
 const FORMATS = [
+  { id: 'pdf', label: 'Vista visual', ext: 'pdf', mime: 'application/pdf', binary: true }, // annotated PDF, as in OpenDataLoader's own viewer
   { id: 'markdown', label: 'Markdown', ext: 'md', mime: 'text/markdown' },
   { id: 'json', label: 'JSON', ext: 'json', mime: 'application/json' },
   { id: 'html', label: 'HTML', ext: 'html', mime: 'text/html' },
@@ -27,11 +29,15 @@ function PublishIcon() {
 
 const size = n => (n < 1048576 ? `${(n / 1024).toFixed(1)} KB` : `${(n / 1048576).toFixed(1)} MB`);
 
+// Binary outputs (annotated PDF) arrive base64; text outputs arrive as strings.
+const toBytes = base64 => Uint8Array.from(atob(base64), ch => ch.charCodeAt(0));
+const payload = (format, out) => (format.binary ? toBytes(out.content) : out.content);
+
 const ERRORS = { 413: 'El PDF es demasiado grande (máximo 25 MB).', 429: 'Espera unos segundos antes de analizar otro PDF.' };
 
 export default function PdfExtractTool({ onPublish, onClose }) {
   const [file, setFile] = useState(null);
-  const [picked, setPicked] = useState(() => new Set(['markdown', 'json']));
+  const [picked, setPicked] = useState(() => new Set(['pdf', 'markdown', 'json']));
   const [sanitize, setSanitize] = useState(false);
   const [pages, setPages] = useState('');
   const [phase, setPhase] = useState('idle');
@@ -110,6 +116,7 @@ export default function PdfExtractTool({ onPublish, onClose }) {
     request.send(form);
   }
 
+  const pdfBlob = useMemo(() => (result?.files?.pdf ? new Blob([toBytes(result.files.pdf.content)], { type: 'application/pdf' }) : null), [result]);
   const current = FORMATS.find(f => f.id === open);
   const base = file ? file.name.replace(/\.pdf$/i, '') || 'documento' : 'documento';
 
@@ -118,7 +125,7 @@ export default function PdfExtractTool({ onPublish, onClose }) {
     const name = `${base}.${current.ext}`;
     setPublishing(true); setNotice(''); setError('');
     try {
-      const stored = await onPublish(new File([result.files[current.id].content], name, { type: current.mime }));
+      const stored = await onPublish(new File([payload(current, result.files[current.id])], name, { type: current.mime }));
       if (!alive.current) return;
       if (stored) setNotice(`Publicado en Files: ${name}`);
       else setError('No se publicó el archivo. Revisa el aviso de Files e inténtalo de nuevo.');
@@ -126,7 +133,7 @@ export default function PdfExtractTool({ onPublish, onClose }) {
   }
 
   function download(format) {
-    const url = URL.createObjectURL(new Blob([result.files[format.id].content], { type: format.mime }));
+    const url = URL.createObjectURL(new Blob([payload(format, result.files[format.id])], { type: format.mime }));
     const link = document.createElement('a');
     link.href = url; link.download = `${base}.${format.ext}`;
     document.body.appendChild(link); link.click(); link.remove();
@@ -175,7 +182,9 @@ export default function PdfExtractTool({ onPublish, onClose }) {
               <AccordionTrigger showArrow>{f.label}<span className="hpx-meta">{size(out.bytes)}</span></AccordionTrigger>
               <AccordionContent keepRendered={false}>
                 {out.truncated && <p className="hpx-warn">Resultado recortado a {size(out.content.length)}; descarga o publica solo lo mostrado.</p>}
-                <pre className="hpx-preview" tabIndex={0}>{out.content.slice(0, PREVIEW_CHARS)}{out.content.length > PREVIEW_CHARS ? '\n…' : ''}</pre>
+                {f.binary
+                  ? <div className="hpx-visual"><PdfPreview blob={pdfBlob} /></div>
+                  : <pre className="hpx-preview" tabIndex={0}>{out.content.slice(0, PREVIEW_CHARS)}{out.content.length > PREVIEW_CHARS ? '\n…' : ''}</pre>}
                 <button type="button" className="htk-button" onClick={() => download(f)}>Descargar .{f.ext}</button>
               </AccordionContent>
             </AccordionItem>;
@@ -183,7 +192,7 @@ export default function PdfExtractTool({ onPublish, onClose }) {
         </Accordion>}
       </div>
       <footer className="htk-footer">
-        <span className="htk-muted">{result ? 'Abre un formato y pulsa el botón ◉ de la esquina para publicarlo en Files.' : 'Extrae texto, tablas y estructura del PDF.'}</span>
+        <span className="htk-muted">{result ? 'Abre un formato y pulsa el botón ◉ de la esquina para publicarlo en Files.' : 'Extrae texto, tablas y estructura, y muestra el PDF con cada elemento detectado marcado.'}</span>
         <button type="button" className="htk-button htk-button--primary" disabled={!file || running || !picked.size} onClick={analyze}>{running ? 'Analizando…' : 'Analizar'}</button>
       </footer>
     </motion.section>

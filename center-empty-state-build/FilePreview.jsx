@@ -16,7 +16,7 @@ function pdfEngine() {
       if (error || !window.HashcodFileVaultPdf) { script.remove(); engineRequest = null; reject(error || new Error('PDF viewer unavailable.')); }
       else resolve(window.HashcodFileVaultPdf);
     }
-    script.src = '/components/file-vault-pdf.bundle.js?v=20261006-protected-files-explorer1';
+    script.src = '/components/file-vault-pdf.bundle.js?v=20261010-upsert-polyfill1';
     script.onload = () => finish();
     script.onerror = () => finish(new Error('PDF viewer unavailable.'));
     document.head.appendChild(script);
@@ -24,7 +24,7 @@ function pdfEngine() {
   return engineRequest;
 }
 
-function PdfPreview({ blob }) {
+export function PdfPreview({ blob }) {
   const [pdf, setPdf] = useState(null);
   const [page, setPage] = useState(1);
   const [busy, setBusy] = useState(true);

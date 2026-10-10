@@ -298,6 +298,8 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
     $mascotJs=htmlspecialchars($base.'components/page-mascot-panda.js?v=20261010-panda3',ENT_QUOTES,'UTF-8');
     $walkerCss=entryAssetUrl($base,'components/page-mascot-walker.css?v=20261010-walker1');
     $walkerJs=entryAssetUrl($base,'components/page-mascot-walker.js?v=20261010-walker1');
+    $visionCss=entryAssetUrl($base,'components/camera-vision.css?v=20261010-1');
+    $visionJs=entryAssetUrl($base,'components/camera-vision.js?v=20261010-2');
     $promptStudioCss=htmlspecialchars($base.'components/text-editor-prompt-studio.css?v=20260930-promptstudio1',ENT_QUOTES,'UTF-8');
     $promptStudioJs=htmlspecialchars($base.'components/text-editor-prompt-studio.js?v=20260930-promptstudio1',ENT_QUOTES,'UTF-8');
     $rotatingTextCss=entryAssetUrl($base,'components/react-bits-rotating-text.css?v=20261007-entry-fixes1');
@@ -305,8 +307,8 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
     $rotatingTextJs=entryAssetUrl($base,'components/react-bits-rotating-text.js?v=20261007-entry-fixes1');
     $branchedMenuCss=entryAssetUrl($base,'components/first-screen-branched-menu.bundle.css?v=20261007-entry-fixes1');
     $branchedMenuJs=entryAssetUrl($base,'components/first-screen-branched-menu.bundle.js?v=20261007-entry-fixes1');
-    $centerEmptyStateCss=entryAssetUrl($base,'components/center-empty-state.bundle.css?v=20261010-walker1');
-    $centerEmptyStateJs=entryAssetUrl($base,'components/center-empty-state.bundle.js?v=20261007-security1');
+    $centerEmptyStateCss=entryAssetUrl($base,'components/center-empty-state.bundle.css?v=20261010-vision1');
+    $centerEmptyStateJs=entryAssetUrl($base,'components/center-empty-state.bundle.js?v=20261010-vision1');
     $mobileCss=htmlspecialchars($base.'components/first-screen-mobile.css?v=20261006-no-horizontal-scroll1',ENT_QUOTES,'UTF-8');
     $entryBootstrapJs=entryAssetUrl($base,'components/mldsa-access-gate-loader.js?v=20261007-security1');
     // The retired numeric credential modal is never part of public entry.
@@ -530,5 +532,5 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
       .'</div>'
       .'</section>'
       .($entryIntro?'<footer id="d5PreviewPolicyFooter" class="preview-policy-footer" aria-label="Aceptación de la Use and Privacy Policy"><div id="d5PolicyConsentMount" class="policy-consent-mount" data-hashcod-component="PolicyConsent"></div></footer>':'')
-      .'<script src="'.$uiSoundsJs.'" defer data-hashcod-ui-sounds="true"></script><script src="'.$pqcJs.'" defer></script><script src="'.$mascotJs.'" defer></script><script src="'.$walkerJs.'" defer></script><script src="'.$js.'" defer></script><script src="'.$promptStudioJs.'" defer></script><script src="'.$rotatingTextJs.'" defer></script>'.($entryIntro?'<script src="'.$branchedMenuJs.'" defer></script><script src="'.$centerEmptyStateJs.'" defer></script><script src="'.$entryBootstrapJs.'" defer data-hashcod-entry-bootstrap="true"></script>':'').'</body></html>';
+      .'<script src="'.$uiSoundsJs.'" defer data-hashcod-ui-sounds="true"></script><script src="'.$pqcJs.'" defer></script><script src="'.$mascotJs.'" defer></script><script src="'.$walkerJs.'" defer></script><link rel="stylesheet" href="'.$visionCss.'"><script src="'.$visionJs.'" defer></script><script src="'.$js.'" defer></script><script src="'.$promptStudioJs.'" defer></script><script src="'.$rotatingTextJs.'" defer></script>'.($entryIntro?'<script src="'.$branchedMenuJs.'" defer></script><script src="'.$centerEmptyStateJs.'" defer></script><script src="'.$entryBootstrapJs.'" defer data-hashcod-entry-bootstrap="true"></script>':'').'</body></html>';
 }

@@ -246,7 +246,7 @@
         if (!ui) build();
         ui.overlay.classList.add('open');
         ui.overlay.setAttribute('aria-hidden', 'false');
-        btn.classList.add('is-active');
+        if (btn) btn.classList.add('is-active');
         loadLog();
         api('status').then(function (res) {
             if (res.ok && !res.detector) say('Detector no configurado: la cámara y la grabación funcionan, la detección no.', true);
@@ -258,12 +258,15 @@
         stopCamera();
         ui.overlay.classList.remove('open');
         ui.overlay.setAttribute('aria-hidden', 'true');
-        btn.classList.remove('is-active');
+        if (btn) btn.classList.remove('is-active');
     }
 
     function init() {
-        btn = document.getElementById('hashcodDockVisionBtn');
-        if (btn) btn.addEventListener('click', function () { ui && ui.overlay.classList.contains('open') ? closePanel() : openPanel(); });
+        // The trigger lives in the React first screen (#d5VisionTrigger), which dispatches this event.
+        window.addEventListener('hashcod:vision-open', function (e) {
+            btn = e.detail && e.detail.button || null;
+            ui && ui.overlay.classList.contains('open') ? closePanel() : openPanel();
+        });
     }
 
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();

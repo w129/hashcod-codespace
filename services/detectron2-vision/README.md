@@ -1,6 +1,6 @@
 # Detectron2 vision service
 
-Detector behind the dock **Visión** tool (camera, object detection, log, local recording).
+Detector behind the **Visión** tool (button `#d5VisionTrigger`, right of the file-storage button on the first screen) (camera, object detection, log, local recording).
 
 - Browser: `components/camera-vision.js` grabs frames (<= 640 px JPEG, ~1 per 1.2 s) and posts them to `/api/vision/detect`.
 - App server: `camera-vision.php` requires an account session, validates the frame, calls this service and keeps a per-account log (`data_storage/camera_vision/`, max 1000 rows).

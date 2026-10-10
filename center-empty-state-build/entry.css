@@ -757,6 +757,11 @@ body.hashcod-hatch-open {
   stroke-linejoin: round;
 }
 
+.hashcod-file-vault-trigger.hashcod-vision-trigger svg {
+  fill: currentColor;
+  stroke: none;
+}
+
 .hfv-backdrop {
   position: fixed;
   inset: 0;

@@ -30,3 +30,10 @@
 /* A slot taken by a tool: solid disc with a light inner ring. */
 .htb-slot[data-filled=true] { background:#141413; color:#fff; border-color:#141413; }
 .htb-slot[data-filled=true] .htb-ring { border-color:rgba(255,255,255,.85); }
+
+/* A tool slot is a button whose icon sits inside the ring. */
+.htb-slot--tool { cursor:pointer; padding:0; font:inherit; transition:transform 150ms ease, box-shadow 150ms ease; }
+.htb-slot--tool:hover { transform:scale(1.05); box-shadow:0 4px 12px rgba(0,0,0,.18); }
+.htb-slot--tool:active { transform:scale(.97); }
+.htb-slot--tool:focus-visible { outline:2px solid #278b56; outline-offset:3px; }
+.htb-slot--tool .htb-ring svg { width:62%; height:62%; display:block; }

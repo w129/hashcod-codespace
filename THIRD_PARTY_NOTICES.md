@@ -128,3 +128,10 @@ The Docker image installs the OpenDataLoader PDF CLI from npm (`@opendataloader/
 
 - Source: https://github.com/opendataloader-project/opendataloader-pdf
 - License: Apache-2.0
+
+## Open Notebook (ideas for the Cuaderno de IA)
+
+The Toolbook "Cuaderno de IA" adapts the product ideas of Open Notebook: chat grounded on chosen sources with citations, one-click transformations (summary, key points, study guide, glossary), notes saved as files, and a user-chosen model/provider. No source code was copied; it is a new implementation (`notebook-ai.php`, `center-empty-state-build/NotebookTool.jsx`).
+
+- Source: https://github.com/lfnovo/open-notebook
+- License: MIT, Copyright (c) 2024 Luis Novo

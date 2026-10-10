@@ -57,6 +57,12 @@ The exception must identify:
 - whether a later desktop implementation is planned;
 - any security, privacy, storage, licensing, or provider constraint involved.
 
+### Parity note: Cuaderno de IA (Toolbook 1-1)
+
+- Same source on both editions: `notebook-ai.php` calls the chosen provider (Anthropic, OpenAI or OpenRouter) over HTTPS with the user's own API key, so the desktop edition needs internet access but no extra runtime.
+- The key is never stored on disk: it lives encrypted in an HttpOnly cookie for 30 minutes. On the desktop loopback runtime the cookie is non-Secure (http) and host-bound to `127.0.0.1:<port>`.
+- Files are read in the browser after the usual file-code verification; only the extracted text of the sources the user selects is sent to the provider.
+
 ### Documented exception: PDF analyzer (OpenDataLoader PDF)
 
 - **Why:** `pdf-extract.php` runs the OpenDataLoader PDF CLI jar, which needs a Java 11+ runtime. The hosted Docker image installs both; the Windows installer does not bundle a JRE.

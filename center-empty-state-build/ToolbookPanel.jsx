@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Progress } from './animate-ui/progress-radix';
+import NotebookIcon from './NotebookIcon';
 import './toolbook-panel.css';
 
 // Page S1TB of the Toolbook design: a 4x4 matrix of empty circular slots with an inner ring.
@@ -7,6 +8,11 @@ import './toolbook-panel.css';
 const SLOTS = Array.from({ length: 16 }, (_, i) => `${Math.floor(i / 4) + 1}-${(i % 4) + 1}`);
 
 export const TOOLBOOK_EVENT = 'hashcod:toolbook-slots';
+
+// Tools built into the Toolbook: they fill their slot themselves and open on click through `event`.
+export const TOOLS = {
+  '1-1': { label: 'Cuaderno de IA', Icon: NotebookIcon, event: 'hashcod:notebook-open' },
+};
 
 // Tools register the slots they occupy with `HashcodToolbook.setFilled(['1-1', ...])` (or by dispatching
 // TOOLBOOK_EVENT with { filled }). Unknown ids are ignored; the progress bar below follows the result.
@@ -36,7 +42,8 @@ function Bracket({ corner }) {
 }
 
 export default function ToolbookPanel() {
-  const filled = useToolbookFilled();
+  const external = useToolbookFilled();
+  const filled = SLOTS.filter(id => TOOLS[id] || external.includes(id));
   const percent = Math.round((filled.length / SLOTS.length) * 100);
   return (
     <section className="htb-panel" aria-labelledby="htb-title">
@@ -54,7 +61,14 @@ export default function ToolbookPanel() {
         </svg>
         <Bracket corner="tl" /><Bracket corner="tr" /><Bracket corner="bl" /><Bracket corner="br" />
         <ul className="htb-grid" role="list">
-          {SLOTS.map(id => <li key={id}><span className="htb-slot" data-slot={id} data-filled={filled.includes(id) ? 'true' : 'false'}><span className="htb-ring" /></span></li>)}
+          {SLOTS.map(id => {
+            const tool = TOOLS[id];
+            const state = filled.includes(id) ? 'true' : 'false';
+            return <li key={id}>{tool
+              ? <button type="button" className="htb-slot htb-slot--tool" data-slot={id} data-filled={state} aria-label={`Abrir ${tool.label}`} title={tool.label}
+                onClick={() => window.dispatchEvent(new CustomEvent(tool.event))}><span className="htb-ring"><tool.Icon /></span></button>
+              : <span className="htb-slot" data-slot={id} data-filled={state}><span className="htb-ring" /></span>}</li>;
+          })}
         </ul>
       </div>
       <Progress value={percent} className="w-full" aria-label="Avance de la Toolbook" />

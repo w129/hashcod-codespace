@@ -5,7 +5,7 @@ import { motion, useReducedMotion } from 'motion/react';
 import { XIcon, DownloadIcon, Trash2Icon, ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 
 let engineRequest;
-function pdfEngine() {
+export function pdfEngine() {
   if (window.HashcodFileVaultPdf) return Promise.resolve(window.HashcodFileVaultPdf);
   if (engineRequest) return engineRequest;
   engineRequest = new Promise((resolve, reject) => {

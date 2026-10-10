@@ -13,6 +13,7 @@ import RequestFlowchart from "./RequestFlowchart";
 import PolicyConsent from "./PolicyConsent";
 import TokenizationTool, { TokenizationIcon } from "./TokenizationTool";
 import PdfExtractTool, { PdfExtractIcon } from './PdfExtractTool';
+import NotebookTool from './NotebookTool';
 import ReviewChat from './ReviewChat';
 import { ReviewIcon } from './ReviewIcons';
 import SkillChat from './SkillChat';
@@ -1488,8 +1489,16 @@ function FileVault({ actions, tokenizationOpen, onCloseTokenization }) {
   const [progress, setProgress] = useState(0);
   const [notice, setNotice] = useState("");
   const [pdfToolOpen, setPdfToolOpen] = useState(false);
+  const [notebookOpen, setNotebookOpen] = useState(false);
   const inputRef = useRef(null);
   const reduce = useReducedMotion() ?? false;
+
+  // The Toolbook slot 1-1 asks to open the Cuaderno de IA, which works on the files listed here.
+  useEffect(() => {
+    const openNotebook = () => setNotebookOpen(true);
+    window.addEventListener("hashcod:notebook-open", openNotebook);
+    return () => window.removeEventListener("hashcod:notebook-open", openNotebook);
+  }, []);
 
   const refresh = async () => {
     const sequence = ++refreshSequence.current;
@@ -1862,6 +1871,7 @@ function FileVault({ actions, tokenizationOpen, onCloseTokenization }) {
       {notice && !open && <p className="hfv-explorer-notice" role="status">{notice}</p>}
       {preview && <FilePreview file={preview.file} blob={preview.blob} onClose={() => setPreview(null)} onDownload={downloadFile} onDelete={deleteFile} />}
       {modal}
+      {notebookOpen && <NotebookTool files={files} loading={loadingFiles} onRefresh={refresh} onPublish={file => saveFiles([file])} onClose={() => setNotebookOpen(false)} />}
       {pdfToolOpen && <PdfExtractTool onPublish={file => saveFiles([file])} onClose={() => setPdfToolOpen(false)} />}
       {tokenizationOpen && <TokenizationTool files={files} loading={loadingFiles} onRefresh={refresh} onClose={onCloseTokenization} />}
     </>
@@ -1880,6 +1890,12 @@ function CenterWorkspaceEmptyState() {
   const [tokenizationOpen, setTokenizationOpen] = useState(false);
   const [reviewOpen, setReviewOpen] = useState(false);
   const [skillChatOpen, setSkillChatOpen] = useState(false);
+  useEffect(() => {
+    if (pro) return undefined;
+    const needPro = () => window.dispatchEvent(new CustomEvent("hashcod:pro-required"));
+    window.addEventListener("hashcod:notebook-open", needPro);
+    return () => window.removeEventListener("hashcod:notebook-open", needPro);
+  }, [pro]);
 
   return (
     <>

@@ -1,0 +1,34 @@
+/* Cuaderno de IA. Shell/buttons reuse .htk-*; Animate UI utility equivalents live in pdf-extract.css (.hpx). */
+.htk-shell.hnb { width: min(860px, 100%); height: min(780px, calc(100dvh - 40px)); }
+.hnb-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 8px 20px 12px; display: flex; flex-direction: column; gap: 12px; }
+.hnb-panels { flex: none; }
+.hnb-form { display: grid; gap: 12px; }
+.hnb-form label { display: grid; gap: 6px; font-size: 12px; font-weight: 500; }
+.hnb-form input[type=password], .hnb-form input[type=text], .hnb-form input:not([type]), .hnb-form select { width: 100%; min-height: 38px; border: 1px solid #e5e5e5; border-radius: 8px; background: #fafafa; padding: 8px 10px; color: #202020; }
+.hnb-form .hnb-consent { display: flex; align-items: flex-start; gap: 10px; font-weight: 400; color: #616161; line-height: 1.5; }
+.hnb-form .hnb-consent [data-slot=checkbox] { margin-top: 2px; }
+.hnb-consent a { color: #202020; text-decoration: underline; text-underline-offset: 2px; }
+.hnb-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.hnb-sources { list-style: none; margin: 0 0 10px; padding: 0; display: grid; gap: 4px; max-height: 190px; overflow-y: auto; }
+.hnb-sources li { padding: 6px 0; border-bottom: 1px solid #f1f1f1; }
+.hnb-sources .hpx-check { align-items: flex-start; width: 100%; }
+.hnb-file { min-width: 0; }
+.hnb-file strong { display: block; font-size: 13px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hnb-meter { margin: 8px 0; }
+.hnb-meter small { display: block; margin-top: 6px; }
+.hnb-transforms { display: flex; flex-wrap: wrap; gap: 8px; }
+.hnb-chat { flex: 1 1 auto; min-height: 160px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 12px; border: 1px solid #ededed; border-radius: 12px; background: #fafafa; }
+.hnb-empty { margin: auto; text-align: center; }
+.hnb-msg { max-width: 92%; padding: 10px 12px; border-radius: 12px; font-size: 13px; line-height: 1.55; overflow-wrap: anywhere; }
+.hnb-msg--user { align-self: flex-end; background: #242424; color: #fff; white-space: pre-wrap; }
+.hnb-msg--ai { align-self: flex-start; background: #fff; border: 1px solid #e8e8e8; }
+.hnb-md > :first-child { margin-top: 0; } .hnb-md > :last-child { margin-bottom: 0; }
+.hnb-md p, .hnb-md ul, .hnb-md ol { margin: 0 0 8px; } .hnb-md ul, .hnb-md ol { padding-left: 20px; }
+.hnb-md table { table-layout: auto; font-size: 12px; } .hnb-md th, .hnb-md td { padding: 6px 8px; }
+.hnb-md pre { overflow: auto; padding: 8px; border-radius: 6px; background: #f4f4f5; font: 12px/1.5 'IBM Plex Mono', ui-monospace, monospace; }
+.hnb-msg-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin-top: 8px; padding-top: 8px; border-top: 1px solid #f1f1f1; }
+.hnb-msg-foot small { color: #858585; min-width: 0; overflow-wrap: anywhere; }
+.hnb-thinking { width: 160px; }
+.hnb-ask { align-items: stretch; flex-wrap: nowrap; }
+.hnb-ask textarea { flex: 1 1 auto; min-width: 0; resize: none; border: 1px solid #e5e5e5; border-radius: 8px; background: #fafafa; padding: 8px 10px; font: inherit; }
+@media (max-width: 560px) { .hnb-msg { max-width: 100%; } .hnb-body { padding-inline: 14px; } }

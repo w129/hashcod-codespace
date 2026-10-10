@@ -1,3 +1,9 @@
+---
+title: Hashcod Detectron2 Vision
+sdk: docker
+app_port: 7860
+---
+
 # Detectron2 vision service
 
 Detector behind the **Visión** tool (button `#d5VisionTrigger`, right of the file-storage button on the first screen) (camera, object detection, log, local recording).
@@ -12,6 +18,16 @@ Detector behind the **Visión** tool (button `#d5VisionTrigger`, right of the fi
 2. In the main app (Render or the desktop `.env`) set `DETECTRON2_URL` to the service base URL and the same `DETECTRON2_TOKEN`.
 
 Without `DETECTRON2_URL` the camera and recording still work and the panel reports the detector as not configured.
+
+### Free option: Hugging Face Space (16 GB RAM, CPU)
+
+Render's free plan (512 MB) cannot hold PyTorch + Detectron2. A Docker Space can:
+
+1. Create a Space with SDK **Docker**; upload this folder's `Dockerfile`, `server.py` and `README.md`.
+2. In the Space settings add the secret `DETECTRON2_TOKEN` (a long random value).
+3. Set `DETECTRON2_URL=https://<user>-<space>.hf.space` and the same `DETECTRON2_TOKEN` in the Render service.
+
+The first start downloads the model weights (about 160 MB); the first detection after a sleep is slow.
 
 ## Parity (hosted ↔ desktop)
 

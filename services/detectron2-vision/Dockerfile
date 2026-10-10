@@ -6,8 +6,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends git build-essen
 RUN pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu \
     && pip install --no-cache-dir pillow numpy \
     && pip install --no-cache-dir 'git+https://github.com/facebookresearch/detectron2.git'
-WORKDIR /app
-COPY server.py .
-ENV PORT=8089
-EXPOSE 8089
+# Non-root user (uid 1000) so the same image runs on Hugging Face Spaces; model weights cache in its home.
+RUN useradd -m -u 1000 user
+USER user
+WORKDIR /home/user/app
+COPY --chown=user server.py .
+ENV PORT=7860
+EXPOSE 7860
 CMD ["python", "server.py"]

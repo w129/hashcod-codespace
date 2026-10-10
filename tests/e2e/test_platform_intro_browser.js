@@ -66,10 +66,22 @@ async function waitFor(page,predicate,arg,options){
       near(vh - m.btn.b, margin, 3, `${vw}x${vh}: the button sits at the bottom of the screen`);
       near(vw - m.btn.r, margin, 3, `${vw}x${vh}: the button sits at the right of the screen`);
     }
+    const logo = await page.evaluate(() => { const i = document.querySelector('.hpi-logo'), b = i.getBoundingClientRect(); return { l: b.left, t: b.top, w: b.width, r: b.right, ok: i.complete && i.naturalWidth > 0 }; });
+    assert(logo.ok && logo.l >= 0 && logo.t >= 0 && logo.l < 0.06 * vw + 16 && logo.t < 0.06 * vh + 40, `${vw}x${vh}: the logo sits at the top-left`);
+    assert(logo.r <= vw, `${vw}x${vh}: the logo is fully visible`);
     assert.equal(m.focused, 'hashcodPlatformIntroEnter', 'the enter button takes focus');
     assert.equal(m.z, '2147483647'); assert.equal(m.over, 'hidden', 'the page behind does not scroll');
     assert.equal(await page.locator('#d5CenterEmptyStateAction').evaluate(el => el.closest('[inert]') !== null), true, 'the platform is inert behind the welcome');
   }
+  // The logo is transparent: corners are clear and its letters are opaque (no white plate).
+  await page.goto(target + '?intro=1', { waitUntil: 'domcontentloaded' });
+  await page.waitForFunction(() => document.querySelector('.hpi-logo')?.complete);
+  const alpha = await page.evaluate(() => { const i = document.querySelector('.hpi-logo'), c = document.createElement('canvas'); c.width = i.naturalWidth; c.height = i.naturalHeight;
+    const x = c.getContext('2d'); x.drawImage(i, 0, 0); const px = (a, b) => x.getImageData(a, b, 1, 1).data[3];
+    let solid = 0; const d = x.getImageData(0, 0, c.width, c.height).data; for (let k = 3; k < d.length; k += 4) if (d[k] > 240) solid += 1;
+    return { corners: [px(0, 0), px(c.width - 1, 0), px(0, c.height - 1), px(c.width - 1, c.height - 1)], solidShare: solid / (d.length / 4) }; });
+  assert.deepEqual(alpha.corners, [0, 0, 0, 0], 'logo corners are transparent');
+  assert(alpha.solidShare > 0.05 && alpha.solidShare < 0.5, 'logo ink is opaque and the rest is clear');
   // Pressing the button lifts the welcome and hands the page to the platform.
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto(target + '?intro=1', { waitUntil: 'domcontentloaded' });

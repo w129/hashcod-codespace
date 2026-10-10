@@ -31,7 +31,12 @@
   button.type = 'button';
   button.setAttribute('aria-label', 'Entrar a la plataforma');
   button.innerHTML = svg + '<span class="hpi-sr">Entrar a la plataforma</span>';
-  stage.appendChild(img); stage.appendChild(button); root.appendChild(stage);
+  var logo = doc.createElement('img');
+  logo.className = 'hpi-logo';
+  logo.src = base + 'assets/intro/hashcod-logo.webp?v=20261010-1';
+  logo.width = 1818; logo.height = 321; logo.decoding = 'async';
+  logo.alt = 'Hashcod Codespace · PSOT · Registro de comprobación';
+  stage.appendChild(img); stage.appendChild(button); root.appendChild(stage); root.appendChild(logo);
   body.insertBefore(root, body.firstChild);
 
   // Keep the platform behind the welcome out of reach of the keyboard and screen readers until it lifts.

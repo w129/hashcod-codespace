@@ -28,5 +28,11 @@
 .hpi.is-leaving { opacity: 0; transform: scale(1.04); pointer-events: none; transition: opacity .55s ease, transform .55s ease; }
 @keyframes hpi-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes hpi-pulse { 0%, 100% { box-shadow: calc(var(--hpi-u) * 5) calc(var(--hpi-u) * 5) 0 rgba(0, 0, 0, .55), 0 0 0 0 rgba(255, 255, 255, .0); } 50% { box-shadow: calc(var(--hpi-u) * 5) calc(var(--hpi-u) * 5) 0 rgba(0, 0, 0, .55), 0 0 0 calc(var(--hpi-u) * 7) rgba(255, 255, 255, .55); } }
+.hpi-logo {
+  position: absolute; left: clamp(12px, 2.2vw, 44px); top: clamp(12px, 2.6vh, 40px); z-index: 1;
+  width: clamp(250px, 42vw, 760px); height: auto; pointer-events: none; user-select: none; -webkit-user-drag: none;
+  /* transparent logo over a busy picture: a thin light halo keeps the black letters readable */
+  filter: drop-shadow(0 0 1px #fff) drop-shadow(0 0 3px rgba(255, 255, 255, .95)) drop-shadow(0 0 10px rgba(255, 255, 255, .7));
+}
 .hpi-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 @media (prefers-reduced-motion: reduce) { .hpi, .hpi-enter { animation: none; } .hpi.is-leaving { transition: opacity .01s; transform: none; } }

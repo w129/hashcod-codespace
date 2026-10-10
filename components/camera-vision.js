@@ -250,7 +250,7 @@
         loadLog();
         api('status').then(function (res) {
             if (res.ok && !res.detector) say('Detector no configurado: la cámara y la grabación funcionan, la detección no.', true);
-            else if (!res.ok) say(res.error || 'Inicia sesión para usar Visión.', true);
+            else if (!res.ok) say(res.error || 'Visión requiere una suscripción Hashcod Pro activa.', true);
         });
     }
 

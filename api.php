@@ -3455,7 +3455,7 @@ foreach ($hostExecutionPrefixes as $hostExecutionPrefix) {
 
 // Stateful developer tools that do not need host-level administration still
 // require an authenticated account to prevent anonymous paste/state abuse.
-$accountToolPrefixes = ['/api/prs/', '/api/grid/', '/api/vision/'];
+$accountToolPrefixes = ['/api/prs/', '/api/grid/'];
 foreach ($accountToolPrefixes as $accountToolPrefix) {
     if (str_starts_with($uri, $accountToolPrefix)) {
         securityRequireAccountSession();

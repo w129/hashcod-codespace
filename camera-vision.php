@@ -4,8 +4,10 @@
  *
  * Frames come from the user's camera in the browser; object detection runs in
  * the Detectron2 service (services/detectron2-vision) so no model or secret
- * ever reaches browser JavaScript. Every route requires an account session
- * (securityRequireAccountSession is applied in api.php for /api/vision/).
+ * ever reaches browser JavaScript. Access is the platform's active Pro period
+ * (enforced by router.php's platformPeriodGuard for every /api/ route). The
+ * platform has no per-user login, so the log uses one private server-derived
+ * namespace, like the File Vault (hfvAccount).
  *
  *   GET    /api/vision/status   detector configured?
  *   POST   /api/vision/detect   {image: "data:image/jpeg;base64,..."} -> detections (+ log entry)
@@ -157,12 +159,10 @@ function cameraVisionHandleApi($uri): bool {
     if ($uri !== '/api/vision' && strpos($uri, '/api/vision/') !== 0) {
         return false;
     }
-    $sess = securityRequireAccountSession();
-    $accountId = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)($sess['account_id'] ?? $sess['user_id'] ?? ''));
-    if ($accountId === '') {
-        cameraVisionJson(['ok' => false, 'error' => 'Se requiere sesión de cuenta'], 401);
-        return true;
+    if (!function_exists('mldsaAccessSecret')) {
+        require_once __DIR__ . '/mldsa-access.php';
     }
+    $accountId = 'vis_' . substr(hash_hmac('sha256', 'hashcod-camera-vision-global-v1', mldsaAccessSecret()), 0, 48);
     $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
     if ($uri === '/api/vision/status' && $method === 'GET') {

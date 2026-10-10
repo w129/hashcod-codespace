@@ -3492,7 +3492,6 @@ if ($uri === '/api/auth/dilithium-active-key' && $_SERVER['REQUEST_METHOD'] === 
 
 require_once __DIR__ . '/tokens.php';
 require_once __DIR__ . '/hashcod-keys.php';
-require_once __DIR__ . '/camera-vision.php';
 require_once __DIR__ . '/ai-chat.php';
 require_once __DIR__ . '/opencrypt-gen.php';
 require_once __DIR__ . '/durable-objects.php';
@@ -3507,9 +3506,6 @@ if (function_exists('tokensHandleApi') && tokensHandleApi($uri)) {
     exit;
 }
 if (function_exists('hashcodKeysHandleApi') && hashcodKeysHandleApi($uri)) {
-    exit;
-}
-if (function_exists('cameraVisionHandleApi') && cameraVisionHandleApi($uri)) {
     exit;
 }
 if (function_exists('aiChatHandleApi') && aiChatHandleApi($uri)) {

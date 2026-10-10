@@ -104,7 +104,7 @@ function securityApplyHeaders() {
         header('X-Content-Type-Options: nosniff');
         header('X-Frame-Options: DENY');
         header('Referrer-Policy: strict-origin-when-cross-origin');
-        header('Permissions-Policy: camera=(self), microphone=(), geolocation=(), payment=(), usb=()');
+        header('Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()');
         header('Cross-Origin-Opener-Policy: same-origin');
         header('Cross-Origin-Resource-Policy: same-origin');
         header('X-DNS-Prefetch-Control: off');

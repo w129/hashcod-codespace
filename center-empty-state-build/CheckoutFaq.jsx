@@ -18,6 +18,10 @@ const ITEMS = [
     content: 'Es un pago único por el proceso de tu primer objeto. Lo que incluye depende de lo que tu caso requiera: la verificación con una entidad de otro país (si aplica), que cobra por cada trámite; el tiempo de un asesor o abogado dedicado a tu caso; y los gastos legales, de notarización o un seguro (cuando aplican). Antes de que pagues, un asesor te confirma por WhatsApp qué incluye tu caso. Después de este primer pago, la suscripción es de US$20 al mes.',
   },
   {
+    title: '¿Cuánto cuesta el certificado PSOT?',
+    content: 'RD$500 por cada certificado, en pesos dominicanos y aparte del primer pago. Es el documento que puedes usar como comprobante de tu registro en Hashcod. Lo emite Hashcod; no es una firma ni un certificado digital cualificado de una entidad autorizada por el INDOTEL.',
+  },
+  {
     title: '¿Cómo funciona el pago?',
     content: 'Pulsas el botón y se abre WhatsApp con tu pedido ya escrito. Un asesor de Hashcod te responde con las instrucciones de pago. Al confirmar tu pago, te envía un código de 6 dígitos que escribes aquí para activar tu suscripción.',
   },

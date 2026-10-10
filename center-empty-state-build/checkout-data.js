@@ -8,9 +8,16 @@ export function formatCedula(value) {
 // tokenize is a one-time charge on top of the subscription.
 export const PLAN_PRICES = Object.freeze({ monthly: 20, yearly: 192 });
 export const FIRST_TOKENIZATION_PAYMENT = 2000;
+// Price of each PSOT certificate (proof of registration), in Dominican pesos. It is a separate charge and
+// is never added to the USD total.
+export const CERTIFICATE_PRICE_DOP = 500;
 
 export function formatUsd(value, decimals = 0) {
   return 'US$' + Number(value).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+}
+
+export function formatDop(value, decimals = 0) {
+  return 'RD$' + Number(value).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
 }
 
 export function checkoutOrder({ yearly = false, rd = true, cedula = '', fiscal = false, reference = '' } = {}) {
@@ -27,12 +34,13 @@ export function checkoutOrder({ yearly = false, rd = true, cedula = '', fiscal =
     `Suscripción: ${planAmount}`,
     `Primer pago para tokenizar: ${firstAmount}`,
     `Total: ${amount}`,
+    `Certificado PSOT (precio por certificado, aparte): ${formatDop(CERTIFICATE_PRICE_DOP, 2)}`,
     `País de facturación: ${rd ? 'República Dominicana' : 'Otro país'}`,
     ...(rd && identity ? [`Cédula: ${identity}`] : []),
     `Comprobante fiscal: ${fiscal ? 'Sí' : 'No'}`,
     ...(reference ? [`Referencia de activación: ${reference}`] : []),
   ].join('\n');
-  return { amount, planAmount, firstAmount, total, valid, href: valid ? `https://wa.me/18294721257?text=${encodeURIComponent(message)}` : undefined };
+  return { amount, planAmount, firstAmount, certificateAmount: formatDop(CERTIFICATE_PRICE_DOP, 2), total, valid, href: valid ? `https://wa.me/18294721257?text=${encodeURIComponent(message)}` : undefined };
 }
 
 const REFERENCE = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;

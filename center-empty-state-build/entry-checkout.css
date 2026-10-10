@@ -151,3 +151,4 @@ body.hco-open { overflow: hidden !important; }
 
 /* Narrow screens: the logo gets its own full-width row so the PSOT line stays readable. */
 @media (max-width: 520px) { .hco-header { flex-wrap: wrap; row-gap: 12px; } .hco-brand { flex-basis: 100%; } .hco-brand-logo { width: 100%; max-width: 360px; } }
+

@@ -49,7 +49,7 @@ async function run() {
       await page.locator('#hco-cedula').fill('00112345678');
       assert.equal(await page.locator('#hco-cedula').inputValue(), '001-1234567-8');
       const message = async () => new URL(await pay.getAttribute('href')).searchParams.get('text');
-      assert.match(await message(), /Plan: Mensual\nPeríodo: 1 mes/); assert.match(await message(), /Primer pago para tokenizar: US\$2,000.00\nTotal: US\$2,020.00/);
+      assert.match(await message(), /Plan: Mensual\nPeríodo: 1 mes/); assert.match(await message(), /Certificado PSOT \(precio por certificado, aparte\): RD\$500.00/); assert.match(await message(), /Primer pago para tokenizar: US\$2,000.00\nTotal: US\$2,020.00/);
       assert.equal(new URL(await pay.getAttribute('href')).pathname, '/18294721257');
       await checkout.getByRole('button', { name: 'Anual · −20%' }).click();
       await checkout.getByRole('group', { name: 'Comprobante fiscal' }).getByRole('button', { name: 'Sí', exact: true }).click();

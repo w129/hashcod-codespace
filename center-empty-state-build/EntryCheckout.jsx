@@ -58,7 +58,7 @@ export default function EntryCheckout({ onEnter, onVerify, reference = '', busy 
           <button type="button" aria-pressed={yearly} onClick={() => setYearly(true)}>Anual · −20%</button>
         </div>
         <div className="hco-totals"><div><span><strong>Hashcod Pro</strong><small>Acceso completo a la plataforma, IA y almacenamiento en la nube</small></span><span>{order.planAmount}</span></div>
-          <div><span><strong>Primer pago para tokenizar</strong><small>Pago único: verificación internacional, asesoría y gastos legales</small></span><span>{order.firstAmount}</span></div>
+          <div><span><strong>Primer pago para tokenizar</strong><small>Pago único. Incluye lo que tu caso requiera: verificación internacional (si aplica), asesoría y gastos legales</small></span><span>{order.firstAmount}</span></div>
           <div><strong>Total a pagar hoy</strong><strong>{order.amount}</strong></div></div>
         <div className="hco-benefits"><strong>Qué incluye</strong><ul><li>Acceso a la Toolbook</li><li>Permiso de IA y Prueba Sellada de Objeto y Tiempo (PSOT)</li><li>Uso de las Herramientas</li><li>+20 solicitudes /mes <small>(25 solicitudes al mes)</small></li></ul></div>
         <CodecPreview />

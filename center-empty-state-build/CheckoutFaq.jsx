@@ -15,7 +15,7 @@ const ITEMS = [
   },
   {
     title: '¿Por qué el primer pago para tokenizar es de US$2,000?',
-    content: 'Es un pago único que cubre el proceso completo de tu primer objeto, no solo el registro en la plataforma: la verificación con una entidad de otro país, que cobra por cada trámite; el tiempo de un asesor o abogado dedicado a tu caso; y los gastos legales o de notarización y, cuando aplica, un seguro. No hay cargos ocultos: después de este primer pago solo pagas la suscripción mensual.',
+    content: 'Es un pago único por el proceso de tu primer objeto. Lo que incluye depende de lo que tu caso requiera: la verificación con una entidad de otro país (si aplica), que cobra por cada trámite; el tiempo de un asesor o abogado dedicado a tu caso; y los gastos legales, de notarización o un seguro (cuando aplican). Antes de que pagues, un asesor te confirma por WhatsApp qué incluye tu caso. Después de este primer pago, la suscripción es de US$20 al mes.',
   },
   {
     title: '¿Cómo funciona el pago?',

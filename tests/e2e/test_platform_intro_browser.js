@@ -61,6 +61,11 @@ async function waitFor(page,predicate,arg,options){
     near(m.btn.t, m.img.t + BOX.y * s, Math.max(1.5, 0.5 * s), `${vw}x${vh}: button top sits on the drawn button`);
     if (m.btn.w > 44.5) near(m.btn.w, BOX.w * s, Math.max(2, 1 * s), `${vw}x${vh}: button size matches the drawn button`);
     assert(m.btn.r <= vw + 0.5 && m.btn.b <= vh + 0.5 && m.btn.l >= 0 && m.btn.t >= 0, `${vw}x${vh}: the button is always fully visible`);
+    if (m.btn.w > 44.5) { // natural size: the button sits in the bottom-right corner, one margin from both edges
+      const margin = Math.min(20, Math.max(10, 0.012 * vh));
+      near(vh - m.btn.b, margin, 3, `${vw}x${vh}: the button sits at the bottom of the screen`);
+      near(vw - m.btn.r, margin, 3, `${vw}x${vh}: the button sits at the right of the screen`);
+    }
     assert.equal(m.focused, 'hashcodPlatformIntroEnter', 'the enter button takes focus');
     assert.equal(m.z, '2147483647'); assert.equal(m.over, 'hidden', 'the page behind does not scroll');
     assert.equal(await page.locator('#d5CenterEmptyStateAction').evaluate(el => el.closest('[inert]') !== null), true, 'the platform is inert behind the welcome');

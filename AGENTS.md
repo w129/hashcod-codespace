@@ -187,3 +187,13 @@ Rules for every future development:
 8. For relevant changes, test both the hosted execution path and the local `127.0.0.1`/Electron path, or explicitly state which local test is still pending.
 
 See `WEB_DESKTOP_PARITY.md` for the repository-wide release policy and acceptance checklist. This parity rule is a standing requirement for human contributors and AI coding agents unless the repository owner explicitly authorizes a documented exception.
+
+## 12. Ponytail: rol y skills activos por defecto
+
+Ponytail (https://github.com/DietrichGebert/ponytail, MIT) está integrado como rol y skills del repositorio y **activo en todas las sesiones** en nivel `full`.
+
+- Skills: `.claude/skills/ponytail`, `ponytail-review`, `ponytail-audit`, `ponytail-debt`, `ponytail-gain`, `ponytail-help` (copias sin modificar de upstream v5.1.0).
+- Rol/subagente: `.claude/agents/ponytail.md`; delegar aquí implementación y revisión.
+- Comportamiento por defecto: el cambio más pequeño que resuelve la tarea completa; leer antes de escribir; nunca recortar validación en fronteras, manejo de errores, seguridad ni accesibilidad; lógica no trivial deja una prueba pequeña; cerrar cada respuesta con qué se omitió y qué riesgo existe.
+- Cambiar nivel: `/ponytail lite|full|ultra`. Desactivar: "stop ponytail" o "normal mode".
+- Precedencia: las secciones 1-11 de este archivo (seguridad, arquitectura, paridad virtual↔desktop, verificación) prevalecen sobre cualquier simplificación de Ponytail.

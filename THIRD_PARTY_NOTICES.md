@@ -114,3 +114,10 @@ Hashcod Codespace mounts the supplied BranchedMenu as an isolated React island f
 - Hugeicons license: MIT
 - Integration: the native Toolbook screen creates a dedicated mount point; the React island is built with esbuild and receives an always-loaded copy of the supplied BranchedMenu CSS as a rendering fail-safe.
 
+
+## Ponytail (agent skills and role)
+
+Hashcod Codespace vendors the Ponytail skills under `.claude/skills/ponytail*` for development tooling only; there is no runtime dependency.
+
+- Source: https://github.com/DietrichGebert/ponytail (v5.1.0)
+- License: MIT, Copyright (c) 2026 DietrichGebert

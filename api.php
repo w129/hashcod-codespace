@@ -3494,6 +3494,7 @@ require_once __DIR__ . '/tokens.php';
 require_once __DIR__ . '/hashcod-keys.php';
 require_once __DIR__ . '/pdf-extract.php';
 require_once __DIR__ . '/forms-library.php';
+require_once __DIR__ . '/constancia.php';
 require_once __DIR__ . '/notebook-ai.php';
 require_once __DIR__ . '/ai-chat.php';
 require_once __DIR__ . '/opencrypt-gen.php';
@@ -3515,6 +3516,9 @@ if (function_exists('pdfExtractHandleApi') && pdfExtractHandleApi($uri)) {
     exit;
 }
 if (function_exists('formsLibraryHandleApi') && formsLibraryHandleApi($uri)) {
+    exit;
+}
+if (function_exists('constanciaHandleApi') && constanciaHandleApi($uri)) {
     exit;
 }
 if (function_exists('nbaiHandleApi') && nbaiHandleApi($uri)) {

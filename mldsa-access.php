@@ -307,8 +307,8 @@ function mldsaGateHtml(string $base='/', bool $entryIntro=false): string {
     $rotatingTextJs=entryAssetUrl($base,'components/react-bits-rotating-text.js?v=20261007-entry-fixes1');
     $branchedMenuCss=entryAssetUrl($base,'components/first-screen-branched-menu.bundle.css?v=20261007-entry-fixes1');
     $branchedMenuJs=entryAssetUrl($base,'components/first-screen-branched-menu.bundle.js?v=20261007-entry-fixes1');
-    $centerEmptyStateCss=entryAssetUrl($base,'components/center-empty-state.bundle.css?v=20261010-nb2');
-    $centerEmptyStateJs=entryAssetUrl($base,'components/center-empty-state.bundle.js?v=20261010-nb2');
+    $centerEmptyStateCss=entryAssetUrl($base,'components/center-empty-state.bundle.css?v=20261010-nb3');
+    $centerEmptyStateJs=entryAssetUrl($base,'components/center-empty-state.bundle.js?v=20261010-nb3');
     $mobileCss=htmlspecialchars($base.'components/first-screen-mobile.css?v=20261006-no-horizontal-scroll1',ENT_QUOTES,'UTF-8');
     $entryBootstrapJs=entryAssetUrl($base,'components/mldsa-access-gate-loader.js?v=20261007-security1');
     // The retired numeric credential modal is never part of public entry.

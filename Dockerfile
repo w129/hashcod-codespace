@@ -12,6 +12,7 @@ FROM public.ecr.aws/docker/library/php:8.1-cli
 # Sistema + GitHub CLI + Python/Streamlit + Caddy (proxy websockets /st/*)
 RUN apt-get update && apt-get install -y \
     ca-certificates \
+    openssl \
     curl \
     gnupg \
     libzip-dev \
@@ -112,10 +113,11 @@ WORKDIR /var/www/html
 
 COPY requirements-streamlit.txt /tmp/requirements-streamlit.txt
 COPY tools/tokenization/requirements.txt /tmp/requirements-tokenization.txt
-RUN /opt/l8-py/bin/pip install --no-cache-dir -r /tmp/requirements-streamlit.txt -r /tmp/requirements-tokenization.txt \
+COPY requirements-constancia.txt /tmp/requirements-constancia.txt
+RUN /opt/l8-py/bin/pip install --no-cache-dir -r /tmp/requirements-streamlit.txt -r /tmp/requirements-tokenization.txt -r /tmp/requirements-constancia.txt \
     && ln -sf /opt/l8-py/bin/streamlit /usr/local/bin/streamlit \
     && ln -sf /opt/l8-py/bin/python /usr/local/bin/l8-python \
-    && rm -f /tmp/requirements-streamlit.txt /tmp/requirements-tokenization.txt
+    && rm -f /tmp/requirements-streamlit.txt /tmp/requirements-tokenization.txt /tmp/requirements-constancia.txt
 
 COPY . /var/www/html
 

@@ -42,7 +42,9 @@ if ($bootstrapSyncPath === '/api/platform-subscription') {
     exit;
 }
 // Only entrance proofs and runtime security configuration may precede selection.
-$periodBootstrapRoute = in_array($bootstrapSyncPath, ['/api/code-access', '/api/mldsa-access', '/api/pqc-actions', '/api/admin-device/status', '/api/cloudflare/turnstile/config'], true);
+$periodBootstrapRoute = in_array($bootstrapSyncPath, ['/api/code-access', '/api/mldsa-access', '/api/pqc-actions', '/api/admin-device/status', '/api/cloudflare/turnstile/config'], true)
+    // Public verification of printed constancias (QR / hcod verify) must work for anyone, without a platform period.
+    || preg_match('~^/api/constancia/public/HC-\d{4}-\d{6}(?:\.cod)?$~', $bootstrapSyncPath) === 1;
 if (!$periodBootstrapRoute && preg_match('~^/(?:api/|hashcod-(?:workspace|file-vault|sync\.php)|toolbox-secure\.php)~', $bootstrapSyncPath)) {
     require_once __DIR__ . '/platform-period-lib.php';
     platformPeriodGuard(!in_array($bootstrapSyncPath, ['/api/hashcod-tokenization', '/hashcod-tokenization.php', '/api/hashcod-review', '/api/hashcod-comments'], true));
@@ -180,6 +182,13 @@ $rawUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $rawUri = is_string($rawUri) ? $rawUri : '/';
 $uri = preg_replace('#^/(?:l8|l8-codespace)(?=/|$)#i', '', $rawUri);
 if ($uri === '' || $uri === false) $uri = '/';
+
+// Constancia verification page and issuer DID document: public by design (QR codes and did:web resolvers).
+if ($uri === '/.well-known/did.json' || preg_match('~^/verify/HC-\d{4}-\d{6}$~', $uri) === 1) {
+    require __DIR__ . '/constancia.php';
+    constanciaServePublic($uri);
+    exit;
+}
 
 require_once __DIR__ . '/admin-device.php';
 adminDeviceApi($uri);

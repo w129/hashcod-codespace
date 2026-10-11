@@ -1,0 +1,4 @@
+# PDF/A-3 rendering of the asset constancias (scripts/constancia_render.py). Versions match the ones the output was validated with (veraPDF 3b).
+reportlab==5.0.1
+pypdf==6.17.0
+pillow>=10.0.0

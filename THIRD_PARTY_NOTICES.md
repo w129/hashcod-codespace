@@ -135,3 +135,9 @@ The Toolbook "Cuaderno de IA" adapts the product ideas of Open Notebook: chat gr
 
 - Source: https://github.com/lfnovo/open-notebook
 - License: MIT, Copyright (c) 2024 Luis Novo
+
+
+## Asset constancias
+- **DejaVu fonts** (`assets/constancia/fonts/`, Bitstream Vera / DejaVu license, see `DEJAVU-LICENSE.txt`): embedded in the constancia PDF. The two Mono files carry a one-unit tweak on an unused glyph advance so ReportLab's subsetter keeps the real widths (PDF/A rule 6.2.11.5).
+- **ReportLab** (BSD-3-Clause) and **pypdf** (BSD-3-Clause) render and post-process the PDF; **Pillow** (HPND) supplies the sRGB profile.
+- Time-stamping uses the system `openssl ts` and the public RFC 3161 services of DigiCert and Sectigo (only a hash is sent).

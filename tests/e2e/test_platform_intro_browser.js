@@ -85,6 +85,20 @@ async function waitFor(page,predicate,arg,options){
   await page.goto(target + '?intro=1', { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => window.HashcodPlatformIntroTerrain && window.HashcodPlatformIntroTerrain.frames > 20, null, { timeout: 20000 });
   await page.emulateMedia({ reducedMotion: 'no-preference' });
+  // A first-time visitor has not accepted the policy yet: that lock must not make the welcome itself inert (the button
+  // used to be dead), and it must still be in force once the welcome lifts.
+  {
+    const fresh = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+    await fresh.goto(target + '?intro=1', { waitUntil: 'domcontentloaded' });
+    await fresh.waitForSelector('#hashcodPlatformIntroEnter');
+    await waitFor(fresh, () => document.body.classList.contains('hpc-locked'), { timeout: 20000 });
+    assert.equal(await fresh.$eval('#hashcodPlatformIntro', el => el.inert), false, 'the policy lock never makes the welcome inert');
+    await fresh.click('#hashcodPlatformIntroEnter', { timeout: 5000 });
+    await waitFor(fresh, () => !document.getElementById('hashcodPlatformIntro'), { timeout: 5000 });
+    assert.equal(await fresh.evaluate(() => document.body.classList.contains('hpc-locked') && document.querySelector('main').inert), true, 'the platform stays locked until the policy is accepted');
+    assert.equal(await fresh.evaluate(() => { const f = document.getElementById('d5PreviewPolicyFooter'); return !f || !f.inert; }), true, 'the consent footer stays usable');
+    await fresh.close();
+  }
   // Pressing the button lifts the welcome and hands the page to the platform.
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto(target + '?intro=1', { waitUntil: 'domcontentloaded' });

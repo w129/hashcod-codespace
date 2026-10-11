@@ -32,7 +32,7 @@
   button.innerHTML = svg + '<span class="hpi-sr">Entrar a la plataforma</span>';
   var logo = doc.createElement('img');
   logo.className = 'hpi-logo';
-  logo.src = base + 'assets/intro/hashcod-logo.webp?v=20261010-7';
+  logo.src = base + 'assets/intro/hashcod-logo.webp?v=20261010-8';
   logo.width = 778; logo.height = 154; logo.decoding = 'async';
   logo.alt = 'Hashcod Codespace · PSOT · Registro de comprobación';
   stage.appendChild(canvas); root.appendChild(stage); root.appendChild(logo); root.appendChild(button);
@@ -57,7 +57,7 @@
   // Live background: Wire Terrain (WebGL). If WebGL or the script is unavailable the black welcome stays.
   var terrain = null;
   var engine = doc.createElement('script');
-  engine.src = base + 'components/platform-intro-terrain.js?v=20261010-7';
+  engine.src = base + 'components/platform-intro-terrain.js?v=20261010-8';
   engine.async = true;
   engine.onload = function () {
     if (root.parentNode && window.HashcodPlatformIntroTerrain && !leaving) terrain = window.HashcodPlatformIntroTerrain.start({ root: root, canvas: canvas });
@@ -74,7 +74,13 @@
       watcher.disconnect();
       if (terrain) terrain.stop();
       root.parentNode.removeChild(root);
-      held.forEach(function (node) { node.inert = false; });
+      // Release only what this welcome held. While the policy is still unaccepted the platform must stay locked
+      // (everything but the consent footer), and policy-consent.js releases those nodes once it is accepted.
+      var policyLocked = body.classList.contains('hpc-locked');
+      held.forEach(function (node) {
+        if (policyLocked && node.id !== 'd5PreviewPolicyFooter') { node.dataset.hpcInert = '1'; return; }
+        node.inert = false;
+      });
       html.style.overflow = saved[0];
       body.style.overflow = saved[1];
       window.dispatchEvent(new CustomEvent('hashcod:platform-intro-done'));

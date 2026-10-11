@@ -26,7 +26,7 @@ export async function postPolicyConsent() {
 export function lockPlatform(locked) {
   document.body.classList.toggle('hpc-locked', locked);
   for (const node of document.body.children) {
-    if (!(node instanceof HTMLElement) || node.id === 'd5PreviewPolicyFooter' || /^(SCRIPT|STYLE|LINK|NOSCRIPT)$/.test(node.tagName)) continue;
+    if (!(node instanceof HTMLElement) || node.id === 'd5PreviewPolicyFooter' || node.id === 'hashcodPlatformIntro' || /^(SCRIPT|STYLE|LINK|NOSCRIPT)$/.test(node.tagName)) continue;
     if (locked) { if (!node.inert) { node.inert = true; node.dataset.hpcInert = '1'; } }
     else if (node.dataset.hpcInert === '1') { node.inert = false; delete node.dataset.hpcInert; }
   }
